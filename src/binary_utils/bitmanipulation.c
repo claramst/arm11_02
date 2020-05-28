@@ -32,12 +32,12 @@ int getBit(int bin, int n) {
   return getBits(bin, 1, n);
 }
 
-// Returns number with the 4 bits in bin starting from the nth bit
+// Returns the nth nibble of bin
 int getNibble(int bin, int n) {
   return getBits(bin, 4, n * 4);
 }
 
-// Returns number with the 8 bits in bin starting from the nth bit
+// Returns the nth byte of bin
 int getByte(int bin, int n) {
   return getBits(bin, 8, n * 8);
 }
@@ -52,7 +52,7 @@ int arithmeticRight(int bin, int n) {
   return bin;
 }
 
-// Rotates bin right shift by n
+// Rotates bin right by n
 int rotateRight(int bin, int n) {
   for (int i = 0; i < n; i++) {
     int lsb = getBit(bin, 0);
@@ -63,9 +63,9 @@ int rotateRight(int bin, int n) {
 
 // Extends the sign of bin with the nth bit as the sign bit
 int signExtend(int bin, int n) {
-  int signBit = getBit(bin, signBit);
+  int signBit = getBit(bin, n);
   if (signBit) {
-    bin = setBits(bin, 8, 24); 
+    bin = setBits(bin, 8, n); 
   }
   return bin;
 }
