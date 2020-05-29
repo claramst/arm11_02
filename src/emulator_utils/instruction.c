@@ -3,6 +3,15 @@
 #include "../state.c"
 #include "instruction.h"
 
+//fetches the instruction from the address currently stored in the PC
+INSTRUCTION fetch(MACHINE_STATE state) {
+  REGISTER *pc = state.registers[15];
+  INSTRUCTION fetched = getWord(*pc, state);
+  *pc += 4;
+  return fetched;
+}
+
+
 INSTR_TYPE findType(INSTRUCTION instr) {
   // read first 2 bits. 01 - single data transfer
   // 10 - branch.
@@ -33,24 +42,7 @@ INSTR_TYPE findType(INSTRUCTION instr) {
   return HALT;
 }
 
-// This function returns a word from memory (in big endian)
-// from the starting address in the register  
-WORD getWord(REGISTER *pc, MACHINE_STATE state) {
-  int32_t sum = 0;
-  for (int i = 0; i < 4; i++) {
-    sum += state.memory[*pc + i] << 8 * i;
-  }
-  return sum;
-}
-
-// Stores the given word in at the address given in big endian
-void storeWord(WORD word, ADDRESS address, MACHINE_STATE state) {
-  for (int i = 0; i < 4; i++) {
-    state.memory[address + i] = getByte(word, i);
-  }
-}
-
-int willExecute(CONDITION cond) {
+int willExecute(CONDITION cond, MACHINE_STATE state) {
   int cpsr = getNibble(state.registers[16], 7);
   int N = getBit(cpsr, 31);
   int Z = getBit(cpsr, 30);

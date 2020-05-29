@@ -5,9 +5,6 @@
 #define INSTRUCTION_H
 
 typedef uint32_t INSTRUCTION;
-typedef uint32_t WORD;
-typedef uint32_t REGISTER;
-typedef uint16_t ADDRESS;
 
 typedef enum instrType {
   MULTIPLY,
@@ -27,9 +24,10 @@ typedef enum condition {
   AL = 14,
 } CONDITION;
 
-WORD getWord(REGISTER *pc, MACHINE_STATE state);
-void storeWord(WORD word, ADDRESS address, MACHINE_STATE state);
+INSTRUCTION fetch(ADDRESS address, MACHINE_STATE state);
 INSTR_TYPE findType(INSTRUCTION instr);
+int willExecute(CONDITION cond, MACHINE_STATE state);
 
 #endif
+
 
