@@ -173,3 +173,31 @@ void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmR
 void executeBranch(int offset, MACHINE_STATE state) {
   state.registers[15] += offset;
 }
+
+
+void execute(DECODED_INSTR decoded, MACHINE_STATE state) {
+  if (willExecute(decoded.cond, state)) {
+    switch (decoded.type) {
+      case MULTIPLY:
+        REGISTER* rdReg = &state.registers[decoded.rd]
+        REGISTER rnReg = state.registers[decoded.rn];
+        REGISTER rsReg = state.registers[decoded.rs];
+        REGISTER rmReg = state.registers[decoded.rm];
+        executeMultiply(rdReg, rnReg, rsReg, rmReg, decoded.A, decoded.S, state);
+        break;
+      case BRANCH:
+        int offset = signExtend(decoded.offset << 2); 
+        executeBranch(offset, state);
+        break;
+      case PROCESSING:
+        REGISTER* rdReg = &state.registers[decoded.rd]
+        REGISTER rnReg = state.registers[decoded.rn];
+        executeProcessing(rdReg, rnReg, decode.offset, decode.op2, state);
+      case TRANSFER:
+        REGISTER* rnReg = &state.registers[decoded.rn];
+        REGISTER* rdReg = &state.registers[decoded.rd];
+        REGISTER* rmReg = &state.registers[decoded.rm];
+        executeSingleTransfer(rnReg, rdReg, rmReg, decoded.P, decoded.U, decoded.L, decoded.offset, state);
+    }
+  }
+}
