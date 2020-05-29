@@ -9,8 +9,8 @@ all: assemble emulate
 
 assemble: assemble.o
 
-emulate: emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o
-	$(CC) emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o -o emulate
+emulate: emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o binary_utils/bitmanipulation.o
+	$(CC) emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o binary_utils/bitmanipulation.o -o emulate
 
 emulate.o: emulate.c emulator_utils/instruction.h emulator_utils/decode.h emulator_utils/execute.h binary_utils/bitmanipulation.h
 	$(CC) $(CFLAGS) emulate.c -c -o emulate.o
