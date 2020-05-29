@@ -28,6 +28,103 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
 }
 
 
+void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, MACHINE_STATE state) {
+  int result;
+  switch (opcode) {
+    case AND:
+      *dest = result = op1 && op2;
+      break;
+    case EOR:
+      *dest = result = op1 ^ op2;
+      break;
+    case SUB:
+      *dest = result = op1 - op2;
+      break;
+    case RSB:
+      *dest = result = op2 - op1;
+      break;
+    case ADD:
+      *dest = result = op1 + op2;
+      break;
+    case TST:
+      result = op1 && op2;
+      break;
+    case TEQ:
+      result = op1 ^ op2
+      break;
+    case CMP:
+      result = op1 - op2;
+      break;
+    case ORR:
+      *dest = result = op1 | op2;
+      break;
+    case MOV:
+      *dest = result = op2;
+      break;
+  }
+
+  if (setFlags) {
+    REGISTER* cpsr = &state.registers[16];
+    // For C bit we need the 31 bit carry out from the shift operations
+    switch (decoded.opcode) {
+      case AND:
+      case EOR:
+      case ORR:
+      case TEQ:
+      case TST:
+      case MOV:
+        if (decoded.shiftCarryOut) {
+          *cpsr = setBit(*cpsr, 29);
+        } else {
+          *cpsr = clearBit(*cpsr, 29);
+        }
+        break;
+      // NOT SURE ABOUT CASE WHEN RN = 0
+      // Think its fine though  
+      case ADD:
+        //check if addition produced overflow
+        if ((op1 > 0) && (op2 > INT_MAX - op1)) {
+          *cpsr = setBit(*cpsr, 29);
+        } else {
+          *cpsr = clearBit(*cpsr, 29);
+        }
+        break;
+      case SUB:
+      case CMP:
+      //check if subtraction produces carry
+       if (op1 > 0) && (op2 < INT_MIN + op1)) {
+         *cpsr = clearBit(*cpsr, 29);
+       } else {
+         *cpsr = setBit(*cpsr, 29);
+       }
+        break;
+      case RSB:
+      // other way around check
+       if (op2 > 0) && (op1 < INT_MIN + op2)) {
+        *cpsr = clearBit(*cpsr, 29);
+       } else {
+        *cpsr = setBit(*cpsr, 29);
+       }
+    }
+
+    // For Z flag
+    
+    if (!result) {
+      *cpsr = setBit(*cpsr, 30);
+    } else {
+      *cpsr = clearBit(*cpsr, 30);
+    }
+
+    //for N flag
+    if (getBit(result, 31)) {
+      *cpsr = setBit(*cpsr, 31);
+    } else{
+      *cpsr = clearBit(*cpsr, 31);
+    }
+  } 
+}
+
+
 void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmReg, int preBit, int upBit, int ldBit, int offset, MACHINE_STATE state) {
   ADDRESS address = NULL;
   if (preBit) {
