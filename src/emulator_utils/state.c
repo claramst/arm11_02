@@ -1,5 +1,5 @@
 #include "instruction.h"
-#include "bitmanipulation.h"
+#include "../binary_utils/bitmanipulation.h"
 #include "state.h"
 
 // This function returns the word from memory 

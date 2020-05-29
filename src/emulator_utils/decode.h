@@ -36,7 +36,7 @@ typedef struct decodedInstr {
   int shiftCarryOut;
 } DECODED_INSTR;
 
-DECODED_INSTR decode(INSTRUCTION instr);
+DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state);
 
 #endif
 

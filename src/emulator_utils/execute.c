@@ -1,7 +1,11 @@
-#include "../../binary_utils/bitmanipulation.h"
-#include "../state.h"
+#include "../binary_utils/bitmanipulation.h"
+#include "state.h"
 #include "instruction.h"
-
+#include "decode.h"
+#include <limits.h>
+#include <stdio.h>
+#include <assert.h>
+#include <stdlib.h>
 
 void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
  int accumulate, int setFlags, MACHINE_STATE state) {
@@ -19,7 +23,7 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
       *cpsr = clearBit(*cpsr, 31);
     }
     //for Z flag
-    if (!*rd) {
+    if (!*dest) {
       *cpsr = setBit(*cpsr, 30);
     } else {
       *cpsr = clearBit(*cpsr, 30);
@@ -28,7 +32,7 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
 }
 
 
-void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, MACHINE_STATE state) {
+void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int setFlags, int shiftCarryOut, MACHINE_STATE state) {
   int result;
   switch (opcode) {
     case AND:
@@ -50,7 +54,7 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, MAC
       result = op1 && op2;
       break;
     case TEQ:
-      result = op1 ^ op2
+      result = op1 ^ op2;
       break;
     case CMP:
       result = op1 - op2;
@@ -66,14 +70,14 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, MAC
   if (setFlags) {
     REGISTER* cpsr = &state.registers[16];
     // For C bit we need the 31 bit carry out from the shift operations
-    switch (decoded.opcode) {
+    switch (opcode) {
       case AND:
       case EOR:
       case ORR:
       case TEQ:
       case TST:
       case MOV:
-        if (decoded.shiftCarryOut) {
+        if (shiftCarryOut) {
           *cpsr = setBit(*cpsr, 29);
         } else {
           *cpsr = clearBit(*cpsr, 29);
@@ -92,7 +96,7 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, MAC
       case SUB:
       case CMP:
       //check if subtraction produces carry
-       if (op1 > 0) && (op2 < INT_MIN + op1)) {
+       if ((op1 > 0) && (op2 < INT_MIN + op1)) {
          *cpsr = clearBit(*cpsr, 29);
        } else {
          *cpsr = setBit(*cpsr, 29);
@@ -100,7 +104,7 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, MAC
         break;
       case RSB:
       // other way around check
-       if (op2 > 0) && (op1 < INT_MIN + op2)) {
+       if ((op2 > 0) && (op1 < INT_MIN + op2)) {
         *cpsr = clearBit(*cpsr, 29);
        } else {
         *cpsr = setBit(*cpsr, 29);
@@ -126,7 +130,7 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, MAC
 
 
 void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmReg, int preBit, int upBit, int ldBit, int offset, MACHINE_STATE state) {
-  ADDRESS address = NULL;
+  uint32_t address;
   if (preBit) {
     // Pre-indexing: the offset is added/subtracted to the
     // base register before transferring the data. Does not
@@ -151,12 +155,12 @@ void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmR
       *baseReg -= offset;
     }
   } 
-  if (address > MAX_ADDRESSES) {
+  if (address > MAX_ADDRESSES - 1) {
     // Handles case where address is bigger than 16 bits
     fprintf(stderr, "Address is too large");
-    exit();
+    exit(1);
   }
-  address32bit = (ADDRESS) address;
+  ADDRESS address32bit = (ADDRESS) address;
   if (ldBit) {
     // Load instruction
 /*    if (baseReg == pc) {
@@ -176,28 +180,41 @@ void executeBranch(int offset, MACHINE_STATE state) {
 
 
 void execute(DECODED_INSTR decoded, MACHINE_STATE state) {
-  if (willExecute(decoded.cond, state)) {
+  if (willExecute(decoded.condition, state)) {
+    REGISTER* rdReg;
+    REGISTER rnReg;
+    REGISTER rsReg;
+    REGISTER rmReg;
     switch (decoded.type) {
       case MULTIPLY:
-        REGISTER* rdReg = &state.registers[decoded.rd]
-        REGISTER rnReg = state.registers[decoded.rn];
-        REGISTER rsReg = state.registers[decoded.rs];
-        REGISTER rmReg = state.registers[decoded.rm];
+        rdReg = &state.registers[decoded.rd];
+        rnReg = state.registers[decoded.rn];
+        rsReg = state.registers[decoded.rs];
+        rmReg = state.registers[decoded.rm];
         executeMultiply(rdReg, rnReg, rsReg, rmReg, decoded.A, decoded.S, state);
         break;
       case BRANCH:
-        int offset = signExtend(decoded.offset << 2); 
+      {
+        int shiftedOffset = decoded.offset << 2;
+        int offset = signExtend(shiftedOffset, 25); 
         executeBranch(offset, state);
         break;
+      }
       case PROCESSING:
-        REGISTER* rdReg = &state.registers[decoded.rd]
-        REGISTER rnReg = state.registers[decoded.rn];
-        executeProcessing(rdReg, rnReg, decode.offset, decode.op2, state);
+        rdReg = &state.registers[decoded.rd];
+        rnReg = state.registers[decoded.rn];
+        executeProcessing(rdReg, rnReg, decoded.offset, decoded.op2, decoded.S, decoded.shiftCarryOut, state);
+        break;
       case TRANSFER:
-        REGISTER* rnReg = &state.registers[decoded.rn];
-        REGISTER* rdReg = &state.registers[decoded.rd];
-        REGISTER* rmReg = &state.registers[decoded.rm];
+      {
+        REGISTER *rnReg = &state.registers[decoded.rn];
+        REGISTER *rdReg = &state.registers[decoded.rd];
+        REGISTER *rmReg = &state.registers[decoded.rm];
         executeSingleTransfer(rnReg, rdReg, rmReg, decoded.P, decoded.U, decoded.L, decoded.offset, state);
+        break;
+      }
+      case HALT:
+        break;
     }
   }
 }

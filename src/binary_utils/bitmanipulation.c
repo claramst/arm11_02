@@ -1,3 +1,5 @@
+#include "bitmanipulation.h"
+
 // Returns noOfBits bits starting from nth bit (in big endian)
 int getBits(int bin, int noOfBits, int n) {
   int mask = (1 << noOfBits) - 1;
@@ -65,7 +67,7 @@ int rotateRight(int bin, int n) {
 int signExtend(int bin, int n) {
   int signBit = getBit(bin, n);
   if (signBit) {
-    bin = setBits(bin, 8, n); 
+    bin = setBits(bin, 32 - n, n); 
   }
   return bin;
 }

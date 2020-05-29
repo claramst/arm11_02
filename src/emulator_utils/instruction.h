@@ -1,5 +1,6 @@
 #include <stdint.h>
-#include "../../binary_utils/bitmanipulation.h"
+#include "../binary_utils/bitmanipulation.h"
+#include "state.h"
 
 #ifndef INSTRUCTION_H
 #define INSTRUCTION_H
@@ -24,7 +25,7 @@ typedef enum condition {
   AL = 14,
 } CONDITION;
 
-INSTRUCTION fetch(ADDRESS address, MACHINE_STATE state);
+INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE state);
 INSTR_TYPE findType(INSTRUCTION instr);
 int willExecute(CONDITION cond, MACHINE_STATE state);
 

@@ -1,11 +1,10 @@
 #include <stdint.h>
-#include "../../binary_utils/bitmanipulation.h"
-#include "../state.c"
+#include "../binary_utils/bitmanipulation.h"
+#include "state.h"
 #include "instruction.h"
 
 //fetches the instruction from the address currently stored in the PC
-INSTRUCTION fetch(MACHINE_STATE state) {
-  REGISTER *pc = state.registers[15];
+INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE state) {
   INSTRUCTION fetched = getWord(*pc, state);
   *pc += 4;
   return fetched;
@@ -46,7 +45,8 @@ int willExecute(CONDITION cond, MACHINE_STATE state) {
   int cpsr = getNibble(state.registers[16], 7);
   int N = getBit(cpsr, 31);
   int Z = getBit(cpsr, 30);
-  int C = getBit(cpsr, 29);
+  //C is not used in part 1
+  //int C = getBit(cpsr, 29);
   int V = getBit(cpsr, 28);
 
   switch (cond) {

@@ -1,7 +1,10 @@
-#include "bitmanipulation.h"
+#include "../binary_utils/bitmanipulation.h"
 
 #ifndef MEMORY_H
 #define MEMORY_H
+
+#define MAX_ADDRESSES 65536
+#define NUM_OF_REG 17
 
 typedef uint32_t WORD;
 typedef uint32_t REGISTER;
