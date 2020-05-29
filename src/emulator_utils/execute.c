@@ -28,9 +28,9 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
 }
 
 
-void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmReg, int preBit, int upBit, int offset, MACHINE_STATE state) {
+void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmReg, int preBit, int upBit, int ldBit, int offset, MACHINE_STATE state) {
   ADDRESS address = NULL;
-  if (decoded.P) {
+  if (preBit) {
     // Pre-indexing: the offset is added/subtracted to the
     // base register before transferring the data. Does not
     // change base register value
@@ -60,13 +60,12 @@ void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmR
     exit();
   }
   address32bit = (ADDRESS) address;
-  if (decoded.L) {
+  if (ldBit) {
     // Load instruction
-    if (baseReg == pc) {
-      // The spec says we need to ensure in this case
-      // that pc holds the address of the current instruction
-      // plus 8. 
+/*    if (baseReg == pc) {
+        We may need to check this case to ensure our pipelining works.
     }
+*/    
     *targetReg = getWord(address32bit, state);
   } else {
     // Store instruction
