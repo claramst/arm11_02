@@ -3,6 +3,30 @@
 #include "instruction.h"
 
 
+void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
+ int accumulate, int setFlags, MACHINE_STATE state) {
+  if (accumulate) {
+    *dest = rm * rs + rn;
+  } else {
+    *dest = rm * rs;
+  }
+  if (setFlags) {
+    //for N flag
+    REGISTER *cpsr = &state.registers[16];
+    if (getBit(*dest, 31)) {
+      *cpsr = setBit(*cpsr, 31);
+    } else {
+      *cpsr = clearBit(*cpsr, 31);
+    }
+    //for Z flag
+    if (!*rd) {
+      *cpsr = setBit(*cpsr, 30);
+    } else {
+      *cpsr = clearBit(*cpsr, 30);
+    }
+  }
+}
+
 
 void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmReg, int preBit, int upBit, int offset, MACHINE_STATE state) {
   ADDRESS address = NULL;
