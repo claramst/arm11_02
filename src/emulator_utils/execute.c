@@ -72,3 +72,7 @@ void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmR
     storeWord(*targetReg, address32bit, state);
   }
 }
+
+void executeBranch(int offset, MACHINE_STATE state) {
+  state.registers[15] += offset;
+}
