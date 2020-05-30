@@ -34,9 +34,10 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
 
 void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int setFlags, int shiftCarryOut, MACHINE_STATE state) {
   int result;
+  printf("enter executeProcessing\n");
   switch (opcode) {
     case AND:
-      *dest = result = op1 && op2;
+      *dest = result = op1 & op2;
       break;
     case EOR:
       *dest = result = op1 ^ op2;
@@ -48,10 +49,11 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int
       *dest = result = op2 - op1;
       break;
     case ADD:
+        printf("enter ADD branch\n");
       *dest = result = op1 + op2;
       break;
     case TST:
-      result = op1 && op2;
+      result = op1 & op2;
       break;
     case TEQ:
       result = op1 ^ op2;
@@ -63,6 +65,7 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int
       *dest = result = op1 | op2;
       break;
     case MOV:
+        printf("enter MOV branch\n");
       *dest = result = op2;
       break;
   }
@@ -201,9 +204,10 @@ void execute(DECODED_INSTR decoded, MACHINE_STATE state) {
         break;
       }
       case PROCESSING:
+          printf("entered processing in execute\n");
         rdReg = &state.registers[decoded.rd];
         rnReg = state.registers[decoded.rn];
-        executeProcessing(rdReg, rnReg, decoded.offset, decoded.op2, decoded.S, decoded.shiftCarryOut, state);
+        executeProcessing(rdReg, rnReg, decoded.opcode, decoded.op2, decoded.S, decoded.shiftCarryOut, state);
         break;
       case TRANSFER:
       {

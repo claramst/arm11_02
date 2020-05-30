@@ -3,6 +3,7 @@
 #include "state.h"
 #include "instruction.h"
 #include <stdint.h>
+#include <stdio.h>
 
 //The function decode takes in a 32 bit int instruction as an arguement and uses it to set the relevant values in the DECODED_INSTR struct.
 
@@ -29,6 +30,7 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
       decoded.offset = clearBits(instr, 8, 24);
       break;
     case PROCESSING:
+        printf("we enter processing in decode\n");
       decoded.opcode = getNibble(instr >> 1, 5);
       decoded.I = getBit(instr, 25);
       decoded.S = getBit(instr, 20);

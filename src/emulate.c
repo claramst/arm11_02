@@ -72,9 +72,11 @@ int main(int argc, char **argv) {
 
   INSTRUCTION fetched = fetch(pc, state);
   INSTRUCTION toDecode = fetched;
-  DECODED_INSTR toExecute = decode(toDecode, state); 
+  DECODED_INSTR toExecute = decode(toDecode, state);
+  execute(toExecute, state);
 
-  while (toExecute.type != HALT) {
+  while (1) {
+//  while (toExecute.type != HALT) {
     //fetch
     fetched = fetch(pc, state);
     toDecode = fetched;
@@ -82,6 +84,13 @@ int main(int argc, char **argv) {
     //decode
     toExecute = decode(toDecode, state);
     //execute
+    if (toExecute.type == HALT) {
+        fetched = fetch(pc, state);
+        toDecode = fetched;
+        toExecute = decode(toDecode, state);
+        execute(toExecute, state);
+        break;
+    }
     execute(toExecute, state);
   }
   // Reading instruction into pc; fetch step

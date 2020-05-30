@@ -30,10 +30,10 @@ INSTR_TYPE findType(INSTRUCTION instr) {
   if (getBit(instr, 27)) {
     return BRANCH;
   } else if (getBit(instr, 26)) {
-      printf("entered transfer branch");
+      printf("entered transfer branch\n");
       return TRANSFER;
   } else if (getBit(instr, 25)) {
-      printf("entered processing branch");
+      printf("entered processing branch\n");
       return PROCESSING;
   } else { // 0
       if (getBit(instr, 4) && getBit(instr, 7)) {
