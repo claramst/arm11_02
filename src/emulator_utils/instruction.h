@@ -8,21 +8,21 @@
 typedef uint32_t INSTRUCTION;
 
 typedef enum instrType {
-  MULTIPLY,
-  BRANCH,
-  PROCESSING,
-  TRANSFER,
-  HALT
+    MULTIPLY,
+    BRANCH,
+    PROCESSING,
+    TRANSFER,
+    HALT
 } INSTR_TYPE;
 
 typedef enum condition {
-  EQ = 0,
-  NE = 1,
-  GE = 10,
-  LT = 11,
-  GT = 12,
-  LE = 13,
-  AL = 14,
+    EQ = 0,
+    NE = 1,
+    GE = 10,
+    LT = 11,
+    GT = 12,
+    LE = 13,
+    AL = 14,
 } CONDITION;
 
 INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE state);

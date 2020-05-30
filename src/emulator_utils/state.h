@@ -11,8 +11,8 @@ typedef uint32_t REGISTER;
 typedef uint16_t ADDRESS;
 
 typedef struct machineState {
-  REGISTER* registers;
-  BYTE* memory;
+    REGISTER* registers;
+    BYTE* memory;
 } MACHINE_STATE;
 
 
