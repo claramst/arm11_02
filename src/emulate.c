@@ -56,8 +56,6 @@ int main(int argc, char **argv) {
     printf("Memory Failure \n");
     exit(EXIT_FAILURE);
   }
-
-  REGISTER* pc = &state.registers[15];
   int i = 0;
   while(!feof(objCode)) {
    fread(&state.memory[i], sizeof(BYTE), 1, objCode);
@@ -68,31 +66,54 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
   fclose(objCode);
-   
 
-  INSTRUCTION fetched = fetch(pc, state);
-  INSTRUCTION toDecode = fetched;
-  DECODED_INSTR toExecute = decode(toDecode, state);
-  execute(toExecute, state);
-
-  while (1) {
-//  while (toExecute.type != HALT) {
-    //fetch
-    fetched = fetch(pc, state);
-    toDecode = fetched;
-
-    //decode
-    toExecute = decode(toDecode, state);
-    //execute
-    if (toExecute.type == HALT) {
+  REGISTER* pc = &state.registers[15];
+    INSTRUCTION fetched;
+    DECODED_INSTR decoded;
+    int toDecode = 0;
+    int toExecute = 0;
+    while (1) {
+        if (toExecute) {
+            if (decoded.type == HALT) {
+                break;
+            } else if (decoded.type == BRANCH) {
+                toDecode = 0;
+                toExecute = 0;
+            }
+            execute(decoded, state);
+        }
+        if (toDecode) {
+            decoded = decode(fetched, state);
+            toExecute = 1;
+        }
         fetched = fetch(pc, state);
-        toDecode = fetched;
-        toExecute = decode(toDecode, state);
-        execute(toExecute, state);
-        break;
+        if (*pc >= 4) {
+            toDecode = 1;
+        }
     }
-    execute(toExecute, state);
-  }
+//  INSTRUCTION fetched = fetch(pc, state);
+//  INSTRUCTION toDecode = fetched;
+//  DECODED_INSTR toExecute = decode(toDecode, state);
+//  execute(toExecute, state);
+//
+//  while (1) {
+////  while (toExecute.type != HALT) {
+//    //fetch
+//    fetched = fetch(pc, state);
+//    toDecode = fetched;
+//
+//    //decode
+//    toExecute = decode(toDecode, state);
+//    //execute
+//    if (toExecute.type == HALT) {
+//        fetched = fetch(pc, state);
+//        toDecode = fetched;
+//        toExecute = decode(toDecode, state);
+//        execute(toExecute, state);
+//        break;
+//    }
+//    execute(toExecute, state);
+//  }
   // Reading instruction into pc; fetch step
   // findType(pc);
   
