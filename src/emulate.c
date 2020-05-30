@@ -15,7 +15,7 @@
 //4. compile this monster
 
 
-void printRegisters(MACHINE_STATE state) {
+void printState(MACHINE_STATE state) {
   printf("Registers:\n");
   //print the first 13 registers
   for (int i = 0; i < 13; i++) {
@@ -27,7 +27,7 @@ void printRegisters(MACHINE_STATE state) {
   for (int i = 0; i < MAX_ADDRESSES; i++) {
     WORD word = getWord(i, state);
     if (word) {
-      printf("%d\n", word);
+      printf("%#010x: %#010x\n", i, word);
     }
   }
 }
@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
   
 
   //// lots of stuff
-  printRegisters(state);
+  printState(state);
   free(state.registers);
   free(state.memory);
   return EXIT_SUCCESS;
