@@ -19,10 +19,17 @@ void printState(MACHINE_STATE state) {
   printf("Registers:\n");
   //print the first 13 registers
   for (int i = 0; i < 13; i++) {
+<<<<<<< HEAD
     printf("$%-3d: %10d (0x%08x)\n", i, state.registers[i], state.registers[i]);
   }
   printf("PC  : %10d (0x%08x)\n", state.registers[15], state.registers[15]);
   printf("CPSR: %10d (0x%08x)\n", state.registers[16], state.registers[16]);
+=======
+    printf("$%-3d:%11d (0x%08x)\n", i, state.registers[i], state.registers[i]);
+  }
+  printf("PC  :%11d (0x%08x)\n", state.registers[15], state.registers[15]);
+  printf("CPSR:%11d (0x%08x)\n", state.registers[16], state.registers[16]);
+>>>>>>> 87c0a841f6571e9bae9020be0e47dc778ccbf763
   printf("Non-zero memory:\n");
   for (int i = 0; i < MAX_ADDRESSES; i += 4) {
     WORD word = getLittleEndian(i, state);
