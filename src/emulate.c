@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "No filename given");
     return EXIT_FAILURE;
   }
-  FILE *objCode = fopen(argv[1], "r");
+  FILE *objCode = fopen(argv[1], "rb");
   
   if(objCode== NULL) {
     fprintf(stderr, "File could not be opened");
