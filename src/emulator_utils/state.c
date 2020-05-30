@@ -7,7 +7,7 @@
 WORD getWord(ADDRESS address, MACHINE_STATE state) {
   int32_t sum = 0;
   for (int i = 0; i < 4; i++) {
-    sum += state.memory[address + i] << 8 * i;
+    sum += state.memory[address + i] << (8 * i);
   }
   return sum;
 }

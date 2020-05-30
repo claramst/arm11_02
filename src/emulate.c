@@ -24,7 +24,12 @@ void printRegisters(MACHINE_STATE state) {
   printf("PC  :%11d (%#010x)\n", state.registers[15], state.registers[15]);
   printf("CPSR:%11d (%#010x)\n", state.registers[16], state.registers[16]);
   printf("Non-zero memory:\n");
-  //todo
+  for (int i = 0; i < MAX_ADDRESSES; i++) {
+    WORD word = getWord(i, state);
+    if (word) {
+      printf("%d\n", word);
+    }
+  }
 }
 
 int main(int argc, char **argv) {
@@ -32,18 +37,15 @@ int main(int argc, char **argv) {
     fprintf(stderr, "No filename given");
     return EXIT_FAILURE;
   }
-  FILE *objCode = fopen(argv[1], "rb");
+  FILE *objCode = fopen(argv[1], "r");
   
-  if(!objCode) {
+  if(objCode== NULL) {
     fprintf(stderr, "File could not be opened");
     return EXIT_FAILURE;
   }
   
   MACHINE_STATE state;
   
-  fread(&state.memory, sizeof(BYTE), MAX_ADDRESSES, objCode);
-  fclose(objCode);
-
   state.registers = calloc(NUM_OF_REG, sizeof(REGISTER));
   if (!state.registers) {
     printf("Memory Failure \n");
@@ -56,6 +58,16 @@ int main(int argc, char **argv) {
   }
 
   REGISTER* pc = &state.registers[15];
+  
+  while(!feof(objCode)) {
+   fread(state.memory, sizeof(BYTE), 1, objCode);
+  }
+  if (ferror(objCode)) {
+    printf("An error has occurred whilst file reading");
+    exit(EXIT_FAILURE);
+  }
+  fclose(objCode);
+   
 
   INSTRUCTION fetched = fetch(pc, state);
   INSTRUCTION toDecode = fetched;

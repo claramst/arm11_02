@@ -1,5 +1,5 @@
 CC      = gcc
-CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
+CFLAGS  = -Wall -g -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic
 
 .SUFFIXES: .c .o
 
@@ -9,12 +9,12 @@ all: assemble emulate
 
 assemble: assemble.o
 
-emulate: emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o
-	$(CC) emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o -o emulate
+emulate: emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o binary_utils/bitmanipulation.o
+	$(CC) emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o binary_utils/bitmanipulation.o -o emulate
 
 emulate.o: emulate.c emulator_utils/instruction.h emulator_utils/decode.h emulator_utils/execute.h binary_utils/bitmanipulation.h
 	$(CC) $(CFLAGS) emulate.c -c -o emulate.o
-  
+
 binary_utils/bitmanipulation.o: binary_utils/bitmanipulation.c binary_utils/bitmanipulation.h
 	$(CC) $(CFLAGS) binary_utils/bitmanipulation.c -c -o binary_utils/bitmanipulation.o
 
