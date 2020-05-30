@@ -30,7 +30,6 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
       decoded.offset = clearBits(instr, 8, 24);
       break;
     case PROCESSING:
-        printf("we enter processing in decode\n");
       decoded.opcode = getNibble(instr >> 1, 5);
       decoded.I = getBit(instr, 25);
       decoded.S = getBit(instr, 20);
@@ -39,7 +38,7 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
       //Here we calculate the value of operand2
       if (decoded.I) {
         // rotate bits 0-7 by bits 8-11
-        decoded.op2 = rotateRight(getByte(instr, 0), getNibble(instr, 2));
+        decoded.op2 = rotateRight(getByte(instr, 0), 2 * getNibble(instr, 2));
       } else {
           int shiftAmount;
           int shiftType = getBits(instr, 2, 5);
@@ -48,11 +47,12 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
 
           if (getBit(instr, 4)) {
             // gets the last bit of the register specified.
-            shiftAmount = getBit(state.registers[getNibble(instr, 2)], 31);
+//            shiftAmount = getBit(state.registers[getNibble(instr, 2)], 31);
+              shiftAmount = getByte(state.registers[getNibble(instr, 2)], 0);
           } else {
             shiftAmount = getBits(instr, 5, 7);
           }
-          int discarded;
+          uint32_t discarded;
           switch (shiftType) {
             case 0:
               //lsl
@@ -63,19 +63,22 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
             case 1:
               //lsr
               discarded = decoded.rm << (32 - shiftAmount);
-              decoded.shiftCarryOut = discarded % 2;
+//              decoded.shiftCarryOut = discarded % 2;
+                  decoded.shiftCarryOut = getBit(discarded, 31);
               decoded.op2 = decoded.rm >> shiftAmount;
               break;
             case 2:
               //asr
               discarded = decoded.rm << (32 - shiftAmount);
-              decoded.shiftCarryOut = discarded % 2;
+//              decoded.shiftCarryOut = discarded % 2;
+                  decoded.shiftCarryOut = getBit(discarded, 31);
               decoded.op2 = arithmeticRight(decoded.rm, shiftAmount);
               break;
             case 3:
               //ror;
               discarded = decoded.rm << (32 - shiftAmount);
-              decoded.shiftCarryOut = discarded % 2;
+//              decoded.shiftCarryOut = discarded % 2;
+                  decoded.shiftCarryOut = getBit(discarded, 31);
               decoded.op2 = rotateRight(decoded.rm, shiftAmount);
               break;
           }

@@ -21,19 +21,15 @@ INSTR_TYPE findType(INSTRUCTION instr) {
   // if not 1001, it is either data processing or halt
   // get second nibble, shift right. then cases are 0000 (multiply, halt or dataprocessing), 0001 (dataprocessing), 0010 (single data transfer)
   // 0011 (single data transfer), 0100 (nothing), 0101 (branch), 0111 (nothing)
-  printf("entered findtype\n");
   if (instr == 0) {
-      printf("entered halt\n");
     return HALT;
   }
 
   if (getBit(instr, 27)) {
     return BRANCH;
   } else if (getBit(instr, 26)) {
-      printf("entered transfer branch\n");
       return TRANSFER;
   } else if (getBit(instr, 25)) {
-      printf("entered processing branch\n");
       return PROCESSING;
   } else { // 0
       if (getBit(instr, 4) && getBit(instr, 7)) {

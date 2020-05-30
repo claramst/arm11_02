@@ -32,9 +32,8 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
 }
 
 
-void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int setFlags, int shiftCarryOut, MACHINE_STATE state) {
+void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int setFlags, uint32_t shiftCarryOut, MACHINE_STATE state) {
   int result;
-  printf("enter executeProcessing\n");
   switch (opcode) {
     case AND:
       *dest = result = op1 & op2;
@@ -49,7 +48,6 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int
       *dest = result = op2 - op1;
       break;
     case ADD:
-        printf("enter ADD branch\n");
       *dest = result = op1 + op2;
       break;
     case TST:
@@ -65,7 +63,6 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int
       *dest = result = op1 | op2;
       break;
     case MOV:
-        printf("enter MOV branch\n");
       *dest = result = op2;
       break;
   }
@@ -90,7 +87,8 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int
       // Think its fine though  
       case ADD:
         //check if addition produced overflow
-        if ((op1 > 0) && (op2 > INT_MAX - op1)) {
+        if ((op1 + op2) > INT_MAX) {
+//        if ((op1 > 0) && (op2 > INT_MAX - op1)) {
           *cpsr = setBit(*cpsr, 29);
         } else {
           *cpsr = clearBit(*cpsr, 29);
@@ -99,7 +97,8 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int
       case SUB:
       case CMP:
       //check if subtraction produces carry
-       if ((op1 > 0) && (op2 < INT_MIN + op1)) {
+         if (op1 < op2) {
+//       if ((op1 > 0) && (op2 < INT_MIN + op1)) {
          *cpsr = clearBit(*cpsr, 29);
        } else {
          *cpsr = setBit(*cpsr, 29);
@@ -107,7 +106,8 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int
         break;
       case RSB:
       // other way around check
-       if ((op2 > 0) && (op1 < INT_MIN + op2)) {
+         if (op2 < op1) {
+//       if ((op2 > 0) && (op1 < INT_MIN + op2)) {
         *cpsr = clearBit(*cpsr, 29);
        } else {
         *cpsr = setBit(*cpsr, 29);
@@ -160,20 +160,23 @@ void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmR
   } 
   if (address > MAX_ADDRESSES - 1) {
     // Handles case where address is bigger than 16 bits
-    fprintf(stderr, "Address is too large");
-    exit(1);
-  }
-  ADDRESS address32bit = (ADDRESS) address;
-  if (ldBit) {
-    // Load instruction
+    // maybe to do with the printing? the 0x thing
+    printf("Error: Out of bounds memory access at address 0x%08x\n", address);
+//    fprintf(stderr, "Address is too large");
+//    exit(1);
+  } else {
+      ADDRESS address32bit = (ADDRESS) address;
+      if (ldBit) {
+          // Load instruction
 /*    if (baseReg == pc) {
         We may need to check this case to ensure our pipelining works.
     }
-*/    
-    *targetReg = getWord(address32bit, state);
-  } else {
-    // Store instruction
-    storeWord(*targetReg, address32bit, state);
+*/
+          *targetReg = getWord(address32bit, state);
+      } else {
+          // Store instruction
+          storeWord(*targetReg, address32bit, state);
+      }
   }
 }
 
@@ -204,7 +207,6 @@ void execute(DECODED_INSTR decoded, MACHINE_STATE state) {
         break;
       }
       case PROCESSING:
-          printf("entered processing in execute\n");
         rdReg = &state.registers[decoded.rd];
         rnReg = state.registers[decoded.rn];
         executeProcessing(rdReg, rnReg, decoded.opcode, decoded.op2, decoded.S, decoded.shiftCarryOut, state);
