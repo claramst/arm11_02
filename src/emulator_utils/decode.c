@@ -30,7 +30,6 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
       decoded.offset = clearBits(instr, 8, 24);
       break;
     case PROCESSING:
-        printf("we enter processing in decode\n");
       decoded.opcode = getNibble(instr >> 1, 5);
       decoded.I = getBit(instr, 25);
       decoded.S = getBit(instr, 20);
