@@ -5,16 +5,24 @@
 // This function returns the word from memory 
 // at the given address (in big endian)
 WORD getWord(ADDRESS address, MACHINE_STATE state) {
-  int32_t sum = 0;
-  for (int i = 0; i < 4; i++) {
-    sum += state.memory[address + i] << (8 * i);
-  }
-  return sum;
+    WORD sum = 0;
+    for (int i = 0; i < 4; i++) {
+        sum += state.memory[address + i] << (8 * i);
+    }
+    return sum;
 }
 
 // Stores the given word at the address given in big endian
 void storeWord(WORD word, ADDRESS address, MACHINE_STATE state) {
-  for (int i = 0; i < 4; i++) {
-    state.memory[address + i] = getByte(word, i);
-  }
+    for (int i = 0; i < 4; i++) {
+        state.memory[address + i] = getByte(word, i);
+    }
+}
+
+WORD getLittleEndian(ADDRESS address, MACHINE_STATE state) {
+    WORD sum = 0;
+    for (int i = 0; i < 4; i++) {
+        sum += state.memory[address + i] << (8 * (3 - i));
+    }
+    return sum;
 }

@@ -18,5 +18,6 @@ typedef struct machineState {
 
 WORD getWord(ADDRESS address, MACHINE_STATE state);
 void storeWord(WORD word, ADDRESS address, MACHINE_STATE state);
+WORD getLittleEndian(ADDRESS address, MACHINE_STATE state);
 
 #endif
