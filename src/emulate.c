@@ -24,8 +24,8 @@ void printState(MACHINE_STATE state) {
   printf("PC  :%11d (%#010x)\n", state.registers[15], state.registers[15]);
   printf("CPSR:%11d (%#010x)\n", state.registers[16], state.registers[16]);
   printf("Non-zero memory:\n");
-  for (int i = 0; i < MAX_ADDRESSES; i++) {
-    WORD word = getWord(i, state);
+  for (int i = 0; i < MAX_ADDRESSES; i += 4) {
+    WORD word = getLittleEndian(i, state);
     if (word) {
       printf("%#010x: %#010x\n", i, word);
     }
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "No filename given");
     return EXIT_FAILURE;
   }
-  FILE *objCode = fopen(argv[1], "r");
+  FILE *objCode = fopen(argv[1], "rb");
   
   if(objCode== NULL) {
     fprintf(stderr, "File could not be opened");
@@ -58,9 +58,10 @@ int main(int argc, char **argv) {
   }
 
   REGISTER* pc = &state.registers[15];
-  
+  int i = 0;
   while(!feof(objCode)) {
-   fread(state.memory, sizeof(BYTE), 1, objCode);
+   fread(&state.memory[i], sizeof(BYTE), 1, objCode);
+   i++;
   }
   if (ferror(objCode)) {
     printf("An error has occurred whilst file reading");
