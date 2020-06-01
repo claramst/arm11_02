@@ -185,7 +185,7 @@ void executeBranch(int offset, MACHINE_STATE state) {
 }
 
 
-void execute(DECODED_INSTR decoded, MACHINE_STATE state) {
+void execute(DECODED_INSTR decoded, MACHINE_STATE state, int *toDecode, int *toExecute) {
     if (willExecute(decoded.condition, state)) {
         REGISTER* rdReg;
         REGISTER rnReg;
@@ -199,8 +199,11 @@ void execute(DECODED_INSTR decoded, MACHINE_STATE state) {
                 rmReg = state.registers[decoded.rm];
                 executeMultiply(rdReg, rnReg, rsReg, rmReg, decoded.A, decoded.S, state);
                 break;
+
             case BRANCH:
             {
+                *toDecode = 0;
+                *toExecute = 0;
                 int shiftedOffset = decoded.offset << 2;
                 int offset = signExtend(shiftedOffset, 25);
                 executeBranch(offset, state);

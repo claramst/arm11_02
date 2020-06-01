@@ -33,6 +33,7 @@ void printState(MACHINE_STATE state) {
 }
 
 int main(int argc, char **argv) {
+
     if (argc < 2) {
         fprintf(stderr, "No filename given");
         return EXIT_FAILURE;
@@ -77,10 +78,11 @@ int main(int argc, char **argv) {
             if (decoded.type == HALT) {
                 break;
             } else if (decoded.type == BRANCH) {
-                toDecode = 0;
-                toExecute = 0;
+//                int debug = 2;
+//                *toDecode = 0;
+//                *toExecute = 0;
             }
-            execute(decoded, state);
+            execute(decoded, state, &toDecode, &toExecute);
         }
         if (toDecode) {
             decoded = decode(fetched, state);

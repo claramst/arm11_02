@@ -5,7 +5,7 @@ CFLAGS  = -Wall -g -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic
 
 .PHONY: all clean
 
-all: assemble emulate
+all:  emulate assemble
 
 assemble: assemble.o
 
