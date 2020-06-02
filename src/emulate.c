@@ -14,7 +14,6 @@
 //3. put this all on git...... 
 //4. compile this monster
 
-
 void printState(MACHINE_STATE state) {
     printf("Registers:\n");
     //print the first 13 registers

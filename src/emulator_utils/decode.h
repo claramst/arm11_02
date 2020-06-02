@@ -26,14 +26,14 @@ typedef struct decodedInstr {
     int P;
     int U;
     int L;
-    int rn;
-    int rd;
-    int rs;
-    int rm;
+    unsigned int rn;
+    unsigned int rd;
+    unsigned int rs;
+    unsigned int rm;
     int offset;
     OPCODE opcode;
-    int op2;
-    int shiftCarryOut;
+    unsigned int op2;
+    unsigned int shiftCarryOut;
 } DECODED_INSTR;
 
 DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state);

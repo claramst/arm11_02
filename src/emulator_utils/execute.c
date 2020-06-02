@@ -32,7 +32,7 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
 }
 
 
-void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int setFlags, uint32_t shiftCarryOut, MACHINE_STATE state) {
+void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, unsigned int op2, int setFlags, unsigned int shiftCarryOut, MACHINE_STATE state) {
     int result;
     switch (opcode) {
         case AND:
@@ -77,7 +77,7 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, int op2, int
             case TEQ:
             case TST:
             case MOV:
-                if (shiftCarryOut) {
+                if (shiftCarryOut == 1) {
                     *cpsr = setBit(*cpsr, 29);
                 } else {
                     *cpsr = clearBit(*cpsr, 29);
@@ -201,14 +201,12 @@ void execute(DECODED_INSTR decoded, MACHINE_STATE state, int *toDecode, int *toE
                 break;
 
             case BRANCH:
-            {
                 *toDecode = 0;
                 *toExecute = 0;
                 int shiftedOffset = decoded.offset << 2;
                 int offset = signExtend(shiftedOffset, 25);
                 executeBranch(offset, state);
                 break;
-            }
             case PROCESSING:
                 rdReg = &state.registers[decoded.rd];
                 rnReg = state.registers[decoded.rn];

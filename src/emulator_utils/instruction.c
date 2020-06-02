@@ -44,12 +44,12 @@ INSTR_TYPE findType(INSTRUCTION instr) {
 }
 
 int willExecute(CONDITION cond, MACHINE_STATE state) {
-    int cpsr = getNibble(state.registers[16], 7);
-    int N = getBit(cpsr, 3);
-    int Z = getBit(cpsr, 2);
+    int cpsr = state.registers[16];
+    int N = getBit(cpsr, 31);
+    int Z = getBit(cpsr, 30);
     //C is not used in part 1
-//    int C = getBit(cpsr, 1);
-    int V = getBit(cpsr, 0);
+//    int C = getBit(cpsr, 29);
+    int V = getBit(cpsr, 28);
 
     switch (cond) {
         case EQ:
