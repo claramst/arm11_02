@@ -1,5 +1,8 @@
 #include "instruction.h"
-#include <stdint.h>
+/**
+ * A header file for decode.c,
+ * contains enum representing the opcodes for Data Processing Instructions.
+ */
 
 #ifndef DECODE_H
 #define DECODE_H
@@ -18,35 +21,46 @@ typedef enum opcode {
 } OPCODE;
 
 typedef struct decodedInstr {
-  enum instrType type;
-  int condition;
-  unsigned int rn;
-  unsigned int rd;
-  unsigned int shiftCarryOut;
-  union {
-    struct {
-      int I;
-      int S;
-      OPCODE opcode;
-      unsigned int op2;
-    };
-    struct {
-      int A; 
-      int S;
-      int rs;
-      int rm;
-    };
-    struct {
-      int I;
-      int P;
-      int U;
-      int L;
-      int offset;
-    };
-    struct {
-      int offset;
-    };
-  };
+    enum instrType type;
+    int condition;
+    unsigned int rn;
+    unsigned int rd;
+    unsigned int shiftCarryOut;
+    int I;
+    int S;
+    OPCODE opcode;
+    unsigned int op2;
+    int A;
+    unsigned int rs;
+    unsigned int rm;
+    int P;
+    int U;
+    int L;
+    int offset;
+//    union {
+//        struct dpi {
+//            int I_dpi;
+//            int S_dpi;
+//            OPCODE opcode;
+//            unsigned int op2;
+//        };
+//        struct {
+//            int A;
+//            int S_mul;
+//            int rs;
+//            int rm;
+//        };
+//        struct {
+//            int I_sdt;
+//            int P;
+//            int U;
+//            int L;
+//            int offset_sdt;
+//        };
+//        struct {
+//            int offset_bra;
+//        };
+//    };
 } DECODED_INSTR;
 
 DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state);

@@ -1,4 +1,7 @@
 #include <stdint.h>
+/**
+ * Header file for bitmanipulation.c.
+ */
 
 #ifndef BITMANIPULATION_H
 #define BITMANIPULATION_H

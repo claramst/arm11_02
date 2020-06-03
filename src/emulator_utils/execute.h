@@ -1,4 +1,7 @@
-#include "instruction.h"
+#include "decode.h"
+/**
+ * Header file for execute.c.
+ */
 
 #ifndef EXECUTE_H
 #define EXECUTE_H

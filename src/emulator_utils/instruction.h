@@ -1,6 +1,8 @@
-#include <stdint.h>
-#include "../binary_utils/bitmanipulation.h"
 #include "state.h"
+/**
+ * Header file for instruction.c,
+ * defines enums for instruction conditions and instruction types.
+ */
 
 #ifndef INSTRUCTION_H
 #define INSTRUCTION_H

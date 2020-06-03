@@ -1,54 +1,60 @@
-#include <stdint.h>
-#include <stdio.h>
-#include "../binary_utils/bitmanipulation.h"
-#include "state.h"
 #include "instruction.h"
+#include <stdio.h>
+/**
+ * Misc. functions to do with instructions, fetching them from the PC,
+ * seeing if they will execute and getting their type.
+ */
 
-//fetches the instruction from the address currently stored in the PC
+
+/**
+ * Retrieves an instruction from memory located at the address stored in the PC, increments PC by 4.
+ * @param pc A pointer to the PC register.
+ * @param state Struct representing the state of our ARM machine.
+ * @return A 32-bit binary instruction in big endian.
+ */
 INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE state) {
     INSTRUCTION fetched = getWord(*pc, state);
     *pc += 4;
     return fetched;
 }
 
-
+/**
+ * The function findType takes in a 32 bit instruction and determines its instruction type.
+ * @param instr The 32 bit int instruction we want to find the type for.
+ * @return The instruction type in the form of the enum INSTR_TYPE.
+ */
 INSTR_TYPE findType(INSTRUCTION instr) {
-    // read first 2 bits. 01 - single data transfer
-    // 10 - branch.
-    //case 00: if 001 - data processing
-    // if 000 we need to read bits 4 - 7 as well, i.e top half of
-    // last byte? If bits 4 - 7 are 1001 then multiply instruction
-    // if not 1001, it is either data processing or halt
-    // get second nibble, shift right. then cases are 0000 (multiply, halt or dataprocessing), 0001 (dataprocessing), 0010 (single data transfer)
-    // 0011 (single data transfer), 0100 (nothing), 0101 (branch), 0111 (nothing)
     if (instr == 0) {
         return HALT;
     }
-
     if (getBit(instr, 27)) {
         return BRANCH;
     } else if (getBit(instr, 26)) {
         return TRANSFER;
     } else if (getBit(instr, 25)) {
         return PROCESSING;
-    } else { // 0
+    } else {
         if (getBit(instr, 4) && getBit(instr, 7)) {
-//    if (getNibble(instr, 1) == 9) {
             return MULTIPLY;
         } else {
             return PROCESSING;
         }
     }
-    //should be unreachable
-    return HALT;
 }
 
+
+/**
+ * Used to determine if an instruction will execute based on its condition and
+ * the current state of the CPSR register.
+ * @param cond The condition of the instruction to be checked.
+ * @param state Struct representing our ARM machine state.
+ * @return 1 if instruction will execute, 0 otherwise.
+ */
 int willExecute(CONDITION cond, MACHINE_STATE state) {
     int cpsr = state.registers[16];
     int N = getBit(cpsr, 31);
     int Z = getBit(cpsr, 30);
-    //C is not used in part 1
-//    int C = getBit(cpsr, 29);
+
     int V = getBit(cpsr, 28);
 
     switch (cond) {
@@ -67,7 +73,7 @@ int willExecute(CONDITION cond, MACHINE_STATE state) {
         case AL:
             return 1;
         default:
+            perror("Invalid condition code");
             return 0;
     }
 }
-

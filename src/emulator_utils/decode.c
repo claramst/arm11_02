@@ -1,18 +1,20 @@
 #include "decode.h"
-#include "../binary_utils/bitmanipulation.h"
 #include "state.h"
-#include "instruction.h"
-#include <stdint.h>
 #include <stdio.h>
+/**
+ * decode.c defines functions for 'decoding' big-endian 32-bit words into ARM
+ * instructions, ultimately producing a structure representing the decoded
+ * instruction to be executed.
+ */
 
-//The function decode takes in a 32 bit int instruction as an arguement and uses it to set the relevant values in the DECODED_INSTR struct.
+/**
+ * The function decode takes in a 32 bit int instruction and the machine state to
+   calculate and set all the necessary values in the return struct.
 
-//The DECODED INSTR can then be passed into execute as a single argument.
-
+ * @param instr is the 32 bit int instruction to be decoded.
+ * @returns A struct containing all the relevant information needed to for the instruction to be executed.
+ */
 DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
-    // Condition CPSR register
-    // int32_t instr = getWord(pc);
-    // state.registers[16] = getNibble(instr, 7);
     struct decodedInstr decoded;
     INSTR_TYPE type = findType(instr);
     decoded.type = type;
@@ -35,44 +37,40 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
             decoded.S = getBit(instr, 20);
             decoded.rn = getNibble(instr, 4);
             decoded.rd = getNibble(instr, 3);
-            //Here we calculate the value of operand2
+            //Calculate value of op2
             if (decoded.I) {
-                // rotate bits 0-7 by bits 8-11
                 unsigned int shiftAmount = 2 * getNibble(instr, 2);
                 decoded.shiftCarryOut = getBit(instr, shiftAmount);
                 decoded.op2 = rotateRight(getByte(instr, 0), 2 * getNibble(instr, 2));
             } else {
                 unsigned int shiftAmount;
                 unsigned int shiftType = getBits(instr, 2, 5);
-
-//                decoded.rm = state.registers[getNibble(instr, 0)];
-                  decoded.rm = getNibble(instr, 0);
-
+                decoded.rm = getNibble(instr, 0);
                 if (getBit(instr, 4)) {
                     // gets the last bit of the register specified.
-//            shiftAmount = getBit(state.registers[getNibble(instr, 2)], 31);
                     shiftAmount = getByte(state.registers[getNibble(instr, 2)], 0);
                 } else {
+                    // Shift by a constant amount (5-bit unsigned int).
                     shiftAmount = getBits(instr, 5, 7);
                 }
                 switch (shiftType) {
                     case 0:
-                        //lsl
+                        //Logical shift left
                         decoded.shiftCarryOut = (shiftAmount == 0) ? 0 : getBit(instr, 32 - shiftAmount);
                         decoded.op2 = (state.registers[decoded.rm]) << shiftAmount;
                         break;
                     case 1:
-                        //lsr
+                        //Logical shift right
                         decoded.shiftCarryOut = (shiftAmount == 0) ? 0 : getBit(instr, shiftAmount - 1);
                         decoded.op2 = (state.registers[decoded.rm]) >> shiftAmount;
                         break;
                     case 2:
-                        //asr
+                        //Arithmetic shift right
                         decoded.shiftCarryOut = (shiftAmount == 0) ? 0 : getBit(instr, shiftAmount - 1);
                         decoded.op2 = arithmeticRight((state.registers[decoded.rm]), shiftAmount);
                         break;
                     case 3:
-                        //ror;
+                        //Rotate right
                         decoded.shiftCarryOut = (shiftAmount == 0) ? 0 : getBit(instr, shiftAmount - 1);
                         decoded.op2 = rotateRight((state.registers[decoded.rm]), shiftAmount);
                         break;
@@ -113,8 +111,10 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
                 decoded.offset = getBits(instr, 12, 0);
             }
             break;
-        default:
+        case HALT:
             break;
+        default:
+            perror("Invalid instruction type. Cannot be decoded.");
     }
     return decoded;
 }
