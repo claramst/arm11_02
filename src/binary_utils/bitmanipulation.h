@@ -17,6 +17,7 @@ uint32_t getNibble(uint32_t bin, uint32_t n);
 uint32_t getByte(uint32_t bin, uint32_t n);
 uint32_t arithmeticRight(uint32_t bin, uint32_t n);
 uint32_t rotateRight(uint32_t bin, uint32_t n);
+uint32_t rotateLeft(uint32_t bin, uint32_t n);
 uint32_t clearBit(uint32_t bin, uint32_t n);
 int signExtend(uint32_t bin, uint32_t n);
 

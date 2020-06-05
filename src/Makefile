@@ -5,9 +5,17 @@ CFLAGS  = -Wall -g -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic
 
 .PHONY: all clean
 
-all:  emulate #assemble
+all:  emulate assemble
 
-assemble: assemble.o
+assemble: assemble.o emulator_utils/state.o binary_utils/bitmanipulation.o assembler_utils/encode.o emulator_utils/instruction.o assembler_utils/hashmap.o assembler_utils/tokenizer.o
+
+assemble.o: assemble.c emulator_utils/state.h binary_utils/bitmanipulation.h assembler_utils/encode.h
+
+assembler_utils/encode.o: assembler_utils/encode.c assembler_utils/encode.h
+
+assembler_utils/hashmap.o: assembler_utils/hashmap.c assembler_utils/hashmap.h
+
+assembler_utils/tokenizer.o: assembler_utils/tokenizer.c assembler_utils/tokenizer.h
 
 emulate: emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o binary_utils/bitmanipulation.o
 	$(CC) emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o binary_utils/bitmanipulation.o -o emulate

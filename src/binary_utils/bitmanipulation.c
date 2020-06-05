@@ -99,6 +99,14 @@ uint32_t rotateRight(uint32_t bin, uint32_t n) {
     return bin;
 }
 
+uint32_t rotateLeft(uint32_t bin, uint32_t n) {
+    for (uint32_t i = 0; i < n; i++) {
+        uint32_t msb = getBit(bin, 31);
+        bin = (bin << 1) | (msb >> 31);
+    }
+    return bin;
+}
+
 /**
  * Extends the sign of bin with the nth bit as the sign bit.
  */
