@@ -19,29 +19,28 @@
  * @param state is the current machine state.
  */
 void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
-                     int accumulate, int setFlags, MACHINE_STATE state) {
-    if (accumulate) {
-        *dest = rm * rs + rn;
-    } else {
-        *dest = rm * rs;
-    }
-    if (setFlags) {
-        //for N flag
-        REGISTER *cpsr = &state.registers[16];
-        if (getBit(*dest, 31)) {
-            *cpsr = setBit(*cpsr, 31);
-        } else {
-            *cpsr = clearBit(*cpsr, 31);
-        }
-        //for Z flag
-        if (!*dest) {
-            *cpsr = setBit(*cpsr, 30);
-        } else {
-            *cpsr = clearBit(*cpsr, 30);
-        }
-    }
+					 int accumulate, int setFlags, MACHINE_STATE state) {
+  if (accumulate) {
+	*dest = rm * rs + rn;
+  } else {
+	*dest = rm * rs;
+  }
+  if (setFlags) {
+	//for N flag
+	REGISTER *cpsr = &state.registers[16];
+	if (getBit(*dest, 31)) {
+	  *cpsr = setBit(*cpsr, 31);
+	} else {
+	  *cpsr = clearBit(*cpsr, 31);
+	}
+	//for Z flag
+	if (!*dest) {
+	  *cpsr = setBit(*cpsr, 30);
+	} else {
+	  *cpsr = clearBit(*cpsr, 30);
+	}
+  }
 }
-
 
 /**
  * Takes in the required arguments and executes the specified data processing
@@ -54,95 +53,106 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
  * @param shiftCarryOut is the carryOut value
  * @param state is the current machine state.
  */
-void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, unsigned int op2, int setFlags, unsigned int shiftCarryOut, MACHINE_STATE state) {
-    int result;
-    switch (opcode) {
-        case AND:
-            *dest = result = op1 & op2;
-            break;
-        case EOR:
-            *dest = result = op1 ^ op2;
-            break;
-        case SUB:
-            *dest = result = op1 - op2;
-            break;
-        case RSB:
-            *dest = result = op2 - op1;
-            break;
-        case ADD:
-            *dest = result = op1 + op2;
-            break;
-        case TST:
-            result = op1 & op2;
-            break;
-        case TEQ:
-            result = op1 ^ op2;
-            break;
-        case CMP:
-            result = op1 - op2;
-            break;
-        case ORR:
-            *dest = result = op1 | op2;
-            break;
-        case MOV:
-            *dest = result = op2;
-            break;
-    }
+void executeProcessing(REGISTER *dest,
+					   REGISTER op1,
+					   OPCODE opcode,
+					   unsigned int op2,
+					   int setFlags,
+					   unsigned int shiftCarryOut,
+					   MACHINE_STATE state) {
+  int result;
+  switch (opcode) {
+	case AND:
+	  *dest = result = op1 & op2;
+	  break;
+	case EOR:
+	  *dest = result = op1 ^ op2;
+	  break;
+	case SUB:
+	  *dest = result = op1 - op2;
+	  break;
+	case RSB:
+	  *dest = result = op2 - op1;
+	  break;
+	case ADD:
+	  *dest = result = op1 + op2;
+	  break;
+	case TST:
+	  result = op1 & op2;
+	  break;
+	case TEQ:
+	  result = op1 ^ op2;
+	  break;
+	case CMP:
+	  result = op1 - op2;
+	  break;
+	case ORR:
+	  *dest = result = op1 | op2;
+	  break;
+	case MOV:
+	  *dest = result = op2;
+	  break;
+	default:perror("Invalid opcode.");
+	  break;
+  }
 
-    if (setFlags) {
-        REGISTER* cpsr = &state.registers[16];
-        // For C flag
-        switch (opcode) {
-            case AND:
-            case EOR:
-            case ORR:
-            case TEQ:
-            case TST:
-            case MOV:
-                if (shiftCarryOut == 1) {
-                    *cpsr = setBit(*cpsr, 29);
-                } else {
-                    *cpsr = clearBit(*cpsr, 29);
-                }
-                break;
-            case ADD:
-                // Check if addition produced overflow
-                if ((op1 + op2) > INT_MAX) {
-                    *cpsr = setBit(*cpsr, 29);
-                } else {
-                    *cpsr = clearBit(*cpsr, 29);
-                }
-                break;
-            case SUB:
-            case CMP:
-                // Check if subtraction produces carry
-                if (op1 < op2) {
-                    *cpsr = clearBit(*cpsr, 29);
-                } else {
-                    *cpsr = setBit(*cpsr, 29);
-                }
-                break;
-            case RSB:
-                // Check if subtraction produces carry
-                if (op2 < op1) {
-                    *cpsr = clearBit(*cpsr, 29);
-                } else {
-                    *cpsr = setBit(*cpsr, 29);
-                }
-        }
-        // For Z flag
-        if (!result) {
-            *cpsr = setBit(*cpsr, 30);
-        } else {
-            *cpsr = clearBit(*cpsr, 30);
-        }
-        //for N flag
-        if (getBit(result, 31)) {
-            *cpsr = setBit(*cpsr, 31);
-        } else{
-            *cpsr = clearBit(*cpsr, 31);
-        }
-    }
+  if (setFlags) {
+	REGISTER *cpsr = &state.registers[16];
+	// For C flag
+	switch (opcode) {
+	  case AND:
+	  case EOR:
+	  case ORR:
+	  case TEQ:
+	  case TST:
+	  case MOV:
+		if (shiftCarryOut == 1) {
+		  *cpsr = setBit(*cpsr, 29);
+		} else {
+		  *cpsr = clearBit(*cpsr, 29);
+		}
+		break;
+	  case ADD:
+		// Check if addition produced overflow
+		if ((op1 + op2) > INT_MAX) {
+		  *cpsr = setBit(*cpsr, 29);
+		} else {
+		  *cpsr = clearBit(*cpsr, 29);
+		}
+		break;
+	  case SUB:
+	  case CMP:
+		// Check if subtraction produces carry
+		if (op1 < op2) {
+		  *cpsr = clearBit(*cpsr, 29);
+		} else {
+		  *cpsr = setBit(*cpsr, 29);
+		}
+		break;
+	  case RSB:
+		// Check if subtraction produces carry
+		if (op2 < op1) {
+		  *cpsr = clearBit(*cpsr, 29);
+		} else {
+		  *cpsr = setBit(*cpsr, 29);
+		}
+	  default:
+	    perror("Invalid opcode.");
+	    break;
+	}
+	// For Z flag
+	if (!result) {
+	  *cpsr = setBit(*cpsr, 30);
+	} else {
+	  *cpsr = clearBit(*cpsr, 30);
+	}
+	//for N flag
+	if (getBit(result, 31)) {
+	  *cpsr = setBit(*cpsr, 31);
+	} else {
+	  *cpsr = clearBit(*cpsr, 31);
+	}
+  }
 }
 
 /**
@@ -166,57 +176,64 @@ void executeProcessing(REGISTER *dest, REGISTER op1, OPCODE opcode, unsigned int
  * @param offset To be added/subtracted to the base register
  * @param state A structure representing the machine state
  */
-void executeSingleTransfer(REGISTER* baseReg, REGISTER* targetReg, REGISTER* rmReg, int preBit, int upBit, int ldBit, int offset, MACHINE_STATE state) {
-    uint32_t address;
-    if (preBit) {
-        /* Pre-indexing: the offset is added/subtracted to the
-         * base register before transferring the data. Does not
-         * change base register value
-         */
-        if (upBit) {
-            // Offset added
-            address = *baseReg + offset;
-        } else {
-            // Offset subtracted
-            address = *baseReg - offset;
-        }
-    } else {
-        /* Post-indexing: the offset is added/subtracting after
-         * transferring the data. Changes base register value.
-         * A post-indexing ldr or str in which rm is the same
-         * register as Rn, is not allowed.
-         */
-        assert(rmReg != baseReg);
-        address = *baseReg;
-        if (upBit) {
-            *baseReg += offset;
-        } else {
-            *baseReg -= offset;
-        }
-    }
-    if (address > MAX_ADDRESSES - 1) {
-        // Handles case where address is bigger than 16 bits
-        printf("Error: Out of bounds memory access at address 0x%08x\n", address);
-    } else {
-        ADDRESS address32bit = (ADDRESS) address;
-        if (ldBit) {
-            // Load instruction
-            *targetReg = getWord(address32bit, state);
-        } else {
-            // Store instruction
-            storeWord(*targetReg, address32bit, state);
-        }
-    }
+void executeSingleTransfer(REGISTER *baseReg,
+						   REGISTER *targetReg,
+						   REGISTER *rmReg,
+						   int preBit,
+						   int upBit,
+						   int ldBit,
+						   int offset,
+						   MACHINE_STATE state) {
+  uint32_t address;
+  if (preBit) {
+	/* Pre-indexing: the offset is added/subtracted to the
+	 * base register before transferring the data. Does not
+	 * change base register value
+	 */
+	if (upBit) {
+	  // Offset added
+	  address = *baseReg + offset;
+	} else {
+	  // Offset subtracted
+	  address = *baseReg - offset;
+	}
+  } else {
+	/* Post-indexing: the offset is added/subtracting after
+	 * transferring the data. Changes base register value.
+	 * A post-indexing ldr or str in which rm is the same
+	 * register as Rn, is not allowed.
+	 */
+	assert(rmReg != baseReg);
+	address = *baseReg;
+	if (upBit) {
+	  *baseReg += offset;
+	} else {
+	  *baseReg -= offset;
+	}
+  }
+  if (address > MAX_ADDRESSES - 1) {
+	// Handles case where address is bigger than 16 bits
+	printf("Error: Out of bounds memory access at address 0x%08x\n", address);
+  } else {
+	ADDRESS address32bit = (ADDRESS) address;
+	if (ldBit) {
+	  // Load instruction
+	  *targetReg = getWord(address32bit, state);
+	} else {
+	  // Store instruction
+	  storeWord(*targetReg, address32bit, state);
+	}
+  }
 }
 
 /**
  * executeBranch function takes in the offset value which is to be added to program counter.
-
+ *
  * @param offset is the amount that the program counter needs to be incremented by.
  * @param state is the current machine state.
  */
 void executeBranch(int offset, MACHINE_STATE state) {
-    state.registers[15] += offset;
+  state.registers[15] += offset;
 }
 
 /**
@@ -230,42 +247,37 @@ void executeBranch(int offset, MACHINE_STATE state) {
  * run in the next cycle.
  */
 void execute(DECODED_INSTR decoded, MACHINE_STATE state, int *toDecode, int *toExecute) {
-    if (willExecute(decoded.condition, state)) {
-        REGISTER* rdReg;
-        REGISTER rnReg;
-        REGISTER rsReg;
-        REGISTER rmReg;
-        switch (decoded.type) {
-            case MULTIPLY:
-                rdReg = &state.registers[decoded.rd];
-                rnReg = state.registers[decoded.rn];
-                rsReg = state.registers[decoded.rs];
-                rmReg = state.registers[decoded.rm];
-                executeMultiply(rdReg, rnReg, rsReg, rmReg, decoded.A, decoded.S, state);
-                break;
+  if (willExecute(decoded.condition, state)) {
+	REGISTER *rdReg;
+	REGISTER rnReg;
+	REGISTER rsReg;
+	REGISTER rmReg;
+	switch (decoded.type) {
+	  case MULTIPLY:rdReg = &state.registers[decoded.rd];
+		rnReg = state.registers[decoded.rn];
+		rsReg = state.registers[decoded.rs];
+		rmReg = state.registers[decoded.rm];
+		executeMultiply(rdReg, rnReg, rsReg, rmReg, decoded.A, decoded.S, state);
+		break;
 
-            case BRANCH:
-                *toDecode = 0;
-                *toExecute = 0;
-                int shiftedOffset = decoded.offset << 2;
-                int offset = signExtend(shiftedOffset, 25);
-                executeBranch(offset, state);
-                break;
-            case PROCESSING:
-                rdReg = &state.registers[decoded.rd];
-                rnReg = state.registers[decoded.rn];
-                executeProcessing(rdReg, rnReg, decoded.opcode, decoded.op2, decoded.S, decoded.shiftCarryOut, state);
-                break;
-            case TRANSFER:
-            {
-                REGISTER *rnReg = &state.registers[decoded.rn];
-                REGISTER *rdReg = &state.registers[decoded.rd];
-                REGISTER *rmReg = &state.registers[decoded.rm];
-                executeSingleTransfer(rnReg, rdReg, rmReg, decoded.P, decoded.U, decoded.L, decoded.offset, state);
-                break;
-            }
-            case HALT:
-                break;
-        }
-    }
+	  case BRANCH:*toDecode = 0;
+		*toExecute = 0;
+		int shiftedOffset = decoded.offset << 2;
+		int offset = signExtend(shiftedOffset, 25);
+		executeBranch(offset, state);
+		break;
+	  case PROCESSING:rdReg = &state.registers[decoded.rd];
+		rnReg = state.registers[decoded.rn];
+		executeProcessing(rdReg, rnReg, decoded.opcode, decoded.op2, decoded.S, decoded.shiftCarryOut, state);
+		break;
+	  case TRANSFER: {
+		REGISTER *rnReg = &state.registers[decoded.rn];
+		REGISTER *rdReg = &state.registers[decoded.rd];
+		REGISTER *rmReg = &state.registers[decoded.rm];
+		executeSingleTransfer(rnReg, rdReg, rmReg, decoded.P, decoded.U, decoded.L, decoded.offset, state);
+		break;
+	  }
+	  case HALT:break;
+	}
+  }
 }
