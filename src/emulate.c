@@ -19,67 +19,67 @@
  * @param argv Array of strings passed as arguments
  * @return Integer representing exit success
  */
-//int main(int argc, char **argv) {
-//    if (argc != 2) {
-//        fprintf(stderr, "No filename given");
-//        return EXIT_FAILURE;
-//    }
-//    FILE *objCode = fopen(argv[1], "rb");
-//
-//    if (objCode == NULL) {
-//        fprintf(stderr, "File could not be opened");
-//        return EXIT_FAILURE;
-//    }
-//
-//    MACHINE_STATE state;
-//
-//    state.registers = calloc(NUM_OF_REG, sizeof(REGISTER));
-//    if (!state.registers) {
-//        printf("Memory Failure\n");
-//        exit(EXIT_FAILURE);
-//    }
-//    state.memory = calloc(MAX_ADDRESSES, sizeof(BYTE));
-//    if (!state.memory) {
-//        printf("Memory Failure \n");
-//        exit(EXIT_FAILURE);
-//    }
-//
-//    int i = 0;
-//    while(!feof(objCode)) {
-//        fread(&state.memory[i], sizeof(BYTE), 1, objCode);
-//        i++;
-//    }
-//    if (ferror(objCode)) {
-//        printf("An error has occurred whilst file reading");
-//        exit(EXIT_FAILURE);
-//    }
-//    fclose(objCode);
-//
-//    REGISTER* pc = &state.registers[15];
-//    INSTRUCTION fetched;
-//    DECODED_INSTR decoded;
-//    int toDecode = 0;
-//    int toExecute = 0;
-//    while (1) {
-//        if (toExecute) {
-//            if (decoded.type == HALT) {
-//                break;
-//            }
-//            execute(decoded, state, &toDecode, &toExecute);
-//        }
-//        if (toDecode) {
-//            decoded = decode(fetched, state);
-//            toExecute = 1;
-//        }
-//        fetched = fetch(pc, state);
-//        if (*pc >= 4) {
-//            toDecode = 1;
-//        }
-//    }
-//    printState(state);
-//    /* Frees the memory allocated for the machine state */
-//    free(state.registers);
-//    free(state.memory);
-//    return EXIT_SUCCESS;
-//}
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        fprintf(stderr, "No filename given");
+        return EXIT_FAILURE;
+    }
+    FILE *objCode = fopen(argv[1], "rb");
+
+    if (objCode == NULL) {
+        fprintf(stderr, "File could not be opened");
+        return EXIT_FAILURE;
+    }
+
+    MACHINE_STATE state;
+
+    state.registers = calloc(NUM_OF_REG, sizeof(REGISTER));
+    if (!state.registers) {
+        printf("Memory Failure\n");
+        exit(EXIT_FAILURE);
+    }
+    state.memory = calloc(MAX_ADDRESSES, sizeof(BYTE));
+    if (!state.memory) {
+        printf("Memory Failure \n");
+        exit(EXIT_FAILURE);
+    }
+
+    int i = 0;
+    while(!feof(objCode)) {
+        fread(&state.memory[i], sizeof(BYTE), 1, objCode);
+        i++;
+    }
+    if (ferror(objCode)) {
+        printf("An error has occurred whilst file reading");
+        exit(EXIT_FAILURE);
+    }
+    fclose(objCode);
+
+    REGISTER* pc = &state.registers[15];
+    INSTRUCTION fetched;
+    DECODED_INSTR decoded;
+    int toDecode = 0;
+    int toExecute = 0;
+    while (1) {
+        if (toExecute) {
+            if (decoded.type == HALT) {
+                break;
+            }
+            execute(decoded, state, &toDecode, &toExecute);
+        }
+        if (toDecode) {
+            decoded = decode(fetched, state);
+            toExecute = 1;
+        }
+        fetched = fetch(pc, state);
+        if (*pc >= 4) {
+            toDecode = 1;
+        }
+    }
+    printState(state);
+    /* Frees the memory allocated for the machine state */
+    free(state.registers);
+    free(state.memory);
+    return EXIT_SUCCESS;
+}
 

@@ -86,7 +86,9 @@ int *getValues(char *str, char start, int max, int *length) {
 }
 
 INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
-  printf("printing instrLine: %s\n", instrLine);
+  if (!*instrLine) {
+    printf("1\n");
+  }
   INSTR_TOKENS *tokens = (INSTR_TOKENS *) malloc(sizeof(INSTR_TOKENS));
   if (!tokens) {
     perror("Error allocating tokens memory");
