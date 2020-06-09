@@ -11,7 +11,7 @@ Map *createMap(void) {
 }
 
 void freeNode(Node *node) {
-//    free(node);
+    free(node);
 }
 
 void freeMap(Map *map) {
@@ -34,11 +34,7 @@ Node *createNode(char *label, int value) {
 
 int getValue(Map *map, char *label) {
     for (Node *curr = map->front; curr; curr = curr->next) {
-      printf("1\n");
-      printf("%s\n",curr->key);
-      printf("%s\n", label);
         if (strcmp(curr->key, label) == 0) {
-          printf("returning\n");
             return curr->val;
         }
     }

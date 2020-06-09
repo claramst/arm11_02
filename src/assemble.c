@@ -27,7 +27,7 @@ void writeToFile(FILE *file, WORD word) {
 	fwrite(byte, sizeof(BYTE), 1, file);
   }
   fflush(file);
-//  free(byte);
+  free(byte);
 }
 
 int main(int argc, char **argv) {
@@ -60,6 +60,7 @@ int main(int argc, char **argv) {
 	printf("An error has occurred whilst file reading");
 	exit(EXIT_FAILURE);
   }
+
   fclose(sourceFile);
 
   // First pass:
@@ -105,13 +106,13 @@ int main(int argc, char **argv) {
   for (int i = 0; i < noOfInstructions; i++) {
 	INSTR_TOKENS *tokens = tokenize(array_of_lines[i], i, symbolTable);
 	INSTRUCTION instr = encodeInstruction(tokens, symbolTable);
-//	freeTokens(tokens);
+	freeTokens(tokens);
 	writeToFile(outputFile, instr);
   }
 
   fclose(outputFile);
   // Free memory and exit
-//  freeMap(symbolTable);
+  freeMap(symbolTable);
   return 0;
 }
 

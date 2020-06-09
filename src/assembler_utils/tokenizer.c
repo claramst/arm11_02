@@ -86,9 +86,6 @@ int *getValues(char *str, char start, int max, int *length) {
 }
 
 INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
-  if (!*instrLine) {
-    printf("1\n");
-  }
   INSTR_TOKENS *tokens = (INSTR_TOKENS *) malloc(sizeof(INSTR_TOKENS));
   if (!tokens) {
     perror("Error allocating tokens memory");
@@ -98,7 +95,6 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   char str[strlen(instrLine)];
   strcpy(str, instrLine);
   char *s = strtok(str, " ");
-  printf("printing str %s\n", instrLine);
   OPCODE opcode = getValue(symbolTable, s);
   if (isBranch(opcode)) {
 	tokenizeBranch(instrLine, address, symbolTable, tokens);
@@ -115,12 +111,19 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
 		if (IS_DIGIT(instrLine[i + 1])) {
 		  tokens->symbols[index++] = REG;
 		}
+    break;
 	  case '[':tokens->symbols[index++] = OPEN;
+    break;
 	  case ']':tokens->symbols[index++] = CLOSE;
+    break;
 	  case '+':tokens->symbols[index++] = PLUS;
+    break;
 	  case '-':tokens->symbols[index++] = MINUS;
+    break;
 	  case '#':tokens->symbols[index++] = HASHTAG;
+    break;
 	  case '=':tokens->symbols[index++] = EQUAL;
+    break;
 	}
   }
   /*
@@ -162,11 +165,11 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
 }
 
 void freeTokens(INSTR_TOKENS *tokens) {
-//  free(tokens->registers);
-//  free(tokens->immediateHash);
-//  free(tokens->immediateEquals);
-//  free(tokens->symbols);
-//  free(tokens);
+  free(tokens->registers);
+  free(tokens->immediateHash);
+  free(tokens->immediateEquals);
+  free(tokens->symbols);
+  free(tokens);
 }
 //   INSTR_TOKENS *tokens = (INSTR_TOKENS *) malloc(sizeof(INSTR_TOKENS));
 //   tokens->arrayOfTokens = strings;
