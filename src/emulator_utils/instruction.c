@@ -81,7 +81,7 @@ int willExecute(CONDITION cond, MACHINE_STATE state) {
 }
 
 bool isNum(char c) {
-  return ('0' <= c && c <= '9') || c == '-' || c = '+';
+  return ('0' <= c && c <= '9') || c == '-' || c == '+';
 }
 
 bool isLetter(char c) {
