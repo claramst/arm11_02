@@ -83,7 +83,7 @@ int *getValues(char *str, char start, int max, int *length) {
 	  }
 	  char num[end - i];
 	  if (isHex) {
-	    strncpy(&num[0], &str[i + 3], end - i - 1);
+	    strncpy(&num[0], &str[i + 1], end - i - 1);
 		num[end - i - 1] = '\0';
 		values[index] = strtol(num, NULL, 16);
 	  } else {
