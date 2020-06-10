@@ -109,9 +109,6 @@ bool validInstr(char *str) {
   int pairs = 0;
   for (int i = 0; i < len; i++) {
     c = str[i];
-    if (!validChar(c)) {
-      return false;
-    }
     switch (c) {
       case '[':
         brackets++;
@@ -140,7 +137,16 @@ bool validInstr(char *str) {
         } else if (!isNum(str[i +  1])) {
           return false;
         }
+        break;
+      default:
+        if (!validChar(c)) {
+          return false;
+        }
     }
+    if (brackets < 0 || pairs > 1) { 
+      return false;
+    }
+  }
     if (brackets < 0 || pairs > 1) { 
       return false;
     }
