@@ -95,6 +95,7 @@ uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
 		if (tokens->noOfRegisters == 3) {
 		  operand2 |= tokens->immediateHash[0] << 7;
 		} else if (tokens->noOfRegisters == 4) { // should be the only other case
+		  operand2 = setBit(operand2, 4);
 		  operand2 |= tokens->registers[3] << 8;
 		}
 		break;
@@ -105,6 +106,7 @@ uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
 		if (tokens->noOfRegisters == 2) {
 		  operand2 |= tokens->immediateHash[0] << 7;
 		} else if (tokens->noOfRegisters == 3) { // should be the only other case
+		  operand2 = setBit(operand2, 4);
 		  operand2 |= tokens->registers[2] << 8;
 		}
 		break;

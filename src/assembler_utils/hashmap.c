@@ -23,6 +23,7 @@ void freeMap(Map *map) {
         freeNode(elem);
         elem = next;
     }
+    free(map);
 }
 
 Node *createNode(char *label, int value) {
