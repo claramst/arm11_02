@@ -7,7 +7,7 @@
 #define IS_HEX(c) (('A' <= c && c <= 'F') || c == 'x')
 
 int isProcessing(OPCODE opcode) {
-  return AND <= opcode && opcode <= MOV;
+  return (AND <= opcode && opcode <= MOV) || opcode == ANDEQ;
 }
 
 int isMultiply(OPCODE opcode) {
@@ -82,9 +82,15 @@ int *getValues(char *str, char start, int max, int *length) {
 		continue;
 	  }
 	  char num[end - i];
-	  strncpy(&num[0], &str[i + 1], end - i - 1);
-	  num[end - i - 1] = '\0';
-		values[index] = (isHex) ? strtol(num, NULL, 16) : atoi(num);
+	  if (isHex) {
+	    strncpy(&num[0], &str[i + 3], end - i - 1);
+		num[end - i - 1] = '\0';
+		values[index] = strtol(num, NULL, 16);
+	  } else {
+		strncpy(&num[0], &str[i + 1], end - i - 1);
+		num[end - i - 1] = '\0';
+		values[index] = atoi(num);
+	  }
 	  index++;
 	}
   }

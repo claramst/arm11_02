@@ -20,6 +20,12 @@ INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable) {
 	}
   } else if (isBranch(tokens->opcode)) {
 	return branch(tokens);
+  } else if (tokens->opcode == LSL) {
+	tokens->shift = "lsl";
+	tokens->opcode = MOV;
+	tokens->registers[1] = tokens->registers[0];
+	tokens->noOfRegisters++;
+	return dpi(tokens, symbolTable);
   } else {
 	return EXIT_FAILURE;
   }
@@ -60,7 +66,7 @@ uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
 	int foundRepresentation = 0;
 	for (int rotate = 0; rotate < 32; rotate += 2) {
 	  if (!(expr & ~0xff)) {
-		operand2 = expr + (rotate/2 << 8);
+		operand2 = expr + (rotate / 2 << 8);
 		foundRepresentation = 1;
 		break;
 	  }
@@ -82,7 +88,7 @@ uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
 	} else if (!strcmp(tokens->shift, "ror")) {
 	  operand2 = setBits(operand2, 2, 5);
 	} // otherwhise tokens->shift should be lsl with code 00
-	  // OR, there is no shift specified, just a register.
+	// OR, there is no shift specified, just a register.
 
 	switch (tokens->opcode) {
 	  case AND:
@@ -90,8 +96,7 @@ uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
 	  case SUB:
 	  case RSB:
 	  case ADD:
-	  case ORR:
-	    operand2 |= tokens->registers[2];
+	  case ORR: operand2 |= tokens->registers[2];
 		if (tokens->noOfRegisters == 3) {
 		  operand2 |= tokens->immediateHash[0] << 7;
 		} else if (tokens->noOfRegisters == 4) { // should be the only other case
@@ -130,14 +135,12 @@ INSTRUCTION dpi(INSTR_TOKENS *tokens, Map *map) {
   switch (opcode) {
 	case TST:
 	case TEQ:
-	case CMP:
-	  S = 1;
+	case CMP: S = 1;
 	  I = (tokens->shift == NULL && tokens->noOfRegisters == 1) ? 1 : 0;
 	  rd = 0;
 	  rn = tokens->registers[0];
 	  break;
-	case MOV:
-	  S = 0;
+	case MOV: S = 0;
 	  I = (tokens->shift == NULL && tokens->noOfRegisters == 1) ? 1 : 0;
 	  rd = tokens->registers[0];
 	  rn = 0;
