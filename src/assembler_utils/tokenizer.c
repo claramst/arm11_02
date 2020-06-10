@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define IS_DIGIT(c) ('0' <= c && c <= '9')
+#define IS_DIGIT(c) ('0' <= c && c <= '9' || c == '-')
+#define IS_HEX(c) ('A' <= c && c <= 'F' || c == 'x')
 
 int isProcessing(OPCODE opcode) {
   return AND <= opcode && opcode <= MOV;
@@ -41,7 +42,7 @@ void tokenizeOp2(INSTR_TOKENS *tokens, char **strings) {
 
 void tokenizeBranch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS *tokens) {
   tokens->currAddr = address;
-  char **tokenisedInstruction = NULL;
+  char *tokenisedInstruction[2];
   char *temp;
   char *token = strtok_r(instrLine, " ", &temp);
   for (int i = 0; token; i++) {
@@ -49,7 +50,7 @@ void tokenizeBranch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS
 	token = strtok_r(NULL, " ", &temp);
   }
 
-  char *branchAddress = tokenisedInstruction[2];
+  char *branchAddress = tokenisedInstruction[1];
   if (getValue(symbolTable, branchAddress) == -1) {
 	// Address is in hex
 	char *endptr;
@@ -61,23 +62,29 @@ void tokenizeBranch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS
 }
 
 int *getValues(char *str, char start, int max, int *length) {
-  int *values = malloc(max * sizeof(int));
+  int *values = calloc(max, sizeof(int));
   if (!values) {
-    perror("Error allocating values memory");
-    exit(EXIT_FAILURE);
+	perror("Error allocating values memory");
+	exit(EXIT_FAILURE);
   }
   int len = strlen(str);
   int index = 0;
+  int isHex = 0;
   for (int i = 0; i < len - 1; i++) {
 	if (str[i] == start /*&& str[i - 1] != 'd'*/) {
 	  int end;
-	  for (end = i + 1; IS_DIGIT(str[end]) || str[end] == 'x'; end++);
+	  for (end = i + 1; IS_DIGIT(str[end]) || IS_HEX(str[end]); end++) {
+	    if (IS_HEX(str[end])) {
+	      isHex = 1;
+	    }
+	  }
 	  if (end - i == 1) {
 		continue;
 	  }
-	  char num[end - i - 1];
-	  strncpy(&num[0], &str[i + 1], end - i);
-	  values[index] = atoi(num) | strtol(num, NULL, 16);
+	  char num[end - i];
+	  strncpy(&num[0], &str[i + 1], end - i - 1);
+	  num[end - i - 1] = '\0';
+		values[index] = (isHex) ? strtol(num, NULL, 16) : atoi(num);
 	  index++;
 	}
   }
@@ -87,12 +94,17 @@ int *getValues(char *str, char start, int max, int *length) {
 
 INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   INSTR_TOKENS *tokens = (INSTR_TOKENS *) malloc(sizeof(INSTR_TOKENS));
+  tokens->registers = NULL;
+  tokens->immediateHash = NULL;
+  tokens->immediateEquals = NULL;
+  tokens->symbols = NULL;
   if (!tokens) {
-    perror("Error allocating tokens memory");
-    exit(EXIT_FAILURE);
+	perror("Error allocating tokens memory");
+	exit(EXIT_FAILURE);
   }
 
-  char str[strlen(instrLine)];
+//  char str[strlen(instrLine) + 1];
+  char *str = calloc(strlen(instrLine) + 1, sizeof(char));
   strcpy(str, instrLine);
   char *s = strtok(str, " ");
   OPCODE opcode = getValue(symbolTable, s);
@@ -111,19 +123,19 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
 		if (IS_DIGIT(instrLine[i + 1])) {
 		  tokens->symbols[index++] = REG;
 		}
-    break;
-	  case '[':tokens->symbols[index++] = OPEN;
-    break;
-	  case ']':tokens->symbols[index++] = CLOSE;
-    break;
-	  case '+':tokens->symbols[index++] = PLUS;
-    break;
-	  case '-':tokens->symbols[index++] = MINUS;
-    break;
-	  case '#':tokens->symbols[index++] = HASHTAG;
-    break;
-	  case '=':tokens->symbols[index++] = EQUAL;
-    break;
+		break;
+	  case '[': tokens->symbols[index++] = OPEN;
+		break;
+	  case ']': tokens->symbols[index++] = CLOSE;
+		break;
+	  case '+': tokens->symbols[index++] = PLUS;
+		break;
+	  case '-': tokens->symbols[index++] = MINUS;
+		break;
+	  case '#': tokens->symbols[index++] = HASHTAG;
+		break;
+	  case '=': tokens->symbols[index++] = EQUAL;
+		break;
 	}
   }
   /*

@@ -26,8 +26,8 @@ void writeToFile(FILE *file, WORD word) {
 	*byte = getByte(word, j);
 	fwrite(byte, sizeof(BYTE), 1, file);
   }
-  fflush(file);
-  free(byte);
+//  fflush(file);
+//  free(byte);
 }
 
 int main(int argc, char **argv) {
@@ -41,17 +41,20 @@ int main(int argc, char **argv) {
   char *sourceFileName = argv[1];
   char *outputFileName = argv[2];
 
+
   FILE *sourceFile = fopen(sourceFileName, "r");
   if (sourceFile == NULL) {
 	fprintf(stderr, "File could not be opened");
 	return EXIT_FAILURE;
   }
-  int noOfInstructions = countLines(sourceFile);
-  char **array_of_lines = (char **) calloc(noOfInstructions, sizeof(char *));
+  
+  //Note noOfLines includes label lines in the count.
+  int noOfLines = countLines(sourceFile);
+  char **array_of_lines = (char **) calloc(noOfLines, sizeof(char *));
   rewind(sourceFile);
-  for (int i = 0; !feof(sourceFile); i++) {
+  for (int i = 0; i < noOfLines; i++) {
 //        fscanf(sourceFile, "%[^\n]%*c", array_of_lines[i]);
-	array_of_lines[i] = (char *) calloc(1, MAX_LINE_LENGTH * sizeof(char));
+	array_of_lines[i] = (char *) calloc(1, MAX_LINE_LENGTH* sizeof(char));
 	fgets(array_of_lines[i], MAX_LINE_LENGTH, sourceFile);
 	array_of_lines[i][strlen(array_of_lines[i]) - 1] = '\0';
 	// char* line = strtok_r(temp, "\n", &temp);
@@ -68,15 +71,21 @@ int main(int argc, char **argv) {
   // Associate labels with memory addresses
 
 
+  char **array_of_instructions = calloc(noOfLines, sizeof (char *));
   Map *symbolTable = createMap();
-  for (int i = 0; i < noOfInstructions; i++) {
+  int noOfInstructions = 0;
+  for (int i = 0; i < noOfLines; i++) {
 	//Checks if the line at array_of_lines[i] contains ':'
 	char *str = strchr(array_of_lines[i], ':');
 	if (str) {
 	  char *temp = array_of_lines[i];
 	  char *label = strtok(temp, ":");
-	  int address = 4 * i;
+	  int address = 4 * noOfInstructions;
 	  addNode(symbolTable, label, address);
+	} else {
+	  array_of_instructions[noOfInstructions] = (char *) calloc(1, MAX_LINE_LENGTH* sizeof(char));
+	  array_of_instructions[noOfInstructions] = array_of_lines[i];
+	  noOfInstructions++;
 	}
   }
   // Add opcodes and values to symbol table
@@ -87,7 +96,6 @@ int main(int argc, char **argv) {
 	  {AND, EOR, SUB, RSB, ADD, TST, TEQ, CMP, ORR, MOV, LDR, STR, BEQ, BNE, BGE, BLT, BGT, BLE, B, LSL, ANDEQ, MUL,
 		  MLA};
   addNodes(symbolTable, mnemonics, mnemonicValues, 23);
-
 
 
   // Second pass:
@@ -102,13 +110,27 @@ int main(int argc, char **argv) {
 	return EXIT_FAILURE;
   }
 
+
   // Assemble into binary, use filewriter
   for (int i = 0; i < noOfInstructions; i++) {
-	INSTR_TOKENS *tokens = tokenize(array_of_lines[i], i, symbolTable);
+//	if (!strcmp(array_of_lines[i], ":")) {
+//	  continue;
+//	}
+	INSTR_TOKENS *tokens = tokenize(array_of_instructions[i], i, symbolTable);
 	INSTRUCTION instr = encodeInstruction(tokens, symbolTable);
 	freeTokens(tokens);
 	writeToFile(outputFile, instr);
   }
+
+  for (int i = 0; i < noOfLines; i++) {
+    free(array_of_lines[i]);
+  }
+  free(array_of_lines);
+
+  for (int i = 0; i < noOfInstructions; i++) {
+//    free(array_of_instructions[i]);
+  }
+  free(array_of_instructions);
 
   fclose(outputFile);
   // Free memory and exit

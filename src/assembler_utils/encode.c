@@ -51,16 +51,16 @@ INSTRUCTION branch(INSTR_TOKENS *tokens) {
   return (cond << 28) + (branchIdentifier << 24) + offset;
 }
 
-uint16_t findOperand2(INSTR_TOKENS *tokens) {
+uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
   uint16_t operand2 = 0;
   uint32_t expr;
-  if (tokens->shift == NULL) { // I == 1
+  if (I) { // I == 1
 	expr = tokens->immediateHash[0];
 	//immediate and rotation
 	int foundRepresentation = 0;
-	for (int rotate = 0; rotate < 16; rotate++) {
+	for (int rotate = 0; rotate < 32; rotate += 2) {
 	  if (!(expr & ~0xff)) {
-		operand2 = expr + (rotate << 8);
+		operand2 = expr + (rotate/2 << 8);
 		foundRepresentation = 1;
 		break;
 	  }
@@ -73,13 +73,16 @@ uint16_t findOperand2(INSTR_TOKENS *tokens) {
   } else { // I == 0
 
 	//set the shift type bits (5 and 6)
-	if (!strcmp(tokens->shift, "lsr")) {
+	if (tokens->shift == NULL) {
+	  operand2 = 0;
+	} else if (!strcmp(tokens->shift, "lsr")) {
 	  operand2 = setBit(operand2, 5);
 	} else if (!strcmp(tokens->shift, "asr")) {
 	  operand2 = setBit(operand2, 6);
 	} else if (!strcmp(tokens->shift, "ror")) {
 	  operand2 = setBits(operand2, 2, 5);
 	} // otherwhise tokens->shift should be lsl with code 00
+	  // OR, there is no shift specified, just a register.
 
 	switch (tokens->opcode) {
 	  case AND:
@@ -87,7 +90,8 @@ uint16_t findOperand2(INSTR_TOKENS *tokens) {
 	  case SUB:
 	  case RSB:
 	  case ADD:
-	  case ORR:operand2 |= tokens->registers[2];
+	  case ORR:
+	    operand2 |= tokens->registers[2];
 		if (tokens->noOfRegisters == 3) {
 		  operand2 |= tokens->immediateHash[0] << 7;
 		} else if (tokens->noOfRegisters == 4) { // should be the only other case
@@ -116,7 +120,7 @@ INSTRUCTION dpi(INSTR_TOKENS *tokens, Map *map) {
   int opcode = tokens->opcode;
   int rn;
   int rd;
-  int I = (tokens->shift == NULL) ? 1 : 0;
+  int I;
   int S;
   int operand2;
   int cond = AL;
@@ -124,22 +128,27 @@ INSTRUCTION dpi(INSTR_TOKENS *tokens, Map *map) {
   switch (opcode) {
 	case TST:
 	case TEQ:
-	case CMP:S = 1;
+	case CMP:
+	  S = 1;
+	  I = (tokens->shift == NULL && tokens->noOfRegisters == 1) ? 1 : 0;
 	  rd = 0;
 	  rn = tokens->registers[0];
 	  break;
-	case MOV:S = 0;
+	case MOV:
+	  S = 0;
+	  I = (tokens->shift == NULL && tokens->noOfRegisters == 1) ? 1 : 0;
 	  rd = tokens->registers[0];
 	  rn = 0;
 	  break;
 	default: // and, eor, sub etc...
 	  S = 0;
+	  I = (tokens->shift == NULL && tokens->noOfRegisters == 2) ? 1 : 0;
 	  rd = tokens->registers[0];
 	  rn = tokens->registers[1];
 	  break;
   }
 
-  operand2 = findOperand2(tokens);
+  operand2 = findOperand2(tokens, I);
 
   instr = (cond << 28) + (I << 25) + (opcode << 21) + (S << 20) + (rn << 16) + (rd << 12) + (operand2);
 

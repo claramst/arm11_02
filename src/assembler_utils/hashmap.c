@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <strings.h>
+#include <assert.h>
 
 Map *createMap(void) {
     Map *map = malloc(sizeof(Map));
@@ -33,6 +34,7 @@ Node *createNode(char *label, int value) {
 }
 
 int getValue(Map *map, char *label) {
+  assert(label != NULL);
     for (Node *curr = map->front; curr; curr = curr->next) {
         if (strcmp(curr->key, label) == 0) {
             return curr->val;
