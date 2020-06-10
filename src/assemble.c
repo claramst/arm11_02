@@ -11,9 +11,13 @@
 int countLines(FILE *fptr) {
   int lines = 0;
   char c;
+  char last = '\n';
   while (!feof(fptr)) {
 	c = fgetc(fptr);
-	lines += (c == '\n');
+	if (c == '\n' && last != '\n') {
+	  lines++;
+	}
+	last = c;
   }
   return lines;
 }
@@ -83,7 +87,7 @@ int main(int argc, char **argv) {
 	  int address = 4 * noOfInstructions;
 	  addNode(symbolTable, label, address);
 	} else {
-	  array_of_instructions[noOfInstructions] = (char *) calloc(1, MAX_LINE_LENGTH* sizeof(char));
+	  array_of_instructions[noOfInstructions] = (char *) calloc(MAX_LINE_LENGTH, sizeof(char));
 	  array_of_instructions[noOfInstructions] = array_of_lines[i];
 	  noOfInstructions++;
 	}

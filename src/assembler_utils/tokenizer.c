@@ -41,7 +41,7 @@ void tokenizeOp2(INSTR_TOKENS *tokens, char **strings) {
 */
 
 void tokenizeBranch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS *tokens) {
-  tokens->currAddr = address;
+  tokens->currAddr = 4 * address;
   char *tokenisedInstruction[2];
   char *temp;
   char *token = strtok_r(instrLine, " ", &temp);
@@ -94,14 +94,14 @@ int *getValues(char *str, char start, int max, int *length) {
 
 INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   INSTR_TOKENS *tokens = (INSTR_TOKENS *) malloc(sizeof(INSTR_TOKENS));
-  tokens->registers = NULL;
-  tokens->immediateHash = NULL;
-  tokens->immediateEquals = NULL;
-  tokens->symbols = NULL;
   if (!tokens) {
 	perror("Error allocating tokens memory");
 	exit(EXIT_FAILURE);
   }
+  tokens->registers = NULL;
+  tokens->immediateHash = NULL;
+  tokens->immediateEquals = NULL;
+  tokens->symbols = NULL;
 
 //  char str[strlen(instrLine) + 1];
   char *str = calloc(strlen(instrLine) + 1, sizeof(char));

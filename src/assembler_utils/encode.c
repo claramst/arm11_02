@@ -48,7 +48,7 @@ INSTRUCTION branch(INSTR_TOKENS *tokens) {
 	offset >>= 2;
   }
   unsigned int branchIdentifier = 10;
-  return (cond << 28) + (branchIdentifier << 24) + offset;
+  return (cond << 28) + (branchIdentifier << 24) + getBits(offset, 24, 0);
 }
 
 uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {

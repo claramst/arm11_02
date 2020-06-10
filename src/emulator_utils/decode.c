@@ -84,6 +84,7 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
             decoded.L = getBit(instr, 20);
             decoded.rn = getNibble(instr, 4);
             decoded.rd = getNibble(instr, 3);
+            decoded.rm = 0;
             if (decoded.I) {
                 int shiftAmount;
                 int shiftType = getBits(instr, 2, 5);
