@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #define IS_DIGIT(c) (('0' <= c && c <= '9') || c == '-')
-#define IS_HEX(c) (('A' <= c && c <= 'F') || c == 'x')
+#define IS_HEX(c) (('A' <= c && c <= 'F') || (('a' <=c && c <= 'f')) || c == 'x')
 
 int isProcessing(OPCODE opcode) {
   return (AND <= opcode && opcode <= MOV) || opcode == ANDEQ;
@@ -71,7 +71,7 @@ int *getValues(char *str, char start, int max, int *length) {
   int index = 0;
   int isHex = 0;
   for (int i = 0; i < len - 1; i++) {
-	if (str[i] == start /*&& str[i - 1] != 'd'*/) {
+	if (str[i] == start && str[i - 1] != 'd') {
 	  int end;
 	  for (end = i + 1; IS_DIGIT(str[end]) || IS_HEX(str[end]); end++) {
 	    if (IS_HEX(str[end])) {
@@ -85,11 +85,11 @@ int *getValues(char *str, char start, int max, int *length) {
 	  if (isHex) {
 	    strncpy(&num[0], &str[i + 1], end - i - 1);
 		num[end - i - 1] = '\0';
-		values[index] = strtol(num, NULL, 16);
+		values[index] = labs(strtol(num, NULL, 16));
 	  } else {
 		strncpy(&num[0], &str[i + 1], end - i - 1);
 		num[end - i - 1] = '\0';
-		values[index] = atoi(num);
+		values[index] = abs(atoi(num));
 	  }
 	  index++;
 	}
