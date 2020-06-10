@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 
 INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable) {
   if (isProcessing(tokens->opcode)) {
@@ -136,6 +137,9 @@ INSTRUCTION dpi(INSTR_TOKENS *tokens, Map *map) {
   int cond = AL;
 
   switch (opcode) {
+    case ANDEQ:
+      assert(tokens->noOfRegisters == 3);
+      return 0;
 	case TST:
 	case TEQ:
 	case CMP: S = 1;
