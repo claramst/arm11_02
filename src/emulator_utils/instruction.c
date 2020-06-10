@@ -80,8 +80,8 @@ int willExecute(CONDITION cond, MACHINE_STATE state) {
     }
 }
 
-bool isDigit(char c) {
-  return ('0' <= c && c <= '9');
+bool isNum(char c) {
+  return ('0' <= c && c <= '9') || c == '-' || c = '+';
 }
 
 bool isLetter(char c) {
@@ -95,8 +95,9 @@ bool isHex(char c) {
 bool isBracket(char c) {
   return (c == '[' || c == ']');
 }
+
 bool validChar(char c) {
-  bool valid = isDigit(c) || isLetter(c) || isHex(c) || isBracket(c);
+  bool valid = isNum(c) || isLetter(c) || isHex(c) || isBracket(c);
   valid = valid || c == ' ' || c == '#' || c == ',' || c == '=' || c == ':';
   return valid;
 }
@@ -104,38 +105,45 @@ bool validChar(char c) {
 bool validInstr(char *str) {
   int len = strlen(str);
   char c;
-  int brackets;
+  int brackets = 0;
+  int pairs = 0;
   for (int i = 0; i < len; i++) {
-	c = str[i];
-	if (!validChar(c)) {
-	  return false;
-	}
-	switch (c) {
-	  case '[':
-		brackets++;
-		break;
-	  case ']':
-		brackets--;
-		break;
-	  case 'x':
-		if (i == 0) {
-		  return false;
-		} else if (str[i - 1] == '0') {
-		  if (i == len - 1) {
-			return false;
-		  } else if (!isDigit(str[i + 1])) {
-			return false;
-		  }
-		}
-	  case '#':
-	  case '=':
-	  case 'r':
-		if (i == len - 1) {
-		  return false;
-		} else if (!isDigit(str[i +  1])) {
-		  return false;
-		}
-	}
+    c = str[i];
+    if (!validChar(c)) {
+      return false;
+    }
+    switch (c) {
+      case '[':
+        brackets++;
+        break;
+      case ']':
+        brackets--;
+        pairs++;
+        break;
+      case 'x':
+        if (i == 0) {
+          return false;
+        } else if (str[i - 1] == '0') {
+          if (i == len - 1) {
+            return false;
+          } else if (!isNum(str[i + 1]) || str[i + i] == '-') {
+            return false;
+          }
+        }
+        break;
+      case '-':
+      case '#':
+      case '=':
+      case 'r':
+        if (i == len - 1) {
+          return false;
+        } else if (!isNum(str[i +  1])) {
+          return false;
+        }
+    }
+    if (brackets < 0 || pairs > 1) { 
+      return false;
+    }
   }
   return brackets == 0;
 }
