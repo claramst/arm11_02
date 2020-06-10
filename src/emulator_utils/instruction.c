@@ -147,9 +147,5 @@ bool validInstr(char *str) {
       return false;
     }
   }
-    if (brackets < 0 || pairs > 1) { 
-      return false;
-    }
-  }
   return brackets == 0;
 }
