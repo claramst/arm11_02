@@ -1,4 +1,5 @@
 #include "state.h"
+#include <stdbool.h>
 /**
  * Header file for instruction.c,
  * defines enums for instruction conditions and instruction types.
@@ -30,6 +31,7 @@ typedef enum condition {
 INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE state);
 INSTR_TYPE findType(INSTRUCTION instr);
 int willExecute(CONDITION cond, MACHINE_STATE state);
+bool validInstr(char *str);
 
 #endif
 

@@ -11,8 +11,11 @@ INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable) {
 	return multiply(tokens);
   } else if (isTransfer(tokens->opcode)) {
 	if (tokens->opcode == LDR && tokens->noOfRegisters == 1 && tokens->immediateEquals[0] < 0xff) {
-	  tokens->immediateHash = tokens->immediateEquals;
-	  tokens->noOfImmsHash = tokens->noOfImmsEquals;
+
+	  tokens->immediateHash[0] = tokens->immediateEquals[0];
+	  tokens->immediateEquals[0] = 0;
+	  tokens->noOfImmsHash = 1;
+	  tokens->noOfImmsEquals = 0;
 	  tokens->opcode = MOV;
 	  return dpi(tokens, symbolTable);
 	} else {

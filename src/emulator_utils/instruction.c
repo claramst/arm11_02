@@ -1,5 +1,7 @@
 #include "instruction.h"
 #include <stdio.h>
+#include <string.h>
+
 /**
  * Misc. functions to do with instructions, fetching them from the PC,
  * seeing if they will execute and getting their type.
@@ -76,4 +78,64 @@ int willExecute(CONDITION cond, MACHINE_STATE state) {
             perror("Invalid condition code");
             return 0;
     }
+}
+
+bool isDigit(char c) {
+  return ('0' <= c && c <= '9');
+}
+
+bool isLetter(char c) {
+  return ('a' <= c && c <= 'z');
+}
+
+bool isHex(char c) {
+  return ('A' <= c && c <= 'F') || c == 'x';
+}
+
+bool isBracket(char c) {
+  return (c == '[' || c == ']');
+}
+bool validChar(char c) {
+  bool valid = isDigit(c) || isLetter(c) || isHex(c) || isBracket(c);
+  valid = valid || c == ' ' || c == '#' || c == ',' || c == '=' || c == ':';
+  return valid;
+}
+
+bool validInstr(char *str) {
+  int len = strlen(str);
+  char c;
+  int brackets;
+  for (int i = 0; i < len; i++) {
+	c = str[i];
+	if (!validChar(c)) {
+	  return false;
+	}
+	switch (c) {
+	  case '[':
+		brackets++;
+		break;
+	  case ']':
+		brackets--;
+		break;
+	  case 'x':
+		if (i == 0) {
+		  return false;
+		} else if (str[i - 1] == '0') {
+		  if (i == len - 1) {
+			return false;
+		  } else if (!isDigit(str[i + 1])) {
+			return false;
+		  }
+		}
+	  case '#':
+	  case '=':
+	  case 'r':
+		if (i == len - 1) {
+		  return false;
+		} else if (!isDigit(str[i +  1])) {
+		  return false;
+		}
+	}
+  }
+  return brackets == 0;
 }
