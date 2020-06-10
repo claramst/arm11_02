@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define IS_DIGIT(c) ('0' <= c && c <= '9' || c == '-')
-#define IS_HEX(c) ('A' <= c && c <= 'F' || c == 'x')
+#define IS_DIGIT(c) (('0' <= c && c <= '9') || c == '-')
+#define IS_HEX(c) (('A' <= c && c <= 'F') || c == 'x')
 
 int isProcessing(OPCODE opcode) {
   return AND <= opcode && opcode <= MOV;
