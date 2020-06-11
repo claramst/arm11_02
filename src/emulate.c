@@ -23,7 +23,7 @@
  */
 int main(int argc, char **argv) {
   CHECK_PRED(argc != 2, "Invalid number of arguments.");
-  
+
   FILE *objCode = fopen(argv[1], "rb");
   CHECK_PRED(!objCode, "File could not be opened.");
 

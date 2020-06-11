@@ -64,6 +64,10 @@ INSTRUCTION branch(INSTR_TOKENS *tokens) {
 }
 
 unsigned int convertShift(char *shift) {
+  if (shift == NULL) {
+    return 0;
+  }
+
   if (!*shift || !strcmp(shift, "lsl"))
 	return 0;
 
@@ -78,6 +82,18 @@ unsigned int convertShift(char *shift) {
 
   perror("Invalid shift type");
   return -1;
+}
+
+unsigned int findSecondReg(TOKEN_TYPE *symbols) {
+  int i = 0;
+  while (symbols[i] != REG) {
+    i++;
+  }
+  i++;
+  while (symbols[i] != REG) {
+      i++;
+  }
+  return i;
 }
 
 uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
@@ -255,27 +271,24 @@ INSTRUCTION sdt(INSTR_TOKENS *tokens) {
   int load = (tokens->opcode == LDR);
   int immediateExp = 0;
   int up = tokens->sign != '-';
-
-  int i = 0;
-  while (tokens->symbols[i] != REG) {
-	i++;
-  }
-  int preIndex = (tokens->symbols[i + 1] == OPEN);
+  int preIndex = 1;
   int offset = 0;
   if (tokens->noOfRegisters == 1) {
 	// form ldr r1 [=1]
 	rn = 0;
 	rd = tokens->registers[0];
 	offset = tokens->immediateEquals[0];
-  } else if (tokens->noOfImmsHash == 0) {
+  } else if (tokens->noOfRegisters == 2 && tokens->noOfImmsHash == 0) {
 	// form ldr r1 [r2]
 	rd = tokens->registers[0];
 	rn = tokens->registers[1];
-  } else if (tokens->shift != NULL) {
-	//form ldr r1 [r2, r3, shift imm]
+	preIndex = 1;
+  } else if (tokens->noOfRegisters == 3) {
+	//form ldr r1 [r2, r3, shift #imm]
 	rd = tokens->registers[0];
 	rn = tokens->registers[1];
 	immediateExp = 1;
+	preIndex = (tokens->symbols[findSecondReg(tokens->symbols) + 1] != CLOSE);
 	offset = (tokens->immediateHash[0] << 7) + (convertShift(tokens->shift) << 5) + tokens->registers[2];
   } else {
 	//1 immediate value, more than 1 register, no shift
@@ -283,6 +296,7 @@ INSTRUCTION sdt(INSTR_TOKENS *tokens) {
 	rd = tokens->registers[0];
 	rn = tokens->registers[1];
 	offset = tokens->immediateHash[0];
+	preIndex = (tokens->symbols[findSecondReg(tokens->symbols) + 1] != CLOSE);
   }
   return sdtAssemble(AL, immediateExp, preIndex, up, load, rn, rd, offset);
 }
