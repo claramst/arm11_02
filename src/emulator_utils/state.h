@@ -1,4 +1,5 @@
-#include "../binary_utils/bitmanipulation.h"
+#include "../global_utils/bitmanipulation.h"
+#include "../global_utils/errorhandling.h"
 /**
  * Header file for state.c
  * Declares functions and type

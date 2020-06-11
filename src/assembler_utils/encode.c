@@ -6,33 +6,35 @@
 #include <assert.h>
 
 INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable) {
-  if (isProcessing(tokens->opcode)) {
+  if (isProcessing(tokens->opcode))
 	return dpi(tokens, symbolTable);
-  } else if (isMultiply(tokens->opcode)) {
-	return multiply(tokens);
-  } else if (isTransfer(tokens->opcode)) {
-	if (tokens->opcode == LDR && tokens->noOfRegisters == 1 && tokens->immediateEquals[0] < 0xff) {
 
+  if (isMultiply(tokens->opcode))
+	return multiply(tokens);
+
+  if (isTransfer(tokens->opcode)) {
+	if (tokens->opcode == LDR && tokens->noOfRegisters == 1 && tokens->immediateEquals[0] < 0xff) {
 	  tokens->immediateHash[0] = tokens->immediateEquals[0];
 	  tokens->immediateEquals[0] = 0;
 	  tokens->noOfImmsHash = 1;
 	  tokens->noOfImmsEquals = 0;
 	  tokens->opcode = MOV;
 	  return dpi(tokens, symbolTable);
-	} else {
-	  return sdt(tokens);
 	}
-  } else if (isBranch(tokens->opcode)) {
+	return sdt(tokens);
+  }
+
+  if (isBranch(tokens->opcode))
 	return branch(tokens);
-  } else if (tokens->opcode == LSL) {
+
+  if (tokens->opcode == LSL) {
 	tokens->shift = "lsl";
 	tokens->opcode = MOV;
 	tokens->registers[1] = tokens->registers[0];
 	tokens->noOfRegisters++;
 	return dpi(tokens, symbolTable);
-  } else {
-	return EXIT_FAILURE;
   }
+  return EXIT_FAILURE;
 }
 
 int getCondition(int opcode) {
@@ -61,6 +63,23 @@ INSTRUCTION branch(INSTR_TOKENS *tokens) {
   return (cond << 28) + (branchIdentifier << 24) + getBits(offset, 24, 0);
 }
 
+unsigned int convertShift(char *shift) {
+  if (!*shift || !strcmp(shift, "lsl"))
+	return 0;
+
+  if (strcmp(shift, "lsr") == 0)
+	return 1;
+
+  if (strcmp(shift, "asr") == 0)
+	return 2;
+
+  if (strcmp(shift, "ror") == 0)
+	return 3;
+
+  perror("Invalid shift type");
+  return -1;
+}
+
 uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
   uint16_t operand2 = 0;
   uint32_t expr;
@@ -81,6 +100,8 @@ uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
 	  return EXIT_FAILURE;
 	}
   } else { // I == 0
+
+//	operand2 |= convertShift(tokens->shift) << 5;
 
 	//set the shift type bits (5 and 6)
 	if (tokens->shift == NULL) {
@@ -137,9 +158,8 @@ INSTRUCTION dpi(INSTR_TOKENS *tokens, Map *map) {
   int cond = AL;
 
   switch (opcode) {
-    case ANDEQ:
-      assert(tokens->noOfRegisters == 3);
-      return 0;
+	case ANDEQ:assert(tokens->noOfRegisters == 3);
+	  return 0;
 	case TST:
 	case TEQ:
 	case CMP: S = 1;
@@ -212,21 +232,6 @@ char *replace_char(char *str, char toBeReplaced, char replacement) {
 	current_pos = strchr(current_pos, toBeReplaced);
   }
   return str;
-}
-
-int convertShift(char *shift) {
-  if (strcmp(shift, "lsl") == 0) {
-	return 0;
-  } else if (strcmp(shift, "lsr") == 0) {
-	return 1;
-  } else if (strcmp(shift, "asr") == 0) {
-	return 2;
-  } else if (strcmp(shift, "ror") == 0) {
-	return 3;
-  } else {
-	perror("Invalid shift type");
-	return -1;
-  }
 }
 
 INSTRUCTION sdtAssemble(CONDITION cond,
