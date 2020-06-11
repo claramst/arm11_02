@@ -7,6 +7,7 @@
 #include "assembler_utils/sdtconstants.h"
 
 #define MAX_LINE_LENGTH 511
+#define EMPTY_STRING(s) (s[0] == '\0')
 
 //PRE: fileName is not null
 int countLines(FILE *fptr) {
@@ -62,6 +63,10 @@ int main(int argc, char **argv) {
 	array_of_lines[i] = (char *) calloc(1, MAX_LINE_LENGTH* sizeof(char));
 	fgets(array_of_lines[i], MAX_LINE_LENGTH, sourceFile);
 	array_of_lines[i][strlen(array_of_lines[i]) - 1] = '\0';
+	if (EMPTY_STRING(array_of_lines[i])) {
+	  i--;
+	  continue;
+	}
 	// char* line = strtok_r(temp, "\n", &temp);
   }
   if (ferror(sourceFile)) {
@@ -115,7 +120,7 @@ int main(int argc, char **argv) {
 	return EXIT_FAILURE;
   }
 
-  SDT_CONSTANTS *sdtConstants = createSDTConstants();
+  SDT_CONSTANTS *sdtConstants = createSDTConstants(noOfInstructions);
   // Assemble into binary, use filewriter
   for (int i = 0; i < noOfInstructions; i++) {
 	INSTR_TOKENS *tokens = tokenize(array_of_instructions[i], i, symbolTable);

@@ -65,7 +65,7 @@ INSTRUCTION branch(INSTR_TOKENS *tokens) {
 
 unsigned int convertShift(char *shift) {
   if (shift == NULL) {
-    return 0;
+	return 0;
   }
 
   if (!*shift || !strcmp(shift, "lsl"))
@@ -87,11 +87,11 @@ unsigned int convertShift(char *shift) {
 unsigned int findSecondReg(TOKEN_TYPE *symbols) {
   int i = 0;
   while (symbols[i] != REG) {
-    i++;
+	i++;
   }
   i++;
   while (symbols[i] != REG) {
-      i++;
+	i++;
   }
   return i;
 }
@@ -240,16 +240,6 @@ INSTRUCTION multiply(INSTR_TOKENS *tokens) {
 // This could maybe be done inside tokenizer? like eg tokenize sends to    // tokenizeSDT and further breaks down so that we can set the calculated value in instrTokens.
 //translateSDT and translateDPI would then be simpler.
 
-//Found this on stack overflow
-char *replace_char(char *str, char toBeReplaced, char replacement) {
-  char *current_pos = strchr(str, toBeReplaced);
-  while (current_pos) {
-	*current_pos = replacement;
-	current_pos = strchr(current_pos, toBeReplaced);
-  }
-  return str;
-}
-
 INSTRUCTION sdtAssemble(CONDITION cond,
 						int immediateExp,
 						int preIndex,
@@ -275,9 +265,13 @@ INSTRUCTION sdt(INSTR_TOKENS *tokens, SDT_CONSTANTS *constants) {
   int offset = 0;
   if (tokens->noOfRegisters == 1) {
 	// form ldr r1 [=1]
-	rn = 0;
+	//rn is set to the PC in this case (lol)
+	rn = 15;
 	rd = tokens->registers[0];
-	offset = tokens->immediateEquals[0];
+	offset = (constants->noOfInstructions + constants->size) * 4 - tokens->currAddr - 8;
+	addToConstants(constants, tokens->immediateEquals[0]);
+//    offset = 0;
+//	offset = tokens->immediateEquals[0];
   } else if (tokens->noOfRegisters == 2 && tokens->noOfImmsHash == 0) {
 	// form ldr r1 [r2]
 	rd = tokens->registers[0];

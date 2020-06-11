@@ -41,7 +41,6 @@ void tokenizeOp2(INSTR_TOKENS *tokens, char **strings) {
 */
 
 void tokenizeBranch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS *tokens) {
-  tokens->currAddr = 4 * address;
   char *tokenisedInstruction[2];
   char *temp;
   char *token = strtok_r(instrLine, " ", &temp);
@@ -108,6 +107,7 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   tokens->immediateHash = NULL;
   tokens->immediateEquals = NULL;
   tokens->symbols = NULL;
+  tokens->currAddr = 4 * address;
 
 //  char str[strlen(instrLine) + 1];
   char *str = calloc(strlen(instrLine) + 1, sizeof(char));
