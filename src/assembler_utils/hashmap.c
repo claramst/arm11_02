@@ -63,3 +63,13 @@ void addNodes(Map *map, char *keys[], int values[], int n) {
   for (int i = 0; i < n; i++)
 	addNode(map, keys[i], values[i]);
 }
+
+int countNodes(Map *map) {
+  assert(map);
+  int count = 0;
+  for (Node *elem = map->front, *next; elem; elem = next) {
+	next = elem->next;
+	count++;
+  }
+  return count;
+}

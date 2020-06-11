@@ -19,6 +19,6 @@ void addNode(Map *map, char *label, int value);
 void freeNode(Node *node);
 void freeMap(Map *map);
 void addNodes(Map *map, char **label, int *value, int n);
-
+int countNodes(Map *map);
 #endif
 

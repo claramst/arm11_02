@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable) {
+INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable, SDT_CONSTANTS *constants) {
   if (isProcessing(tokens->opcode))
 	return dpi(tokens, symbolTable);
 
@@ -21,7 +21,7 @@ INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable) {
 	  tokens->opcode = MOV;
 	  return dpi(tokens, symbolTable);
 	}
-	return sdt(tokens);
+	return sdt(tokens, constants);
   }
 
   if (isBranch(tokens->opcode))
@@ -265,7 +265,7 @@ INSTRUCTION sdtAssemble(CONDITION cond,
 //SDT register order is rd, rn, rm
 // This flow chart could definetely optimised.
 
-INSTRUCTION sdt(INSTR_TOKENS *tokens) {
+INSTRUCTION sdt(INSTR_TOKENS *tokens, SDT_CONSTANTS *constants) {
   REGISTER rn;
   REGISTER rd;
   int load = (tokens->opcode == LDR);

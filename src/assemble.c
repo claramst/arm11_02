@@ -4,6 +4,7 @@
 #include "emulator_utils/state.h"
 #include "assembler_utils/encode.h"
 #include "global_utils/bitmanipulation.h"
+#include "assembler_utils/sdtconstants.h"
 
 #define MAX_LINE_LENGTH 511
 
@@ -114,26 +115,27 @@ int main(int argc, char **argv) {
 	return EXIT_FAILURE;
   }
 
-
+  SDT_CONSTANTS *sdtConstants = createSDTConstants();
   // Assemble into binary, use filewriter
   for (int i = 0; i < noOfInstructions; i++) {
-//	if (!strcmp(array_of_lines[i], ":")) {
-//	  continue;
-//	}
 	INSTR_TOKENS *tokens = tokenize(array_of_instructions[i], i, symbolTable);
-	INSTRUCTION instr = encodeInstruction(tokens, symbolTable);
+	INSTRUCTION instr = encodeInstruction(tokens, symbolTable, sdtConstants);
 	freeTokens(tokens);
 	writeToFile(outputFile, instr);
   }
+
+  //3rd loop to write in load constants
+  for (int i = 0; i < sdtConstants->size; i++) {
+    writeToFile(outputFile, sdtConstants->constants[i]);
+  }
+
+  freeConstants(sdtConstants);
 
   for (int i = 0; i < noOfLines; i++) {
     free(array_of_lines[i]);
   }
   free(array_of_lines);
 
-  for (int i = 0; i < noOfInstructions; i++) {
-//    free(array_of_instructions[i]);
-  }
   free(array_of_instructions);
 
   fclose(outputFile);

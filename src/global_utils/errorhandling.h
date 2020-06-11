@@ -1,6 +1,8 @@
 #ifndef ARM11_02_SRC_GLOBAL_UTILS_ERRORHANDLING_H_
 #define ARM11_02_SRC_GLOBAL_UTILS_ERRORHANDLING_H_
 
+#include <stdio.h>
+
 #define CHECK_PRED(pred, msg) \
  do { \
 if ((pred)) { \

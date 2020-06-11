@@ -7,9 +7,11 @@ CFLAGS  = -Wall -g -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic
 
 all:  emulate assemble
 
-assemble: assemble.o emulator_utils/state.o global_utils/bitmanipulation.o assembler_utils/encode.o emulator_utils/instruction.o assembler_utils/hashmap.o assembler_utils/tokenizer.o
+assemble: assemble.o emulator_utils/state.o global_utils/bitmanipulation.o assembler_utils/encode.o emulator_utils/instruction.o assembler_utils/hashmap.o assembler_utils/tokenizer.o assembler_utils/sdtconstants.o
 
-assemble.o: assemble.c emulator_utils/state.h global_utils/bitmanipulation.h assembler_utils/encode.h
+assemble.o: assemble.c emulator_utils/state.h global_utils/bitmanipulation.h assembler_utils/encode.h assembler_utils/sdtconstants.h
+
+assembler_utils/sdtconstants.o: assembler_utils/sdtconstants.c assembler_utils/sdtconstants.h
 
 assembler_utils/encode.o: assembler_utils/encode.c assembler_utils/encode.h
 
