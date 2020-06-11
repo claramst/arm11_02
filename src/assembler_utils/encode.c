@@ -266,7 +266,6 @@ INSTRUCTION sdt(INSTR_TOKENS *tokens) {
 	// form ldr r1 [=1]
 	rn = 0;
 	rd = tokens->registers[0];
-	immediateExp = 1;
 	offset = tokens->immediateEquals[0];
   } else if (tokens->noOfImmsHash == 0) {
 	// form ldr r1 [r2]
@@ -276,7 +275,8 @@ INSTRUCTION sdt(INSTR_TOKENS *tokens) {
 	//form ldr r1 [r2, r3, shift imm]
 	rd = tokens->registers[0];
 	rn = tokens->registers[1];
-	offset = (tokens->immediateHash[0] << 7) + (convertShift(tokens->shift) << 5) + (1 << 4) + tokens->registers[2];
+	immediateExp = 1;
+	offset = (tokens->immediateHash[0] << 7) + (convertShift(tokens->shift) << 5) + tokens->registers[2];
   } else {
 	//1 immediate value, more than 1 register, no shift
 	//form ldr r1, [r2, #imm]

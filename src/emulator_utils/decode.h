@@ -22,7 +22,6 @@ typedef struct decodedInstr {
   int I, S,  A, P, U, L, offset;
   OPCODE opcode;
   unsigned int op2, rs, rm;
-  int
 //    union {
 //        struct dpi {
 //            int I_dpi;
