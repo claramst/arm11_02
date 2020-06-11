@@ -71,7 +71,7 @@ int *getValues(char *str, char start, int max, int *length) {
   int index = 0;
   int isHex = 0;
   for (int i = 0; i < len - 1; i++) {
-	if (str[i] == start && str[i - 1] != 'd') {
+	if (str[i] == start/* && str[i - 1] != 'd'*/) {
 	  int end;
 	  for (end = i + 1; IS_DIGIT(str[end]) || IS_HEX(str[end]); end++) {
 	    if (IS_HEX(str[end])) {

@@ -3,7 +3,7 @@
 #include <string.h>
 #include "emulator_utils/state.h"
 #include "assembler_utils/encode.h"
-#include "binary_utils/bitmanipulation.h"
+#include "global_utils/bitmanipulation.h"
 
 #define MAX_LINE_LENGTH 511
 
