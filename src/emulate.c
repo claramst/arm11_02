@@ -22,49 +22,26 @@
  * @return Integer representing exit success
  */
 int main(int argc, char **argv) {
-  if (argc != 2) {
-	fprintf(stderr, "No filename given.");
-	return EXIT_FAILURE;
-  }
+  CHECK_PRED(argc != 2, "Invalid number of arguments.");
+  
   FILE *objCode = fopen(argv[1], "rb");
-  if (objCode == NULL) {
-	fprintf(stderr, "File could not be opened.");
-	return EXIT_FAILURE;
-  }
+  CHECK_PRED(!objCode, "File could not be opened.");
 
   MACHINE_STATE state;
 
   state.registers = calloc(NUM_OF_REG, sizeof(REGISTER));
-//  if (!state.registers) {
-//	printf("Error allocating register memory.\n");
-//	return EXIT_FAILURE;
-//  }
   CHECK_PRED(!state.registers, "Error allocating register memory.");
+
   state.memory = calloc(MAX_ADDRESSES, sizeof(BYTE));
-//  if (!state.memory) {
-//	printf("Error allocating memory for ARM machine.\n");
-//	exit(EXIT_FAILURE);
-//  }
   CHECK_PRED(!state.memory, "Error allocating memory for ARM machine.");
 
-
-//    while(!feof(objCode)) {
-//        fread(&state.memory[i], sizeof(BYTE), 1, objCode);
-//        i++;
-//    }
-
   for (int i = 0; fread(&state.memory[i], sizeof(BYTE), 1, objCode) == 1; i++) {}
-
-//  if (ferror(objCode)) {
-//	fprintf(stderr, "An error has occurred whilst file reading");
-//	exit(EXIT_FAILURE);
-//  }
   CHECK_PRED(ferror(objCode), "An error has occurred whilst file reading.");
-
   fclose(objCode);
 
   REGISTER *pc = &state.registers[15];
   assert(pc);
+
   INSTRUCTION fetched;
   DECODED_INSTR decoded;
   int toDecode = 0;
@@ -86,7 +63,7 @@ int main(int argc, char **argv) {
 	}
   }
   printState(state);
-  /* Frees the memory allocated for the machine state */
+
   free(state.registers);
   free(state.memory);
   return EXIT_SUCCESS;

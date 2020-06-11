@@ -62,35 +62,25 @@ void executeProcessing(REGISTER *dest,
 					   MACHINE_STATE state) {
   int result;
   switch (opcode) {
-	case AND:
-	  *dest = result = op1 & op2;
+	case AND: *dest = result = op1 & op2;
 	  break;
-	case EOR:
-	  *dest = result = op1 ^ op2;
+	case EOR: *dest = result = op1 ^ op2;
 	  break;
-	case SUB:
-	  *dest = result = op1 - op2;
+	case SUB: *dest = result = op1 - op2;
 	  break;
-	case RSB:
-	  *dest = result = op2 - op1;
+	case RSB: *dest = result = op2 - op1;
 	  break;
-	case ADD:
-	  *dest = result = op1 + op2;
+	case ADD: *dest = result = op1 + op2;
 	  break;
-	case TST:
-	  result = op1 & op2;
+	case TST: result = op1 & op2;
 	  break;
-	case TEQ:
-	  result = op1 ^ op2;
+	case TEQ: result = op1 ^ op2;
 	  break;
-	case CMP:
-	  result = op1 - op2;
+	case CMP: result = op1 - op2;
 	  break;
-	case ORR:
-	  *dest = result = op1 | op2;
+	case ORR: *dest = result = op1 | op2;
 	  break;
-	case MOV:
-	  *dest = result = op2;
+	case MOV: *dest = result = op2;
 	  break;
 	default:perror("Invalid opcode.");
 	  break;
@@ -136,9 +126,8 @@ void executeProcessing(REGISTER *dest,
 		} else {
 		  *cpsr = setBit(*cpsr, 29);
 		}
-	  default:
-	    perror("Invalid opcode.");
-	    break;
+	  default: perror("Invalid opcode.");
+		break;
 	}
 	// For Z flag
 	if (!result) {
@@ -257,6 +246,7 @@ void execute(DECODED_INSTR decoded, MACHINE_STATE state, int *toDecode, int *toE
 		rnReg = state.registers[decoded.rn];
 		rsReg = state.registers[decoded.rs];
 		rmReg = state.registers[decoded.rm];
+		//TODO: access registers in individual execute functions, not out here
 		executeMultiply(rdReg, rnReg, rsReg, rmReg, decoded.A, decoded.S, state);
 		break;
 

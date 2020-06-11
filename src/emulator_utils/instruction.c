@@ -15,9 +15,9 @@
  * @return A 32-bit binary instruction in big endian.
  */
 INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE state) {
-    INSTRUCTION fetched = getWord(*pc, state);
-    *pc += 4;
-    return fetched;
+  INSTRUCTION fetched = getWord(*pc, state);
+  *pc += 4;
+  return fetched;
 }
 
 /**
@@ -26,24 +26,23 @@ INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE state) {
  * @return The instruction type in the form of the enum INSTR_TYPE.
  */
 INSTR_TYPE findType(INSTRUCTION instr) {
-    if (instr == 0) {
-        return HALT;
-    }
-    if (getBit(instr, 27)) {
-        return BRANCH;
-    } else if (getBit(instr, 26)) {
-        return TRANSFER;
-    } else if (getBit(instr, 25)) {
-        return PROCESSING;
-    } else {
-        if (getBit(instr, 4) && getBit(instr, 7)) {
-            return MULTIPLY;
-        } else {
-            return PROCESSING;
-        }
-    }
+  if (instr == 0) {
+	return HALT;
+  }
+  if (getBit(instr, 27)) {
+	return BRANCH;
+  } else if (getBit(instr, 26)) {
+	return TRANSFER;
+  } else if (getBit(instr, 25)) {
+	return PROCESSING;
+  } else {
+	if (getBit(instr, 4) && getBit(instr, 7)) {
+	  return MULTIPLY;
+	} else {
+	  return PROCESSING;
+	}
+  }
 }
-
 
 /**
  * Used to determine if an instruction will execute based on its condition and
@@ -53,31 +52,23 @@ INSTR_TYPE findType(INSTRUCTION instr) {
  * @return 1 if instruction will execute, 0 otherwise.
  */
 int willExecute(CONDITION cond, MACHINE_STATE state) {
-    int cpsr = state.registers[16];
-    int N = getBit(cpsr, 31);
-    int Z = getBit(cpsr, 30);
+  int cpsr = state.registers[16];
+  int N = getBit(cpsr, 31);
+  int Z = getBit(cpsr, 30);
 
-    int V = getBit(cpsr, 28);
+  int V = getBit(cpsr, 28);
 
-    switch (cond) {
-        case EQ:
-            return Z;
-        case NE:
-            return !Z;
-        case GE:
-            return N == V;
-        case LT:
-            return N != V;
-        case GT:
-            return !Z && N == V;
-        case LE:
-            return Z || N != V;
-        case AL:
-            return 1;
-        default:
-            perror("Invalid condition code");
-            return 0;
-    }
+  switch (cond) {
+	case EQ:return Z;
+	case NE:return !Z;
+	case GE:return N == V;
+	case LT:return N != V;
+	case GT:return !Z && N == V;
+	case LE:return Z || N != V;
+	case AL:return 1;
+	default:perror("Invalid condition code");
+	  return 0;
+  }
 }
 
 bool isNum(char c) {
@@ -108,44 +99,42 @@ bool validInstr(char *str) {
   int brackets = 0;
   int pairs = 0;
   for (int i = 0; i < len; i++) {
-    c = str[i];
-    switch (c) {
-      case '[':
-        brackets++;
-        break;
-      case ']':
-        brackets--;
-        pairs++;
-        break;
-      case 'x':
-        if (i == 0) {
-          return false;
-        } else if (str[i - 1] == '0') {
-          if (i == len - 1) {
-            return false;
-          } else if (!isNum(str[i + 1]) || str[i + i] == '-') {
-            return false;
-          }
-        }
-        break;
-      case '-':
-      case '#':
-      case '=':
-      case 'r':
-        if (i == len - 1) {
-          return false;
-        } else if (!isNum(str[i +  1])) {
-          return false;
-        }
-        break;
-      default:
-        if (!validChar(c)) {
-          return false;
-        }
-    }
-    if (brackets < 0 || pairs > 1) { 
-      return false;
-    }
+	c = str[i];
+	switch (c) {
+	  case '[':brackets++;
+		break;
+	  case ']':brackets--;
+		pairs++;
+		break;
+	  case 'x':
+		if (i == 0) {
+		  return false;
+		} else if (str[i - 1] == '0') {
+		  if (i == len - 1) {
+			return false;
+		  } else if (!isNum(str[i + 1]) || str[i + i] == '-') {
+			return false;
+		  }
+		}
+		break;
+	  case '-':
+	  case '#':
+	  case '=':
+	  case 'r':
+		if (i == len - 1) {
+		  return false;
+		} else if (!isNum(str[i + 1])) {
+		  return false;
+		}
+		break;
+	  default:
+		if (!validChar(c)) {
+		  return false;
+		}
+	}
+	if (brackets < 0 || pairs > 1) {
+	  return false;
+	}
   }
   return brackets == 0;
 }

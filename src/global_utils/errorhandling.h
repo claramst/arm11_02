@@ -1,7 +1,3 @@
-//
-// Created by Ashton Choy on 11/06/2020.
-//
-
 #ifndef ARM11_02_SRC_GLOBAL_UTILS_ERRORHANDLING_H_
 #define ARM11_02_SRC_GLOBAL_UTILS_ERRORHANDLING_H_
 
