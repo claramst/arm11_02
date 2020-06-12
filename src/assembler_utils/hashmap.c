@@ -21,8 +21,8 @@ void freeMap(Map *map) {
 //  Node *elem = map->front;
 //  Node *next;
   for (Node *elem = map->front, *next; elem; elem = next) {
-    next = elem->next;
-    freeNode(elem);
+	next = elem->next;
+	freeNode(elem);
   }
 //  while (elem != NULL) {
 //	next = elem->next;

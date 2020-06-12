@@ -3,13 +3,13 @@
 #define HASHMAP_H
 
 typedef struct node {
-    char *key;
-    int val;
-    struct node *next;
+  char *key;
+  int val;
+  struct node *next;
 } Node;
 
 typedef struct map {
-    Node *front;
+  Node *front;
 } Map;
 
 Map *createMap(void);

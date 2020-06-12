@@ -2,30 +2,30 @@
 #include "../emulator_utils/decode.h"
 
 typedef enum token {
-    REG,
-    HASHTAG,
-    EQUAL,
-    COMMA,
-    PLUS,
-    MINUS,
-    OPEN,
-    CLOSE
+  REG,
+  HASHTAG,
+  EQUAL,
+  COMMA,
+  PLUS,
+  MINUS,
+  OPEN,
+  CLOSE
 } TOKEN_TYPE;
 
-
 typedef struct instrTokens {
-    OPCODE opcode;
-    int *registers;
-    int noOfRegisters;
-    int *immediateHash;
-    int noOfImmsHash;
-    int *immediateEquals;
-    int noOfImmsEquals;
-    char *shift;
-    char sign;
-    ADDRESS branchAddr;
-    ADDRESS currAddr;
-    TOKEN_TYPE *symbols;
+  OPCODE opcode;
+  int *registers;
+  int noOfRegisters;
+  int *immediateHash;
+  int noOfImmsHash;
+  int *immediateEquals;
+  int noOfImmsEquals;
+  char *shift;
+  char sign;
+  ADDRESS branchAddr;
+  ADDRESS currAddr;
+  TOKEN_TYPE *symbols;
+  int noOfSymbols;
 } INSTR_TOKENS;
 
 void freeTokens(INSTR_TOKENS *tokens);

@@ -73,16 +73,16 @@ int *getValues(char *str, char start, int max, int *length) {
 	if (str[i] == start/* && str[i - 1] != 'd'*/) {
 	  int end;
 	  for (end = i + 1; IS_DIGIT(str[end]) || IS_HEX(str[end]); end++) {
-	    if (IS_HEX(str[end])) {
-	      isHex = 1;
-	    }
+		if (IS_HEX(str[end])) {
+		  isHex = 1;
+		}
 	  }
 	  if (end - i == 1) {
 		continue;
 	  }
 	  char num[end - i];
 	  if (isHex) {
-	    strncpy(&num[0], &str[i + 1], end - i - 1);
+		strncpy(&num[0], &str[i + 1], end - i - 1);
 		num[end - i - 1] = '\0';
 		values[index] = labs(strtol(num, NULL, 16));
 	  } else {
@@ -122,8 +122,8 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   int index = 0;
   int MAX = (int) strlen(instrLine);
   tokens->symbols = calloc(MAX, sizeof(TOKEN_TYPE));
-
-  for (int i = 0; i < MAX; i++) {
+  int i = 0;
+  for (i = 0; i < MAX; i++) {
 	switch (instrLine[i]) {
 	  case 'r':
 		if (IS_DIGIT(instrLine[i + 1])) {
@@ -144,6 +144,7 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
 		break;
 	}
   }
+  tokens->noOfSymbols = index;
   /*
   //Loop populates char **strings
   for (token = strtok_r(instrLine, seps, &saveptr);
