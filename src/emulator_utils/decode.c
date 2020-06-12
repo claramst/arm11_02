@@ -14,7 +14,7 @@
  * @param instr is the 32 bit int instruction to be decoded.
  * @returns A struct containing all the relevant information needed to for the instruction to be executed.
  */
-DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
+DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE *state) {
   struct decodedInstr decoded;
   INSTR_TYPE type = findType(instr);
   decoded.type = type;
@@ -45,7 +45,7 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
 		decoded.rm = getNibble(instr, 0);
 		if (getBit(instr, 4)) {
 		  // gets the last bit of the register specified.
-		  shiftAmount = getByte(state.registers[getNibble(instr, 2)], 0);
+		  shiftAmount = getByte(state->registers[getNibble(instr, 2)], 0);
 		} else {
 		  // Shift by a constant amount (5-bit unsigned int).
 		  shiftAmount = getBits(instr, 5, 7);
@@ -54,22 +54,22 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
 		  case 0:
 			//Logical shift left
 			decoded.shiftCarryOut = (shiftAmount == 0) ? 0 : getBit(instr, 32 - shiftAmount);
-			decoded.op2 = (state.registers[decoded.rm]) << shiftAmount;
+			decoded.op2 = (state->registers[decoded.rm]) << shiftAmount;
 			break;
 		  case 1:
 			//Logical shift right
 			decoded.shiftCarryOut = (shiftAmount == 0) ? 0 : getBit(instr, shiftAmount - 1);
-			decoded.op2 = (state.registers[decoded.rm]) >> shiftAmount;
+			decoded.op2 = (state->registers[decoded.rm]) >> shiftAmount;
 			break;
 		  case 2:
 			//Arithmetic shift right
 			decoded.shiftCarryOut = (shiftAmount == 0) ? 0 : getBit(instr, shiftAmount - 1);
-			decoded.op2 = arithmeticRight((state.registers[decoded.rm]), shiftAmount);
+			decoded.op2 = arithmeticRight((state->registers[decoded.rm]), shiftAmount);
 			break;
 		  case 3:
 			//Rotate right
 			decoded.shiftCarryOut = (shiftAmount == 0) ? 0 : getBit(instr, shiftAmount - 1);
-			decoded.op2 = rotateRight((state.registers[decoded.rm]), shiftAmount);
+			decoded.op2 = rotateRight((state->registers[decoded.rm]), shiftAmount);
 			break;
 		}
 	  }
@@ -84,9 +84,9 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state) {
 	  if (decoded.I) {
 		int shiftAmount;
 		int shiftType = getBits(instr, 2, 5);
-		decoded.rm = state.registers[getNibble(instr, 0)];
+		decoded.rm = state->registers[getNibble(instr, 0)];
 		if (getBit(instr, 4)) {
-		  shiftAmount = getBit(state.registers[getNibble(instr, 2)], 31);
+		  shiftAmount = getBit(state->registers[getNibble(instr, 2)], 31);
 		} else {
 		  shiftAmount = getBits(instr, 5, 7);
 		}

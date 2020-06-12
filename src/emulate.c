@@ -2,11 +2,27 @@
 #include <stdlib.h>
 #include "emulator_utils/execute.h"
 #include <assert.h>
+
 /**
  * emulate.c contains a main function which handles file reading,
  * machine state initialisation and our pipeline.
  */
 
+
+/**
+ * pipelineCycle executes a stage of the pipeline
+ *
+ * @param state: A MACHINE_STATE structure representing the state of our
+ * machine
+ * @param fetched: A fetched INSTRUCTION
+ * @param decoded: A DECODED_INSTR struct representing a decoded instruction
+ * @param toDecode: A pointer to an int representing whether or not an
+ * instruction should be decoded
+ * @param toExecute: A pointer to an int representing whether or not an instruction
+ * should be executed. So if there is a branch being executed, to execute should
+ * be 0, since we should not be executing and decoding the subsequent instructions,
+ * since the branch means they should be skipped.
+ */
 int pipelineCycle(MACHINE_STATE *state, INSTRUCTION *fetched, DECODED_INSTR *decoded, int *toDecode, int *toExecute) {
   REGISTER *pc = &state->registers[15];
   if (*toExecute) {
@@ -16,7 +32,7 @@ int pipelineCycle(MACHINE_STATE *state, INSTRUCTION *fetched, DECODED_INSTR *dec
 	execute(*decoded, state, toDecode, toExecute);
   }
   if (*toDecode) {
-	*decoded = decode(*fetched, *state);
+	*decoded = decode(*fetched, state);
 	*toExecute = 1;
   }
   *fetched = fetch(pc, state);
@@ -24,6 +40,18 @@ int pipelineCycle(MACHINE_STATE *state, INSTRUCTION *fetched, DECODED_INSTR *dec
 	*toDecode = 1;
   }
   return 0;
+}
+
+MACHINE_STATE *initialiseState() {
+  MACHINE_STATE *state = malloc(sizeof(MACHINE_STATE));
+
+  state->registers = calloc(NUM_OF_REG, sizeof(REGISTER));
+  CHECK_PRED(!state->registers, "Error allocating register memory.");
+
+  state->memory = calloc(MAX_ADDRESSES, sizeof(BYTE));
+  CHECK_PRED(!state->memory, "Error allocating memory for ARM machine.");
+
+  return state;
 }
 
 /**
@@ -45,19 +73,13 @@ int main(int argc, char **argv) {
   FILE *objCode = fopen(argv[1], "rb");
   CHECK_PRED(!objCode, "File could not be opened.");
 
-  MACHINE_STATE state;
+  MACHINE_STATE *state = initialiseState();
 
-  state.registers = calloc(NUM_OF_REG, sizeof(REGISTER));
-  CHECK_PRED(!state.registers, "Error allocating register memory.");
-
-  state.memory = calloc(MAX_ADDRESSES, sizeof(BYTE));
-  CHECK_PRED(!state.memory, "Error allocating memory for ARM machine.");
-
-  for (int i = 0; fread(&state.memory[i], sizeof(BYTE), 1, objCode) == 1; i++);
+  for (int i = 0; fread(&(state->memory[i]), sizeof(BYTE), 1, objCode) == 1; i++);
   CHECK_PRED(ferror(objCode), "An error has occurred whilst file reading.");
   fclose(objCode);
 
-  REGISTER *pc = &state.registers[15];
+  REGISTER *pc = &state->registers[15];
   assert(pc);
 
   INSTRUCTION fetched;
@@ -66,12 +88,12 @@ int main(int argc, char **argv) {
   int toExecute = 0;
   int halt = 0;
   while (!halt) {
-	halt = pipelineCycle(&state, &fetched, &decoded, &toDecode, &toExecute);
+	halt = pipelineCycle(state, &fetched, &decoded, &toDecode, &toExecute);
   }
-  printState(&state);
+  printState(state);
 
-  free(state.registers);
-  free(state.memory);
+  free(state->registers);
+  free(state->memory);
   return EXIT_SUCCESS;
 }
 

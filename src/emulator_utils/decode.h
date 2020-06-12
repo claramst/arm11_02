@@ -24,7 +24,7 @@ typedef struct decodedInstr {
   unsigned int op2, rs, rm;
 } DECODED_INSTR;
 
-DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state);
+DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE *state);
 
 #endif
 
