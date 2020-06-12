@@ -10,7 +10,7 @@
 
 
 /**
- * Takes in the required arguments and executes the specified instruction
+ * Takes in the required arguments and executes the specified multiply instruction
  * making changes to the machine state.
  * @param *dest is the pointer to the destination register.
  * @param rn, rs, rm are the respective registers.
@@ -19,7 +19,7 @@
  * @param state is the current machine state.
  */
 void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
-					 int accumulate, int setFlags, MACHINE_STATE state) {
+					 int accumulate, int setFlags, MACHINE_STATE *state) {
   if (accumulate) {
 	*dest = rm * rs + rn;
   } else {
@@ -27,7 +27,7 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
   }
   if (setFlags) {
 	//for N flag
-	REGISTER *cpsr = &state.registers[16];
+	REGISTER *cpsr = &state->registers[16];
 	if (getBit(*dest, 31)) {
 	  *cpsr = setBit(*cpsr, 31);
 	} else {
@@ -59,7 +59,7 @@ void executeProcessing(REGISTER *dest,
 					   unsigned int op2,
 					   int setFlags,
 					   unsigned int shiftCarryOut,
-					   MACHINE_STATE state) {
+					   MACHINE_STATE *state) {
   int result;
   switch (opcode) {
 	case AND: *dest = result = op1 & op2;
@@ -87,7 +87,7 @@ void executeProcessing(REGISTER *dest,
   }
 
   if (setFlags) {
-	REGISTER *cpsr = &state.registers[16];
+	REGISTER *cpsr = &state->registers[16];
 	// For C flag
 	switch (opcode) {
 	  case AND:
@@ -172,7 +172,7 @@ void executeSingleTransfer(REGISTER *baseReg,
 						   int upBit,
 						   int ldBit,
 						   int offset,
-						   MACHINE_STATE state) {
+						   MACHINE_STATE *state) {
   uint32_t address;
   if (preBit) {
 	/* Pre-indexing: the offset is added/subtracted to the
@@ -221,8 +221,8 @@ void executeSingleTransfer(REGISTER *baseReg,
  * @param offset is the amount that the program counter needs to be incremented by.
  * @param state is the current machine state.
  */
-void executeBranch(int offset, MACHINE_STATE state) {
-  state.registers[15] += offset;
+void executeBranch(int offset, MACHINE_STATE *state) {
+  state->registers[15] += offset;
 }
 
 /**
@@ -235,17 +235,17 @@ void executeBranch(int offset, MACHINE_STATE state) {
  * @param toDecode/toExecute represent whether each respective part of the pipeline will
  * run in the next cycle.
  */
-void execute(DECODED_INSTR decoded, MACHINE_STATE state, int *toDecode, int *toExecute) {
+void execute(DECODED_INSTR decoded, MACHINE_STATE *state, int *toDecode, int *toExecute) {
   if (willExecute(decoded.condition, state)) {
 	REGISTER *rdReg;
 	REGISTER rnReg;
 	REGISTER rsReg;
 	REGISTER rmReg;
 	switch (decoded.type) {
-	  case MULTIPLY:rdReg = &state.registers[decoded.rd];
-		rnReg = state.registers[decoded.rn];
-		rsReg = state.registers[decoded.rs];
-		rmReg = state.registers[decoded.rm];
+	  case MULTIPLY:rdReg = &state->registers[decoded.rd];
+		rnReg = state->registers[decoded.rn];
+		rsReg = state->registers[decoded.rs];
+		rmReg = state->registers[decoded.rm];
 		//TODO: access registers in individual execute functions, not out here
 		executeMultiply(rdReg, rnReg, rsReg, rmReg, decoded.A, decoded.S, state);
 		break;
@@ -256,18 +256,18 @@ void execute(DECODED_INSTR decoded, MACHINE_STATE state, int *toDecode, int *toE
 		int offset = signExtend(shiftedOffset, 25);
 		executeBranch(offset, state);
 		break;
-	  case PROCESSING:rdReg = &state.registers[decoded.rd];
-		rnReg = state.registers[decoded.rn];
+	  case PROCESSING:rdReg = &state->registers[decoded.rd];
+		rnReg = state->registers[decoded.rn];
 		executeProcessing(rdReg, rnReg, decoded.opcode, decoded.op2, decoded.S, decoded.shiftCarryOut, state);
 		break;
 	  case TRANSFER: {
-		REGISTER *rnReg = &state.registers[decoded.rn];
-		REGISTER *rdReg = &state.registers[decoded.rd];
-		REGISTER *rmReg = &state.registers[decoded.rm];
+		REGISTER *rnReg = &state->registers[decoded.rn];
+		REGISTER *rdReg = &state->registers[decoded.rd];
+		REGISTER *rmReg = &state->registers[decoded.rm];
 		executeSingleTransfer(rnReg, rdReg, rmReg, decoded.P, decoded.U, decoded.L, decoded.offset, state);
 		break;
 	  }
-	  case HALT:break;
+	  case HALT: break;
 	}
   }
 }

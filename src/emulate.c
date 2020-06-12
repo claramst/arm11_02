@@ -2,11 +2,29 @@
 #include <stdlib.h>
 #include "emulator_utils/execute.h"
 #include <assert.h>
-
 /**
  * emulate.c contains a main function which handles file reading,
  * machine state initialisation and our pipeline.
  */
+
+int pipelineCycle(MACHINE_STATE *state, INSTRUCTION *fetched, DECODED_INSTR *decoded, int *toDecode, int *toExecute) {
+  REGISTER *pc = &state->registers[15];
+  if (*toExecute) {
+	if (decoded->type == HALT) {
+	  return 1;
+	}
+	execute(*decoded, state, toDecode, toExecute);
+  }
+  if (*toDecode) {
+	*decoded = decode(*fetched, *state);
+	*toExecute = 1;
+  }
+  *fetched = fetch(pc, state);
+  if (*pc >= 4) {
+	*toDecode = 1;
+  }
+  return 0;
+}
 
 /**
  * main ensures the given file can be read and
@@ -35,7 +53,7 @@ int main(int argc, char **argv) {
   state.memory = calloc(MAX_ADDRESSES, sizeof(BYTE));
   CHECK_PRED(!state.memory, "Error allocating memory for ARM machine.");
 
-  for (int i = 0; fread(&state.memory[i], sizeof(BYTE), 1, objCode) == 1; i++) {}
+  for (int i = 0; fread(&state.memory[i], sizeof(BYTE), 1, objCode) == 1; i++);
   CHECK_PRED(ferror(objCode), "An error has occurred whilst file reading.");
   fclose(objCode);
 
@@ -46,23 +64,11 @@ int main(int argc, char **argv) {
   DECODED_INSTR decoded;
   int toDecode = 0;
   int toExecute = 0;
-  while (1) {
-	if (toExecute) {
-	  if (decoded.type == HALT) {
-		break;
-	  }
-	  execute(decoded, state, &toDecode, &toExecute);
-	}
-	if (toDecode) {
-	  decoded = decode(fetched, state);
-	  toExecute = 1;
-	}
-	fetched = fetch(pc, state);
-	if (*pc >= 4) {
-	  toDecode = 1;
-	}
+  int halt = 0;
+  while (!halt) {
+	halt = pipelineCycle(&state, &fetched, &decoded, &toDecode, &toExecute);
   }
-  printState(state);
+  printState(&state);
 
   free(state.registers);
   free(state.memory);

@@ -32,9 +32,9 @@ typedef struct machineState {
   BYTE *memory;
 } MACHINE_STATE;
 
-WORD getWord(ADDRESS address, MACHINE_STATE state);
-void storeWord(WORD word, ADDRESS address, MACHINE_STATE state);
-WORD getLittleEndian(ADDRESS address, MACHINE_STATE state);
-void printState(MACHINE_STATE state);
+WORD getWord(ADDRESS address, MACHINE_STATE *state);
+void storeWord(WORD word, ADDRESS address, MACHINE_STATE *state);
+WORD getLittleEndian(ADDRESS address, MACHINE_STATE *state);
+void printState(MACHINE_STATE *state);
 
 #endif

@@ -19,33 +19,9 @@ typedef struct decodedInstr {
   enum instrType type;
   int condition;
   unsigned int rn, rd, shiftCarryOut;
-  int I, S,  A, P, U, L, offset;
+  int I, S, A, P, U, L, offset;
   OPCODE opcode;
   unsigned int op2, rs, rm;
-//    union {
-//        struct dpi {
-//            int I_dpi;
-//            int S_dpi;
-//            OPCODE opcode;
-//            unsigned int op2;
-//        };
-//        struct {
-//            int A;
-//            int S_mul;
-//            int rs;
-//            int rm;
-//        };
-//        struct {
-//            int I_sdt;
-//            int P;
-//            int U;
-//            int L;
-//            int offset_sdt;
-//        };
-//        struct {
-//            int offset_bra;
-//        };
-//    };
 } DECODED_INSTR;
 
 DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE state);

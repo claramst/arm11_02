@@ -14,7 +14,7 @@
  * @param state Struct representing the state of our ARM machine.
  * @return A 32-bit binary instruction in big endian.
  */
-INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE state) {
+INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE *state) {
   INSTRUCTION fetched = getWord(*pc, state);
   *pc += 4;
   return fetched;
@@ -51,8 +51,8 @@ INSTR_TYPE findType(INSTRUCTION instr) {
  * @param state Struct representing our ARM machine state.
  * @return 1 if instruction will execute, 0 otherwise.
  */
-int willExecute(CONDITION cond, MACHINE_STATE state) {
-  int cpsr = state.registers[16];
+int willExecute(CONDITION cond, MACHINE_STATE *state) {
+  int cpsr = state->registers[16];
   int N = getBit(cpsr, 31);
   int Z = getBit(cpsr, 30);
 

@@ -28,9 +28,9 @@ typedef enum condition {
   AL = 14,
 } CONDITION;
 
-INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE state);
+INSTRUCTION fetch(REGISTER *pc, MACHINE_STATE *state);
 INSTR_TYPE findType(INSTRUCTION instr);
-int willExecute(CONDITION cond, MACHINE_STATE state);
+int willExecute(CONDITION cond, MACHINE_STATE *state);
 bool validInstr(char *str);
 
 #endif

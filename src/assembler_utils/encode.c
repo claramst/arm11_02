@@ -238,10 +238,10 @@ unsigned int findSecondReg(TOKEN_TYPE *symbols, int len) {
  * @return the equivalent encoded instruction of type INSTRUCTION
  */
   INSTRUCTION sdt(INSTR_TOKENS *tokens, SDT_CONSTANTS *constants) {
-	int immediateExp = 0;
-	int load = (tokens->opcode == LDR);
-	int preIndex = 1;
-	int up = tokens->sign != '-';
+	int I = 0;
+	int L = (tokens->opcode == LDR);
+	int P = 1;
+	int U = tokens->sign != '-';
 	REGISTER rn;
 	REGISTER rd = tokens->registers[0];
 	int offset = 0;
@@ -257,16 +257,16 @@ unsigned int findSecondReg(TOKEN_TYPE *symbols, int len) {
 	} else if (tokens->noOfRegisters == 3) {
 	  //form ldr r1 r2, r3, shift, #imm
 	  rn = tokens->registers[1];
-	  immediateExp = 1;
-	  preIndex = (tokens->symbols[findSecondReg(tokens->symbols, tokens->noOfSymbols) + 1] != CLOSE);
+	  I = 1;
+	  P = (tokens->symbols[findSecondReg(tokens->symbols, tokens->noOfSymbols) + 1] != CLOSE);
 	  offset = (tokens->immediateHash[0] << 7) + (convertShift(tokens->shift) << 5) + tokens->registers[2];
 	} else {
 	  //form ldr r1, r2, #imm
 	  rn = tokens->registers[1];
 	  offset = tokens->immediateHash[0];
-	  preIndex = (tokens->symbols[findSecondReg(tokens->symbols, tokens->noOfSymbols) + 1] != CLOSE);
+	  P = (tokens->symbols[findSecondReg(tokens->symbols, tokens->noOfSymbols) + 1] != CLOSE);
 	}
-	return (AL << 28) + (1 << 26) + (immediateExp << 25) + (preIndex << 24) + (up << 23) + (load << 20) + (rn << 16) + (rd << 12) + offset;
+	return (AL << 28) + (1 << 26) + (I << 25) + (P << 24) + (U << 23) + (L << 20) + (rn << 16) + (rd << 12) + offset;
   }
 
 /**
