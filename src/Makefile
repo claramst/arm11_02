@@ -19,11 +19,13 @@ assembler_utils/hashmap.o: assembler_utils/hashmap.c assembler_utils/hashmap.h
 
 assembler_utils/tokenizer.o: assembler_utils/tokenizer.c assembler_utils/tokenizer.h
 
-emulate: emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o global_utils/bitmanipulation.o
-	$(CC) emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o global_utils/bitmanipulation.o -o emulate
+emulate: emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o global_utils/bitmanipulation.o global_utils/arm.o
+	$(CC) emulate.o emulator_utils/decode.o emulator_utils/execute.o emulator_utils/instruction.o emulator_utils/state.o global_utils/bitmanipulation.o global_utils/arm.o -o emulate
 
-emulate.o: emulate.c emulator_utils/execute.h
+emulate.o: emulate.c emulator_utils/execute.h global_utils/arm.h
 	$(CC) $(CFLAGS) emulate.c -c -o emulate.o
+
+global_utils/arm.o: global_utils/arm.c global_utils/arm.h
 
 global_utils/bitmanipulation.o: global_utils/bitmanipulation.c global_utils/bitmanipulation.h
 	$(CC) $(CFLAGS) global_utils/bitmanipulation.c -c -o global_utils/bitmanipulation.o
