@@ -10,6 +10,7 @@
 #include "../src/assembler_utils/sdtconstants.h"
 #include "../src/global_utils/errorhandling.h"
 #include "../src/global_utils/arm.h"
+#include "../src/emulator_utils/instruction.h"
 
 Command getCommand(char *str);
 
@@ -167,9 +168,15 @@ void write(Editor *state) {
 
 	printf("%s%d| ", spaces, i + 1);
 	getinput(instr, state->MAX_LINE_LENGTH);
+
 	if (SAME(instr, "exit")) { break; }
+	if (!validInstr(instr)) {
+	  printf("%sFailed to write line due to syntax error, try again.%s\n", RED, RESET);
+	  i--; continue;
+	}
 	strcpy(state->lines[i], instr);
   }
+
   if (i >= state->noOfLines) {
 	state->noOfLines = i;
   }
