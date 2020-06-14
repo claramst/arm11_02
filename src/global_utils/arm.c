@@ -1,5 +1,6 @@
 #include "arm.h"
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * pipelineCycle executes a stage of the pipeline
@@ -32,6 +33,11 @@ int pipelineCycle(MACHINE_STATE *state, INSTRUCTION *fetched, DECODED_INSTR *dec
 	*toDecode = 1;
   }
   return 0;
+}
+
+void resetState(MACHINE_STATE *state) {
+  memset(state->registers, 0, NUM_OF_REG * sizeof(REGISTER));
+  memset(state->memory, 0, MAX_ADDRESSES);
 }
 
 MACHINE_STATE *initialiseState() {
