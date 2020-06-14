@@ -135,6 +135,16 @@ void display(Editor *state) {
   print_lines(state, start, end, lineNumbers);
 }
 
+char *trim(char *str) {
+  int i;
+  for (i = 0; str[i] != '/'; i++);
+  char *str2 = malloc((i + 1) * sizeof(char));
+  CHECK_PRED(!str2, "Allocating memory failed");
+  strncpy(str2, str, i);
+  return str2;
+}
+
+
 void write(Editor *state) {
   int start, end;
   if (state->noOfTokens > 1) {
@@ -170,7 +180,7 @@ void write(Editor *state) {
 	getinput(instr, state->MAX_LINE_LENGTH);
 
 	if (SAME(instr, "exit")) { break; }
-	if (!validInstr(instr)) {
+	if (!validInstr(trim(instr))) {
 	  printf("%sFailed to write line due to syntax error, try again.%s\n", RED, RESET);
 	  i--; continue;
 	}
@@ -180,6 +190,13 @@ void write(Editor *state) {
   if (i >= state->noOfLines) {
 	state->noOfLines = i;
   }
+}
+
+void runAll(Editor *state) {
+  for (int i = 0; i < state->noOfLines; i++)
+	pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
+  printf("End of program reached. Final machine state:\n");
+  stop(state);
 }
 
 // Saves the current file, assembles this file.
@@ -214,15 +231,22 @@ void run(Editor *state) {
   CHECK_PRED(ferror(objCode), "An error has occurred whilst file reading.");
   fclose(objCode);
 
-  // INSTRUCTION fetched;
-  // DECODED_INSTR decoded;
-  *(state->toDecode) = 0;
-  *(state->toExecute) = 0;
-  for (int i = 0; i < 2; i++) {
-	pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
-  }
+  if (state->noOfTokens == 2) {
+	if (SAME(state->tokens[1], "all")) {
+	  return runAll(state);
+	} else {
+	  printf("Invalid argument, run can only be called with no arguments or the argument \"all\"");
+	  return;
+	}
+  } else {
 
-  state->isRunning = 1;
+	*(state->toDecode) = 0;
+	*(state->toExecute) = 0;
+	for (int i = 0; i < 2; i++) {
+	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
+	}
+	state->isRunning = 1;
+  }
 }
 
 void next(Editor *state) {
@@ -251,12 +275,13 @@ void next(Editor *state) {
 	// todo: decide whether or not we want to delete these files here.
 	// remove("temp");
 	// remove(state->path);
-	halt(state);
+	stop(state);
   }
 }
 
+
 /**
- * Saves the written lines of assembly into a file.
+ * Saves the written lines of assembly into a file, ommitting comments written.
  */
 void save(Editor *state) {
   if (state->noOfTokens != 2) {
@@ -267,11 +292,14 @@ void save(Editor *state) {
 	if (!outputFile) {
 	  fprintf(stderr, "Error opening file.");
 	}
+	char *trimmed;
 	for (int i = 0; i < state->noOfLines; i++) {
-	  if (fputs(state->lines[i], outputFile) <= 0)
+	  trimmed = trim(state->lines[i]);
+	  if (fputs(trimmed, outputFile) <= 0)
 		fprintf(stderr, "fputs failure when writing to file.");
 	  if (fputs("\n", outputFile) <= 0)
 		fprintf(stderr, "fputs failure when writing to file.");
+	  free(trimmed);
 	}
 	fclose(outputFile);
 	strcpy(state->path, state->tokens[1]);
@@ -282,7 +310,7 @@ void currentState(Editor *state) {
   printState(state->machineState);
 }
 
-void halt(Editor *state) {
+void stop(Editor *state) {
   printState(state->machineState);
   resetState(state->machineState);
   state->currentLine = -1;

@@ -39,6 +39,7 @@ typedef enum command {
   SAVE,
   STATE,
   STOP,
+  RUNALL,
   NONE
 } Command;
 
@@ -74,6 +75,6 @@ void next(Editor *state);
 void save(Editor *state);
 void currentState(Editor *state);
 void clear(Editor *state);
-void halt(Editor *editor);
+void stop(Editor *editor);
 void none(Editor *state);
 #endif

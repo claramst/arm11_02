@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <string.h>
-#include "../global_utils/arm.h"
+#include "../src/global_utils/arm.h"
 #include "commands.h"
 
 #define EMPTY(s) (s[0] == '\0')
@@ -30,7 +30,7 @@ void mainloop(Editor *state) {
   char *input = malloc(state->MAX_LINE_LENGTH * sizeof(char));
   Command cmd;
 
-  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &next, &save, &currentState, &halt, &none};
+  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &next, &save, &currentState, &stop, &none};
 
   while (state->running) {
 	printf("%s%s", YELLOW, "➤ ");
