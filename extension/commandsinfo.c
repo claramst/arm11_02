@@ -124,13 +124,13 @@ void info(Editor *state) {
 	} else if (SAME(state->tokens[1], "add")) {
 	  printf("Adds two registers\n");
 	} else if (SAME (state->tokens[1], "quit")) {
-	  printf("Type \"quit\" to exit the program.");
+	  printf("Type \"quit\" to exit the program.\n");
 	} else if (SAME(state->tokens[1], "help")) {
-	  printf("Type \"help\" to get  a list of all supported commands.");
+	  printf("Type \"help\" to get  a list of all supported commands.\n");
 	} else if (SAME(state->tokens[1], "info")) {
-	  printf("Type \"info _____ to get more information about _____ (if available).\"");
+	  printf("Type info _____ to get more information about _____ (if available).\n");
 	} else if (SAME(state->tokens[1], "clear")) {
-	  printf("Type \"clear\" to reset view.");
+	  printf("Type \"clear\" to reset view.\n");
 	} else if (SAME(state->tokens[1], "ARMOUR")) {
 	  about(state);
 	} else if (SAME(state->tokens[1], "instruction")) {
@@ -139,22 +139,31 @@ void info(Editor *state) {
 	  printf("Shows the program you have written. Use \"options\" to see  more features.\n");
 	} else if (SAME(state->tokens[1], "write")) {
 	  printf(
-		  "Allows you to edit your assembly program. Use \"options\" to see  more features.\nEnter \"exit\" on a line to exit write mode.");
+		  "Allows you to edit your assembly program. Use \"options\" to see  more features.\nEnter \"exit\" on a line to exit write mode.\n");
 	} else if (SAME(state->tokens[1], "shortcuts")) {
-	  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+	  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
 			 "help - h",
 			 "quit - q",
 			 "clear - c",
 			 "info - i",
 			 "write - w",
 			 "display - d",
-			 "save - s");
+			 "save - s",
+			 "state - st",
+			 "run - r",
+			 "stop - X",
+			 "next - +",
+			 "about - a");
 	} else if (SAME(state->tokens[1], "save")) {
-	  printf("Saves all written lines into a .s file at the given path.");
+	  printf("Saves all written lines into a .s file at the given path.\n");
 	} else if (SAME(state->tokens[1], "run")) {
-	  printf("Goes to the start of the program.");
+	  printf("Enters run mode with the saved program.\n");
 	} else if (SAME(state->tokens[1], "next")) {
-	  printf("Executes the current line and goes to the next line.");
+	  printf("Whilst in run mode, executes the current line and goes to the next line.\n");
+	} else if (SAME(state->tokens[1], "state")) {
+	  printf("Whilst in run mode, prints the current state of registers and memory.\n");
+	} else if (SAME(state->tokens[1], "stop")) {
+	  printf("Whilst in run mode, halts execution of the program, prints the state of the registers and memory, and then exits run mode.\n");
 	}
   }
 }

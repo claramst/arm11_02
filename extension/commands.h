@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../src/emulator_utils/state.h"
 #include "../src/emulator_utils/execute.h"
+#include "../src/assembler_utils/encode.h"
+#include "../src/assembler_utils/sdtconstants.h"
+#include "../src/global_utils/arm.h"
 
 #ifndef COMMANDS_H
 #define COMMANDS_H
-
 
 #define MAX_PATH_LENGTH 100
 
@@ -18,6 +19,8 @@ fprintf(stderr, \
 } while (0)
 
 #define SAME(s1, s2) (strcmp(s1, s2) == 0)
+
+#define PRINT(s1) do { printf("%s", s1) } while (0)
 
 extern char *RED;
 extern char *YELLOW;
@@ -39,7 +42,6 @@ typedef enum command {
   SAVE,
   STATE,
   STOP,
-  RUNALL,
   NONE
 } Command;
 
@@ -77,4 +79,5 @@ void currentState(Editor *state);
 void clear(Editor *state);
 void stop(Editor *editor);
 void none(Editor *state);
+
 #endif

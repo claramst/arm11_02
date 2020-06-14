@@ -2,15 +2,7 @@
 #include <stdlib.h>
 #include "commands.h"
 #include <stdbool.h>
-#include "commandsinfo.h"
-#include "../src/emulator_utils/execute.h"
-#include "../src/emulator_utils/state.h"
-#include "../src/assembler_utils/encode.h"
-#include "../src/global_utils/bitmanipulation.h"
-#include "../src/assembler_utils/sdtconstants.h"
-#include "../src/global_utils/errorhandling.h"
-#include "../src/global_utils/arm.h"
-#include "../src/emulator_utils/instruction.h"
+
 
 Command getCommand(char *str);
 
@@ -31,6 +23,8 @@ Command getCommand(char *str) {
 	return HELP;
   } else if (SAME(str, "quit") || SAME(str, "q")) {
 	return QUIT;
+  } else if (SAME(str, "about") || SAME(str, "a")) {
+    return ABOUT;
   } else if (SAME(str, "info") || SAME(str, "i")) {
 	return INFO;
   } else if (SAME(str, "write") || SAME(str, "w")) {
@@ -62,9 +56,12 @@ void help(Editor *state) {
   printf("| %s |", "clear");
   printf("| %s |", "display");
   printf("| %s |", "write");
-  printf("| %s |", "run");
-  printf("| %s |", "next");
   printf("| %s |", "save");
+  printf("| %s ", "run\n");
+  printf("========= Running mode commands: =========\n");
+  printf("| %s |", "next");
+  printf("| %s |", "state");
+  printf("| %s |", "stop");
   printf("\n");
   printf("%s", RESET);
   printf("Type \"info <command>\" to learn more about what it does.\n");
@@ -137,15 +134,20 @@ void display(Editor *state) {
 
 char *trim(char *str) {
   int i;
-  for (i = 0; str[i] != '/'; i++);
-  char *str2 = malloc((i + 1) * sizeof(char));
+  for (i = 0; str[i] != '/' && i < strlen(str); i++);
+  char *str2 = malloc((i + 2) * sizeof(char));
   CHECK_PRED(!str2, "Allocating memory failed");
   strncpy(str2, str, i);
+  str2[i + 1] = '\0';
   return str2;
 }
 
 
 void write(Editor *state) {
+  if (state->isRunning) {
+	printf("You can't write while you're running!");
+	return;
+  }
   int start, end;
   if (state->noOfTokens > 1) {
 	if (SAME(state->tokens[1], "options")) {
@@ -209,6 +211,10 @@ void runAll(Editor *state) {
 // into executeables
 // Need absolutePath to file
 void run(Editor *state) {
+  if (state->isRunning) {
+	printf("You're already in run mode!\n");
+	return;
+  }
   printf("%s", RED);
   printf("Entering run mode.");
   printf("%s", RESET);
@@ -260,7 +266,7 @@ void next(Editor *state) {
 	  return;
   }
   if (state->currentLine < 0) {
-	printf("%s", "You need to run first");
+	printf("%s", "You need to run first!\n");
 	return;
   }
   for (int i = 0; i < n; i++)
@@ -270,7 +276,7 @@ void next(Editor *state) {
   int endLine = state->currentLine + 3 < state->noOfLines ? state->currentLine + 3 : state->noOfLines;
   print_lines(state, startLine, endLine, true);
 
-  if (state->currentLine == state->noOfLines) {
+  if (state->currentLine >= state->noOfLines) {
 	printf("End of program reached. Final machine state:\n");
 	// todo: decide whether or not we want to delete these files here.
 	// remove("temp");
@@ -281,7 +287,7 @@ void next(Editor *state) {
 
 
 /**
- * Saves the written lines of assembly into a file, ommitting comments written.
+ * Saves the written lines of assembly into a file, omitting comments written.
  */
 void save(Editor *state) {
   if (state->noOfTokens != 2) {
@@ -307,6 +313,10 @@ void save(Editor *state) {
 }
 
 void currentState(Editor *state) {
+  if (state->currentLine < 0) {
+	printf("You need to run first!\n");
+	return;
+  }
   printState(state->machineState);
 }
 
