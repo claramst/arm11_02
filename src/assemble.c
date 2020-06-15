@@ -48,6 +48,7 @@ void addOpcodes(Map *symbolTable) {
 
 /**
  * Reads a given number of lines from the given file into a 2D array.
+ *
  * @param array_of_lines The array to be read into.
  * @param noOfLines The number of lines to read in.
  * @param sourceFile File to read lines from.
