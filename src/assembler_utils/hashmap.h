@@ -1,6 +1,12 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
 
+/**
+ * Header file for hashmap.
+ * contains the struct definiton for node and map.
+ * contains function declarations for each hashmap function.
+ */
+
 typedef struct node {
   char *key;
   int val;
@@ -19,5 +25,5 @@ void freeNode(Node *node);
 void freeMap(Map *map);
 void addNodes(Map *map, char **label, int *value, int n);
 int countNodes(Map *map);
-#endif
 
+#endif

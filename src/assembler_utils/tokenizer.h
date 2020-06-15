@@ -1,8 +1,13 @@
 #include "hashmap.h"
 #include "../emulator_utils/decode.h"
 
-#ifndef TOKENIZER_H
-#define TOKENIZER_H
+/**
+ * Header file for instruction.c,
+ * defines enum definition for each token symbol.
+ * contains the struct definiton for INSTR_TOKENS.
+ * contains function declarations for all functions required to tokenize an instruction.
+ *
+ */
 
 typedef enum token {
   REG,
@@ -38,5 +43,4 @@ int isTransfer(OPCODE opcode);
 int isBranch(OPCODE opcode);
 INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable);
 // Maybe not needed, pass an array of tokens to represent op2?
-#endif
 

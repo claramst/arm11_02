@@ -3,6 +3,11 @@
 
 #include <stdio.h>
 
+/**
+ * A file defining useful macros for error handling and
+ * identifying empty strings.
+ */
+
 #define CHECK_PRED(pred, msg) \
  do { \
 if ((pred)) { \

@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
   int toDecode = 0;
   int toExecute = 0;
   int halt = 0;
+
   while (!halt) {
 	halt = pipelineCycle(state, &fetched, &decoded, &toDecode, &toExecute);
   }

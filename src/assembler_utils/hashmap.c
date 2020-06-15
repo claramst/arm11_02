@@ -1,73 +1,88 @@
-#include "hashmap.h"
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "hashmap.h"
+#include "../global_utils/errorhandling.h"
 
+/**
+ * hashmap.c contains functions for creating our hash map data structure, freeing the map, creating a node, adding a node to the map,* adding multiple nodes to the map at once, and getting the value
+ * associated with a key in our map.
+ *
+ */
+
+/**
+ * createMap allocates memory for an instance of our Map structure
+ */
 Map *createMap(void) {
   Map *map = malloc(sizeof(Map));
-  //check pred
+  CHECK_PRED(!map, "Error allocating memory for map");
   map->front = NULL;
   return map;
 }
 
+/**
+ * freeNode frees memory allocated for the given node
+ */
 void freeNode(Node *node) {
   free(node);
 }
 
+/**
+ * freeMap frees the given map and all its nodes
+ */
 void freeMap(Map *map) {
   assert(map);
-//  Node *elem = map->front;
-//  Node *next;
   for (Node *elem = map->front, *next; elem; elem = next) {
 	next = elem->next;
 	freeNode(elem);
   }
-//  while (elem != NULL) {
-//	next = elem->next;
-//	freeNode(elem);
-//	elem = next;
-//  }
   free(map);
 }
 
-//todo: put CHECK_PRED somewhere that all files can use it
-Node *createNode(char *label, int value) {
+/**
+ * createNode allocates memory for a node and assigns it the given
+ * key and value.
+ */
+Node *createNode(char *key, int value) {
   Node *node = (Node *) malloc(sizeof(Node));
-
-  node->key = label;
+  CHECK_PRED(!node, "Error allocating memory for a hashmap node");
+  node->key = key;
   node->val = value;
   node->next = NULL;
   return node;
 }
 
-int getValue(Map *map, char *label) {
-  assert(label != NULL);
+/**
+ * getValue returns the value associated with the given key in
+ * the given Map. It ensures the key given is not NULL, and
+ * if
+ *
+ */
+int getValue(Map *map, char *key) {
+  assert(key != NULL);
   for (Node *curr = map->front; curr; curr = curr->next) {
-	if (strcmp(curr->key, label) == 0) {
+	if (strcmp(curr->key, key) == 0) {
 	  return curr->val;
 	}
   }
   return -1;
 }
 
-//Adds node at the start of the map
+/**
+ * Creates a new node and adds it to the front of the specified map.
+ */
 void addNode(Map *map, char *label, int value) {
   Node *node = createNode(label, value);
   node->next = map->front;
   map->front = node;
 }
 
+/**
+ * Analogous to addNode, however multiple nodes can be added at once.
+ * Note that keys[] and values[] must both be of length n.
+ * @param n The number of nodes to be added.
+ */
 void addNodes(Map *map, char *keys[], int values[], int n) {
   for (int i = 0; i < n; i++)
 	addNode(map, keys[i], values[i]);
-}
-
-int countNodes(Map *map) {
-  assert(map);
-  int count = 0;
-  for (Node *elem = map->front, *next; elem; elem = next) {
-	next = elem->next;
-	count++;
-  }
-  return count;
 }

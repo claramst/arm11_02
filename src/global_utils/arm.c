@@ -35,11 +35,19 @@ int pipelineCycle(MACHINE_STATE *state, INSTRUCTION *fetched, DECODED_INSTR *dec
   return 0;
 }
 
+/**
+ * Clears all register / general memory, setting all to 0.
+ * @param state Struct representing the ARM machine state.
+ */
 void resetState(MACHINE_STATE *state) {
   memset(state->registers, 0, NUM_OF_REG * sizeof(REGISTER));
   memset(state->memory, 0, MAX_ADDRESSES);
 }
 
+/**
+ * Allocates memory for a struct representing our ARM machine state.
+ * @return a pointer to the initialised state.
+ */
 MACHINE_STATE *initialiseState() {
   MACHINE_STATE *state = malloc(sizeof(MACHINE_STATE));
 

@@ -6,6 +6,16 @@
 #define IS_DIGIT(c) (('0' <= c && c <= '9') || c == '-')
 #define IS_HEX(c) (('A' <= c && c <= 'F') || (('a' <=c && c <= 'f')) || c == 'x')
 
+/**
+ * tokenizer.c defines functions for 'tokenizing' ARM instruction strings,
+ * ultimately producing a structure representing the information
+ * required for an instruction to be encoded.
+ */
+
+
+/**
+ * For a given opcode, These functions check whether or not it represents a certain type of instruction.
+ */
 int isProcessing(OPCODE opcode) {
   return (AND <= opcode && opcode <= MOV) || opcode == ANDEQ;
 }
@@ -21,25 +31,11 @@ int isTransfer(OPCODE opcode) {
 int isBranch(OPCODE opcode) {
   return BEQ <= opcode && opcode <= B;
 }
-/*
-void tokenizeOp2(INSTR_TOKENS *tokens, char **strings) {
-   if (strchr(strings[0],'#')) {
-      tokens->opType = IMMEDIATE;
-      tokens->expression = strings[0];
-  } else {
-      tokens->rm = strings[0];
-      tokens->shiftType = strings[1];
-      if (strchr(strings[2], '#')) {
-        tokens->opType = SHIFTED_IMM;
-        tokens->expression = strings[2];
-      } else {
-        tokens->opType = SHIFTED_REG;
-        tokens->rs = strings[2];
-      }
-  }
-}
-*/
 
+/**
+ * A helper function for tokenizing branch instructions specifically.
+ *
+ */
 void tokenizeBranch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS *tokens) {
   char *tokenisedInstruction[2];
   char *temp;
@@ -60,6 +56,15 @@ void tokenizeBranch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS
   tokens->opcode = getValue(symbolTable, tokenisedInstruction[0]);
 }
 
+/**
+ * Goes through a string, retrieving all numbers that are preceded by a common character.
+ * e.g. from "add r3,r2,#1" we could return the list [3,2].
+ * @param str The string to be iterated through
+ * @param start The character that precedes the numbers to be retrieved.
+ * @param max The maximum possible amount of numbers that should be retrieved.
+ * @param length A pointer to a location where the amount of numbers retrieved should be written.
+ * @return an array of ints.
+ */
 int *getValues(char *str, char start, int max, int *length) {
   int *values = calloc(max, sizeof(int));
   if (!values) {
@@ -70,7 +75,7 @@ int *getValues(char *str, char start, int max, int *length) {
   int index = 0;
   int isHex = 0;
   for (int i = 0; i < len - 1; i++) {
-	if (str[i] == start/* && str[i - 1] != 'd'*/) {
+	if (str[i] == start) {
 	  int end;
 	  for (end = i + 1; IS_DIGIT(str[end]) || IS_HEX(str[end]); end++) {
 		if (IS_HEX(str[end])) {
@@ -97,6 +102,15 @@ int *getValues(char *str, char start, int max, int *length) {
   return values;
 }
 
+/**
+ * Tokenizes an assembly instruction by extracting the register, immediate * and shift values and key characters
+ * @param instrLine The string representing an assembly instruction to be tokenised.
+ * @param address The index of the string in the lines of the program
+ * @param  symbolTable Contains mappings from the labels to their
+ *                     address as well as from the opcode strings to their enum values
+ * @return tokens Structure to store all the inforamtion requires to
+ *                convert the assembly instruction to a machine code instruction
+ */
 INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   INSTR_TOKENS *tokens = (INSTR_TOKENS *) malloc(sizeof(INSTR_TOKENS));
   if (!tokens) {
@@ -109,16 +123,16 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   tokens->symbols = NULL;
   tokens->currAddr = 4 * address;
 
-//  char str[strlen(instrLine) + 1];
   char *str = calloc(strlen(instrLine) + 1, sizeof(char));
   strcpy(str, instrLine);
   char *s = strtok(str, " ");
+
   OPCODE opcode = getValue(symbolTable, s);
+
   if (isBranch(opcode)) {
 	tokenizeBranch(instrLine, address, symbolTable, tokens);
 	return tokens;
   }
-//    char **strings = malloc(512 * sizeof(char));
   int index = 0;
   int MAX = (int) strlen(instrLine);
   tokens->symbols = calloc(MAX, sizeof(TOKEN_TYPE));
@@ -145,18 +159,6 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
 	}
   }
   tokens->noOfSymbols = index;
-  /*
-  //Loop populates char **strings
-  for (token = strtok_r(instrLine, seps, &saveptr);
-	   token;
-	   token = strtok_r(NULL, seps, &saveptr)) {
-		 strings[i++] = token;
-	   }
-  //mov r1 r2 split into ["mov", "r1", "r2"]
-  //mov r1,r2 split into ["mov", "r1", "r2"]
-  */
-
-
 
   tokens->opcode = opcode;
   tokens->registers = getValues(instrLine, 'r', 4, &tokens->noOfRegisters);
@@ -183,6 +185,9 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   return tokens;
 }
 
+/**
+ * For a given INSTR_TOKENS struct, frees the struct and its elements.
+ */
 void freeTokens(INSTR_TOKENS *tokens) {
   free(tokens->registers);
   free(tokens->immediateHash);
@@ -190,50 +195,3 @@ void freeTokens(INSTR_TOKENS *tokens) {
   free(tokens->symbols);
   free(tokens);
 }
-//   INSTR_TOKENS *tokens = (INSTR_TOKENS *) malloc(sizeof(INSTR_TOKENS));
-//   tokens->arrayOfTokens = strings;
-//   tokens->mnemonic = strings[0];
-//   tokens->opcode = getValue(symbolTable, strings[0]);
-//   if (isProcessing(tokens->opcode)) {
-//     tokens->type = PROCESSING;
-//     switch (tokens->opcode) {
-//       case AND:
-//       case EOR:
-//       case SUB:
-//       case RSB:
-//       case ADD:
-//       case ORR:
-//         tokens->rd = strings[1];
-//         tokens->rn = strings[2];
-//         tokenizeOp2(tokens, strings + 3);
-//         break;
-//       case MOV:
-//         tokens->rd = strings[1];
-//         tokenizeOp2(tokens, strings + 2);
-//         break;
-//       case TST:
-//       case TEQ:
-//       case CMP:
-//         tokens->rn = strings[1];
-//         tokenizeOp2(tokens, strings + 2);
-//         break;
-//       default:
-//         fprintf(stderr, "should be impossible to reach");
-//     }
-//   } else if (isMultiply(tokens->opcode)) {
-//     tokens->type = MULTIPLY;
-//     tokens->rd = strings[1];
-//     tokens->rm = strings[2];
-//     tokens->rs = strings[3];
-//     if (!strcpy(tokens->mnemonic, "mla")) {
-//       tokens->rn = strings[4];
-//     }
-//   } else if (isTransfer(tokens->opcode)) {
-//     tokens->type = TRANSFER;
-//     //todo
-//   } else if (isBranch(tokens->opcode)) {
-//     tokens->type = BRANCH;
-//     //todo
-//   }
-//   return tokens;
-// }

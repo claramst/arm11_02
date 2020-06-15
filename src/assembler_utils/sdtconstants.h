@@ -4,6 +4,20 @@
 #include <stdint.h>
 #include "../global_utils/errorhandling.h"
 
+/**
+ * Header file for sdtConstants.
+ * contains the struct definiton for SDT_CONSTANTS.
+ * contains function declarations for functions manupulating SDT_CONSTANTS.
+ */
+
+/**
+ * A structure storing an array of load constants, and the current
+ * size of this array. These load constants are stored so that
+ * they can later be printed to the end of the file.
+ * We also store the number of instructions in the program we
+ * are assembling, so that we know the offset for where the load
+ * constants should be printed in our output file.
+ */
 typedef struct constants {
   uint32_t *constants;
   int size;
