@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
 
   free(state->registers);
   free(state->memory);
+  free(state);
   return EXIT_SUCCESS;
 }
 

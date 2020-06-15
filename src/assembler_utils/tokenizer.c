@@ -182,6 +182,7 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   } else {
 	tokens->sign = '\0';
   }
+  free(str);
   return tokens;
 }
 

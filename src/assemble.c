@@ -89,8 +89,6 @@ int firstPass(Map *symbolTable, char *array_of_lines[], char *array_of_instructi
 	  int address = 4 * j;
 	  addNode(symbolTable, label, address);
 	} else {
-	  array_of_instructions[j] = (char *) calloc(MAX_LINE_LENGTH, sizeof(char));
-	  CHECK_PRED(!array_of_instructions[j], "Error allocating memory for array of instructions");
 	  array_of_instructions[j] = array_of_lines[i];
 	  j++;
 	}
@@ -133,7 +131,7 @@ int main(int argc, char **argv) {
   // Create symbol table, alloc memory
   // Associate labels with memory addresses
 
-  char **array_of_instructions = calloc(noOfLines, sizeof(char *));
+  char **array_of_instructions = (char **) calloc(noOfLines, sizeof(char *));
   CHECK_PRED(!array_of_instructions, "Error allocating memory for array of instructions");
 
   Map *symbolTable = createMap();
@@ -168,7 +166,7 @@ int main(int argc, char **argv) {
   freeConstants(sdtConstants);
   for (int i = 0; i < noOfLines; i++) {
 	free(array_of_lines[i]);
-  }
+  } 
   free(array_of_lines);
   free(array_of_instructions);
 
