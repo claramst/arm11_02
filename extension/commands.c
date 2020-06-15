@@ -82,6 +82,32 @@ void about(Editor *state) {
   printf("Made as part of an extension to an emulator and assembler for Rasberrry Pi.\n");
 }
 
+void print_line(char *instr) {
+  if (!strstr(instr, ":"))
+	printf("%s", CYAN); // opcode
+  for (; *instr; instr++) {
+	switch (*instr) {
+	  case '=':
+	  case '#':
+		printf("%s", GREEN); // immediate values
+		break;
+	  case '[':
+	  case ']':
+		printf("%s", RED); // brackets
+		break;
+	  case 'r':
+		printf("%s", YELLOW); // registers
+		break;
+	  case '/':
+	  case ',':
+	  case ' ':
+		printf("%s", RESET); // regular
+	}
+	printf("%c", *instr);
+  }
+  printf("%s\n", RESET);
+}
+
 
 void print_lines(Editor *state, int start, int end, bool lineNumbers) {
   char *spaces;
@@ -95,7 +121,7 @@ void print_lines(Editor *state, int start, int end, bool lineNumbers) {
 	} else
 	  spaces = "  ";
 
-	printf("%s\n", state->lines[i]);
+	print_line(state->lines[i]);
   }
 }
 
