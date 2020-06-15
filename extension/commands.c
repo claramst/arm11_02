@@ -53,6 +53,7 @@ void help(Editor *state) {
   printf("| %s |", "help");
   printf("| %s |", "quit");
   printf("| %s |", "info");
+  printf("| %s |", "about");
   printf("| %s |", "clear");
   printf("| %s |", "display");
   printf("| %s |", "write");
@@ -97,7 +98,7 @@ void print_lines(Editor *state, int start, int end, bool lineNumbers) {
 
 void display(Editor *state) {
   if (state->noOfLines == 0){
-	printf("Nothing has been written yet. Type \"write\" to start editing.");
+	printf("Nothing has been written yet. Type \"write\" to start editing.\n");
 	return;
   }
   int start, end;
@@ -135,7 +136,7 @@ void display(Editor *state) {
 char *trim(char *str) {
   int i;
   for (i = 0; str[i] != '/' && i < strlen(str); i++);
-  char *str2 = malloc((i + 2) * sizeof(char));
+  char *str2 = calloc((i + 2), sizeof(char));
   CHECK_PRED(!str2, "Allocating memory failed");
   strncpy(str2, str, i);
   str2[i + 1] = '\0';
@@ -145,7 +146,7 @@ char *trim(char *str) {
 
 void write(Editor *state) {
   if (state->isRunning) {
-	printf("You can't write while you're running!");
+	printf("You can't write while you're running!\n");
 	return;
   }
   int start, end;
@@ -198,6 +199,7 @@ void runAll(Editor *state) {
   for (int i = 0; i < state->noOfLines; i++)
 	pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
   printf("End of program reached. Final machine state:\n");
+  currentState(state);
   stop(state);
 }
 
@@ -214,6 +216,10 @@ void run(Editor *state) {
   if (state->isRunning) {
 	printf("You're already in run mode!\n");
 	return;
+  }
+  if (!*state->path) {
+    printf("You haven't saved a file yet.\n");
+    return;
   }
   printf("%s", RED);
   printf("Entering run mode.");
@@ -269,9 +275,18 @@ void next(Editor *state) {
 	printf("%s", "You need to run first!\n");
 	return;
   }
-  for (int i = 0; i < n; i++)
-	pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
-  state->currentLine += n;
+  for (int i = 0; i < n; i++) {
+	do {
+	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
+	} while (*(state->toExecute) != 1);
+  }
+  int i, instrCount = 0;
+  for (i = 0; instrCount < (state->machineState->registers[15] / 4) - 2; i++) {
+	if (!strstr(state->lines[i], ":")) {
+	  instrCount++;
+	}
+  }
+  state->currentLine = (strstr(state->lines[i], ":")) ? i + 1 : i;
   int startLine = state->currentLine - 3 >= 0 ? state->currentLine - 3 : 0;
   int endLine = state->currentLine + 3 < state->noOfLines ? state->currentLine + 3 : state->noOfLines;
   print_lines(state, startLine, endLine, true);
@@ -321,6 +336,10 @@ void currentState(Editor *state) {
 }
 
 void stop(Editor *state) {
+  if (!state->isRunning) {
+    printf("You need to run first!\n");
+    return;
+  }
   printState(state->machineState);
   resetState(state->machineState);
   state->currentLine = -1;

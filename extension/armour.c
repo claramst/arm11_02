@@ -58,12 +58,12 @@ Editor *initialise_state(void) {
 	state->lines[i] = malloc(state->MAX_LINE_LENGTH * sizeof(char));
   }
   state->currentLine = -1;
-  state->path = malloc(MAX_PATH_LENGTH * sizeof(char));
+  state->path = calloc(MAX_PATH_LENGTH, sizeof(char));
   state->machineState = initialiseState();
-  state->fetched = malloc(sizeof(INSTRUCTION));
-  state->decoded  = malloc(sizeof(DECODED_INSTR));
-  state->toDecode = malloc(sizeof(int));
-  state->toExecute = malloc(sizeof(int));
+  state->fetched = calloc(1, sizeof(INSTRUCTION));
+  state->decoded  = calloc(1, sizeof(DECODED_INSTR));
+  state->toDecode = calloc(1, sizeof(int));
+  state->toExecute = calloc(1, sizeof(int));
   return state;
 }
 

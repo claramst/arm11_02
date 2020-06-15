@@ -27,7 +27,7 @@ DECODED_INSTR decode(INSTRUCTION instr, MACHINE_STATE *state) {
 	  decoded.rs = getNibble(instr, 2);
 	  decoded.rn = getNibble(instr, 3);
 	  break;
-	case BRANCH:decoded.offset = clearBits(instr, 8, 24);
+    case BRANCH:decoded.offset = getBits(instr, 24, 0);
 	  break;
 	case PROCESSING:decoded.opcode = getBits(instr, 4, 21);
 	  decoded.I = getBit(instr, 25);
