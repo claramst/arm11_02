@@ -90,7 +90,7 @@ void instruction(Editor *state) {
 
   while (running) {
 	printf("Which instruction type do you want to know about?: \n Call mnemonic to see a table of all supported ARM instructions.");
-	getinput(name, state->MAX_LINE_LENGTH);
+	getInput(name, state->MAX_LINE_LENGTH);
 	if (SAME(name, "options")) {
 	  printf("-data processing\n-branch\n-multiply\n-single data transfer\n-exit\n");
 	} else if (SAME(name, "mnemonic")) {
@@ -141,13 +141,14 @@ void info(Editor *state) {
 	  printf(
 		  "Allows you to edit your assembly program. Use \"options\" to see  more features.\nEnter \"exit\" on a line to exit write mode.\n");
 	} else if (SAME(state->tokens[1], "shortcuts")) {
-	  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+	  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
 			 "help - h",
 			 "quit - q",
 			 "clear - c",
 			 "info - i",
 			 "write - w",
 			 "display - d",
+			 "load - l",
 			 "save - s",
 			 "state - st",
 			 "run - r",
@@ -164,6 +165,8 @@ void info(Editor *state) {
 	  printf("Whilst in run mode, prints the current state of registers and memory.\n");
 	} else if (SAME(state->tokens[1], "stop")) {
 	  printf("Whilst in run mode, halts execution of the program, prints the state of the registers and memory, and then exits run mode.\n");
+	} else if (SAME(state->tokens[1], "load")) {
+	  printf("Loads all the lines of code from a text file.\n");
 	}
   }
 }

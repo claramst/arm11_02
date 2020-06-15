@@ -1,14 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "emulator_utils/state.h"
 #include "assembler_utils/encode.h"
-#include "global_utils/bitmanipulation.h"
-#include "assembler_utils/sdtconstants.h"
-#include "global_utils/errorhandling.h"
 
 #define MAX_LINE_LENGTH 511
-#define EMPTY_STRING(s) (s[0] == '\0')
 
 /** assemble.c contains a main function and several helper methods to do with reading
   * the file contents into an array of instructions. Also contains functions to

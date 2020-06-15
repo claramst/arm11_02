@@ -1,5 +1,6 @@
 #ifndef ARM11_02_SRC_ASSEMBLER_UTILS_SDTCONSTANTS_H_
 #define ARM11_02_SRC_ASSEMBLER_UTILS_SDTCONSTANTS_H_
+
 #include <stdint.h>
 #include "../global_utils/errorhandling.h"
 

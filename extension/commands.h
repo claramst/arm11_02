@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../src/emulator_utils/execute.h"
-#include "../src/assembler_utils/encode.h"
-#include "../src/assembler_utils/sdtconstants.h"
 #include "../src/global_utils/arm.h"
 
 #ifndef COMMANDS_H
@@ -42,6 +39,7 @@ typedef enum command {
   SAVE,
   STATE,
   STOP,
+  LOAD,
   NONE
 } Command;
 
@@ -64,7 +62,7 @@ typedef struct editor {
 
 typedef void (*commands)(Editor *);
 
-void getinput(char *input, int MAX_LINE_LENGTH);
+void getInput(char *input, int MAX_LINE_LENGTH);
 Command getCommand(char *str);
 void help(Editor *state);
 void quit(Editor *state);
@@ -78,6 +76,7 @@ void save(Editor *state);
 void currentState(Editor *state);
 void clear(Editor *state);
 void stop(Editor *editor);
+void load(Editor *editor);
 void none(Editor *state);
 
 #endif

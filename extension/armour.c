@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <assert.h>
 #include <string.h>
-#include "../src/global_utils/arm.h"
 #include "commands.h"
 
 #define EMPTY(s) (s[0] == '\0')
@@ -30,13 +28,13 @@ void mainloop(Editor *state) {
   char *input = malloc(state->MAX_LINE_LENGTH * sizeof(char));
   Command cmd;
 
-  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &next, &save, &currentState, &stop, &none};
+  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &next, &save, &currentState, &stop, &load, &none};
 
   while (state->running) {
 	printf("%s%s", YELLOW, "➤ ");
 	if (state->isRunning) printf("Running");
 	printf("%s%s", "➤ ", CYAN);
-	getinput(input, state->MAX_LINE_LENGTH);
+	getInput(input, state->MAX_LINE_LENGTH);
 	printf("%s", RESET);
 	if (EMPTY(input))
 	  continue;

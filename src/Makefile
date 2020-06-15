@@ -1,15 +1,23 @@
 CC      = gcc
-CFLAGS  = -Wall -g -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic
+CFLAGS  = -Wall -g -D_DEFAULT_SOURCE -std=c99 -pedantic #-Werror
 
 .SUFFIXES: .c .o
 
 .PHONY: all clean
 
-all:  emulate assemble
+all:  emulate assemble ../extension/armour
+
+../extension/armour: ../extension/armour.o ../extension/commands.o ../extension/commandsinfo.o global_utils/arm.o emulator_utils/execute.o emulator_utils/decode.o emulator_utils/instruction.o emulator_utils/state.o global_utils/bitmanipulation.o
+
+../extension/armour.o: ../extension/armour.c ../extension/commands.h ../extension/commandsinfo.h global_utils/arm.h
+
+../extension/commands.o: ../extension/commands.c ../extension/commands.h
+
+../extension/commandsinfo.o: ../extension/commandsinfo.c ../extension/commandsinfo.h
 
 assemble: assemble.o emulator_utils/state.o global_utils/bitmanipulation.o assembler_utils/encode.o emulator_utils/instruction.o assembler_utils/hashmap.o assembler_utils/tokenizer.o assembler_utils/sdtconstants.o
 
-assemble.o: assemble.c emulator_utils/state.h global_utils/bitmanipulation.h assembler_utils/encode.h assembler_utils/sdtconstants.h
+assemble.o: assemble.c assembler_utils/encode.h
 
 assembler_utils/sdtconstants.o: assembler_utils/sdtconstants.c assembler_utils/sdtconstants.h
 
