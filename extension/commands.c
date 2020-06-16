@@ -55,6 +55,8 @@ Command getCommand(char *str) {
 	return STOP;
   } else if (SAME(str, "export") || SAME(str, "ex")) {
 	return EXPORT;
+  } else if (SAME(str, "delete") || SAME(str, "del")) {
+    return DELETE;
   }
   return NONE;
 }
@@ -69,6 +71,7 @@ void help(Editor *state) {
   printf("| %s |", "clear");
   printf("| %s |", "display");
   printf("| %s |", "write");
+  printf("| %s |", "delete");
   printf("| %s |", "load");
   printf("| %s |", "export");
   printf("| %s ", "run\n");
@@ -447,7 +450,7 @@ void export(Editor *state) {
       FILE *outputFile = fopen(state->tokens[1], "w");
       assert(outputFile);
       if (!outputFile)
-	fprintf(stderr, "Error opening file.");
+	fprintf(stderr, "Error opening file.\n");
 
       for (int i = 0; i < state->noOfLines; i++) {
 	if (fputs(state->lines[i], outputFile) <= 0)
@@ -476,24 +479,27 @@ void delete(Editor *state) {
   int start, end;
   switch (state->noOfTokens) {
   case 1:
-    if (SAME(state->tokens[1], "options")) {
-      printf("%s", "delete <start = 0> <end = END>");
-      return;
-    }
     start = 0;
     end = state->noOfLines;
     break;
   case 2:
+	if (SAME(state->tokens[1], "options")) {
+	  printf("%s", "delete <start = 0> <end = END>\n");
+	  return;
+	}
     start = atoi(state->tokens[1]) - 1;
     end = state->noOfLines;
+    break;
   case 3:
-    start = atoi(state->tokens[1]);
+    start = atoi(state->tokens[1]) - 1;
     end = atoi(state->tokens[2]);
+    break;
   default:
-    printf("Too many arguments");
+    printf("Too many arguments.\n");
+    return;
   }
-  if (start < end || start < 0 || end < 0) {
-    printf("%sInvalid line numbers%s", RED, RESET);
+  if (start >= end - 1 || start < 0 || end < 0) {
+    printf("%sInvalid line numbers.%s\n", RED, RESET);
     return;
   }
   int diff = end - start;

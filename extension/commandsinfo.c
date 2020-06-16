@@ -147,20 +147,22 @@ void info(Editor *state) {
 	  printf("Allows you to edit your assembly program. Use \"options\" to see more features.\nEnter \"exit\" on a line"
 		  " to exit write mode.\nEnter \"back\" on a line to go back to the previous line.\n");
 	} else if (SAME(state->tokens[1], "shortcuts")) {
-	  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
-			 "help - h",
-			 "quit - q",
+	  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+			 "about - a",
 			 "clear - c",
-			 "info - i",
-			 "write - w",
+			 "delete - del",
 			 "display - d",
+			 "export - ex",
+			 "finish - f",
+			 "help - h",
+			 "info - i",
 			 "load - l",
-			 "save - s",
-			 "state - st",
-			 "run - r",
-			 "stop - X",
 			 "next - n",
-			 "about - a");
+			 "quit - q",
+			 "run - r",
+			 "state - st",
+			 "stop - X",
+			 "write - w");
 	} else if (SAME(state->tokens[1], "run")) {
 	  printf("Enters run mode with the saved program.\n");
 	} else if (SAME(state->tokens[1], "next")) {
@@ -177,6 +179,8 @@ void info(Editor *state) {
 	  printf("Loads all the lines of code from a text file.\n");
 	} else if (SAME(state->tokens[1], "export")) {
 	  printf("Saves the written lines to a specified output file, comments included.\n");
+	} else if (SAME(state->tokens[1], "delete")) {
+	  printf("Deletes a specified amount of previously written lines. Enter \"delete options\" for more info.\n");
 	}
   }
 }
