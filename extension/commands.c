@@ -294,6 +294,9 @@ void run(Editor *state) {
 
   CHECK_PRED(ferror(objCode), "An error has occurred whilst file reading.");
   fclose(objCode);
+  
+  *(state->toDecode) = 0;
+  *(state->toExecute) = 0;
 
   if (state->noOfTokens == 2) {
 	if (SAME(state->tokens[1], "all")) {
@@ -305,8 +308,6 @@ void run(Editor *state) {
 	}
   } else {
 	printf("Possible commands:\n next\n state\n stop\n display\n finish \nType \"info <command>\" to learn more about what the command does. \n");
-	*(state->toDecode) = 0;
-	*(state->toExecute) = 0;
 	for (int i = 0; i < 2; i++)
 	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
 
