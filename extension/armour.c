@@ -26,7 +26,7 @@ void mainloop(Editor *state) {
 	  &stop, &load, &export, &delete, &insert, &continueBreak, &setBreak, &disableBreak, &none};
 
   while (state->running) {
-	printf("%s%s", YELLOW, "➤ ");
+	printf("%s%s", YELLOW, "➤");
 	if (state->isRunning) printf("Running");
 	printf("%s%s", "➤ ", CYAN);
 	getInput(input, state->MAX_LINE_LENGTH);

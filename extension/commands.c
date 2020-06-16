@@ -119,7 +119,10 @@ void print_line(char *instr) {
 	  case '[':
 	  case ']': printf("%s", RED); // brackets
 		break;
-	  case 'r': printf("%s", YELLOW); // registers
+	  case 'r':
+	    if (*(instr + 1) <= '9' && *(instr + 1) >= '0') {
+		  printf("%s", YELLOW); // registers
+		}
 		break;
 	  case '/':
 	  case ',':
@@ -486,8 +489,8 @@ void none(Editor *state) {
 }
 
 void clear(Editor *state) {
-  welcome();
   system("clear");
+  welcome();
 }
 
 void delete(Editor *state) {
@@ -571,6 +574,7 @@ void insert(Editor *state) {
 	state->noOfLines++;
 	strcpy(state->lines[i], instr);
   }
+  internal_save(state);
 }
 
 void continueBreak(Editor *state) {
