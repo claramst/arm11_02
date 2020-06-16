@@ -484,28 +484,10 @@ void delete(Editor *state) {
     end = state->noOfLines;
     break;
   case 2:
-	if (SAME(state->tokens[1], "options")) {
-	  printf("%s", "delete <start = 0> <end = END>\n");
-	case 1:
-	  start = 0;
-	  end = state->noOfLines;
-	  break;
-	case 2:
-	  if (SAME(state->tokens[1], "options")) {
-		printf("%s", "delete <start = 0> <end = END>\n");
-		return;
-	  }
-	  start = atoi(state->tokens[1]) - 1;
-	  end = state->noOfLines;
-	  break;
-	case 3:
-	  start = atoi(state->tokens[1]) - 1;
-	  end = atoi(state->tokens[2]);
-	  break;
-	default:
-	  printf("Too many arguments.\n");
-	  return;
-	}
+    if (SAME(state->tokens[1], "options")) {
+      printf("%s", "delete <start = 0> <end = END>\n");
+      return;
+    }
     start = atoi(state->tokens[1]) - 1;
     end = state->noOfLines;
     break;
