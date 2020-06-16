@@ -471,3 +471,36 @@ void clear(Editor *state) {
   welcome();
   system("clear");
 }
+
+void delete(Editor *state) {
+  int start, end;
+  switch (state->noOfTokens) {
+  case 1:
+    if (SAME(state->tokens[1], "options")) {
+      printf("%s", "delete <start = 0> <end = END>");
+      return;
+    }
+    start = 0;
+    end = state->noOfLines;
+    break;
+  case 2:
+    start = atoi(state->tokens[1]);
+    end = state->noOfLines;
+  case 3:
+    start = atoi(state->tokens[1]);
+    end = atoi(state->tokens[2]);
+  default:
+    printf("Too many arguments");
+  }
+  if (start < end || start < 0 || end < 0) {
+    printf("%sInvalid line numbers%s", RED, RESET);
+    return;
+  }
+  int diff = end - start;
+
+  for (int i = start; i < end; i++) {
+    if (i + diff < state->noOfLines)
+      state->lines[i] = state->lines[i + diff];
+  }
+  state->noOfLines -= diff;    
+}
