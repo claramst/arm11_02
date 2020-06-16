@@ -271,6 +271,10 @@ void run(Editor *state) {
 	printf("You're already in run mode!\n");
 	return;
   }
+  if (state->noOfLines <= 0) {
+    printf("You haven't written / loaded anything yet!\n");
+    return;
+  }
   printf("%sEntering run mode.\n%s", MAGENTA, RESET);
   state->currentLine = 0;
   char *assembledBinary = state->assembled;
