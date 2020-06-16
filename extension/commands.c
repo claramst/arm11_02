@@ -3,8 +3,8 @@
 #include "commands.h"
 #include <stdbool.h>
 #include <time.h>
+#include <assert.h>
 
-Command getCommand(char *str);
 
 char *RED = "\033[1;31m";
 char *YELLOW = "\033[1;33m";
@@ -53,6 +53,8 @@ Command getCommand(char *str) {
 	return LOAD;
   } else if (SAME(str, "stop") || SAME(str, "X")) {
 	return STOP;
+  } else if (SAME(str, "export") || SAME(str, "ex")) {
+	return EXPORT;
   }
   return NONE;
 }
@@ -427,6 +429,42 @@ void stop(Editor *state) {
   //resetState(state->machineState);
   state->currentLine = -1;
   state->isRunning = 0;
+}
+
+/**
+ * Saves the written lines of assembly into a file, omitting comments written.
+ */
+void export(Editor *state) {
+  if (state->isRunning) {
+	printf("You can't save while you're running!\n");
+	return;
+  }
+  switch (state->noOfTokens) {
+  case 1:
+    printf("%sRequires at least one argument%s", RED, RESET);
+    return;
+  case 2:
+    if (SAME(state->tokens[1], "options")) {
+	printf("%s", "-filepath\n");
+	return;
+    } else {
+      FILE *outputFile = fopen(state->tokens[1], "w");
+      assert(outputFile);
+      if (!outputFile)
+	fprintf(stderr, "Error opening file.");
+      
+      for (int i = 0; i < state->noOfLines; i++) {
+	if (fputs(state->lines[i], outputFile) <= 0)
+	  fprintf(stderr, "fputs failure when writing to file.\n");
+	if (fputs("\n", outputFile) <= 0)
+	  fprintf(stderr, "fputs failure when writing to file.\n");
+      }
+      fclose(outputFile);      
+    }
+    break;
+  default:
+    printf("%sOnly requires 1 argument.\n%s", RED, RESET);
+  }
 }
 
 void none(Editor *state) {
