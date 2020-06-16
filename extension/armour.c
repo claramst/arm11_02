@@ -23,7 +23,7 @@ void mainloop(Editor *state) {
   char *input = malloc(state->MAX_LINE_LENGTH * sizeof(char));
   Command cmd;
 
-  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &finish, &next, &currentState, &stop, &load, &export, &none};
+  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &finish, &next, &currentState, &stop, &load, &export, &delete, &none};
 
   while (state->running) {
 	printf("%s%s", YELLOW, "➤ ");

@@ -42,6 +42,7 @@ typedef enum command {
   STOP,
   LOAD,
   EXPORT,
+  DELETE,
   NONE
 } Command;
 
@@ -80,9 +81,10 @@ void next(Editor *state);
 void internal_save(Editor *state);
 void currentState(Editor *state);
 void clear(Editor *state);
-void stop(Editor *editor);
-void load(Editor *editor);
-void export(Editor *editor);
+void stop(Editor *state);
+void load(Editor *state);
+void export(Editor *state);
+void delete(Editor *state);
 void none(Editor *state);
 
 #endif
