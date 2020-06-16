@@ -479,35 +479,34 @@ void clear(Editor *state) {
 void delete(Editor *state) {
   int start, end;
   switch (state->noOfTokens) {
-  case 1:
-    start = 0;
-    end = state->noOfLines;
-    break;
-  case 2:
-	if (SAME(state->tokens[1], "options")) {
-	  printf("%s", "delete <start = 0> <end = END>\n");
+	case 1:
+	  start = 0;
+	  end = state->noOfLines;
+	  break;
+	case 2:
+	  if (SAME(state->tokens[1], "options")) {
+		printf("%s", "delete <start = 0> <end = END>\n");
+		return;
+	  }
+	  start = atoi(state->tokens[1]) - 1;
+	  end = state->noOfLines;
+	  break;
+	case 3:
+	  start = atoi(state->tokens[1]) - 1;
+	  end = atoi(state->tokens[2]);
+	  break;
+	default:
+	  printf("Too many arguments.\n");
 	  return;
-	}
-    start = atoi(state->tokens[1]) - 1;
-    end = state->noOfLines;
-    break;
-  case 3:
-    start = atoi(state->tokens[1]) - 1;
-    end = atoi(state->tokens[2]);
-    break;
-  default:
-    printf("Too many arguments.\n");
-    return;
   }
-  if (start >= end - 1 || start < 0 || end < 0) {
-    printf("%sInvalid line numbers.%s\n", RED, RESET);
-    return;
+  if (start >= end || start < 0 || end < 0) {
+	printf("%sInvalid line numbers.%s\n", RED, RESET);
+	return;
   }
   int diff = end - start;
 
-  for (int i = start; i < end; i++) {
-    if (i + diff < state->noOfLines)
-      state->lines[i] = state->lines[i + diff];
+  for (int i = end; i < state->noOfLines; i++) {
+	state->lines[i - diff] = state->lines[i];
   }
-  state->noOfLines -= diff;    
+  state->noOfLines -= diff;
 }
