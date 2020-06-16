@@ -58,6 +58,7 @@ Editor *initialise_state(void) {
   state->decoded = calloc(1, sizeof(DECODED_INSTR));
   state->toDecode = calloc(1, sizeof(int));
   state->toExecute = calloc(1, sizeof(int));
+  state->isRunning = 0;
   strcpy(state->source, "text.s");
   strcpy(state->assembled, "temp.bin");
   return state;

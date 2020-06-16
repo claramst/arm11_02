@@ -156,17 +156,18 @@ void display(Editor *state) {
 		return;
 	  } else {
 		start = atoi(state->tokens[1]) - 1;
-		end = state->noOfLines;
+		end = start + 1;
 	  }
 	  break;
-	case 3: start = atoi(state->tokens[1]) - 1;
-	  end = atoi(state->tokens[2]);
+	case 3:
+	  start = atoi(state->tokens[1]) - 1;
+	  end = (SAME(state->tokens[2], "end")) ? state->noOfLines : atoi(state->tokens[2]);
 	  break;
 	default: printf("Too many arguments\n");
 	  return;
   }
 
-  if (start < 0 || start > state->noOfLines + 1 || end > state->MAX_LINES || end < start) {
+  if (start < 0 || start + 1 > state->noOfLines || end < start || end > state->noOfLines) {
 	printf("Invalid line number(s)\n");
 	return;
   }
@@ -178,7 +179,7 @@ char *trim(char *str) {
   int i;
   for (i = 0; str[i] != '/' && i < strlen(str); i++);
   char *str2 = calloc((i + 2), sizeof(char));
-  CHECK_PRED(!str2, "Allocating memory failed");
+  CHECK_PRED(!str2, "Allocating memory failed\n");
   strncpy(str2, str, i);
   str2[i + 1] = '\0';
   return str2;
@@ -192,7 +193,7 @@ void write(Editor *state) {
   int start, end;
   if (state->noOfTokens > 1) {
 	if (SAME(state->tokens[1], "options")) {
-	  printf("write <START (= 1)> \nYou can start writing from line START.\n NOTE: writing on a line will overwrite "
+	  printf("write <START (= 1)> \nYou can start writing from line START.\nNOTE: writing on a line will overwrite "
 			 "what was previous there.\n");
 	  return;
 	} else if (SAME(state->tokens[1], "end")) {
@@ -251,7 +252,7 @@ void runAll(Editor *state) {
   for (int halt = 0; !halt;
 	   halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
   double end = clock();
-  printf("End of program reached in %f seconds.\n Final machine state:\n", (end - start) / CLOCKS_PER_SEC);
+  printf("End of program reached in %f seconds.\nFinal machine state:\n", (end - start) / CLOCKS_PER_SEC);
   currentState(state);
   stop(state);
 }
@@ -477,23 +478,23 @@ void delete(Editor *state) {
       return;
     }
     start = atoi(state->tokens[1]) - 1;
-    end = state->noOfLines;
+    end = start + 1;
     break;
   case 3:
     start = atoi(state->tokens[1]) - 1;
-    end = atoi(state->tokens[2]);
+    end = (SAME(state->tokens[2], "end")) ? state->noOfLines : atoi(state->tokens[2]);
     break;
   default:
     printf("Too many arguments.\n");
     return;
   }
-  if (start + 1 > end || start < 0 || end < 0 || start + 1 > state->noOfLines) {
+  if (start + 1 > end || start < 0 || end < 0 || start + 1 > state->noOfLines || end > state->noOfLines) {
     printf("%sInvalid line numbers.%s\n", RED, RESET);
     return;
   }
   int diff = end - start;
   for (int i = end; i < state->noOfLines; i++) {
-    state->lines[i - diff] = state->lines[i];
+	strcpy(state->lines[i - diff], state->lines[i]);
   }
   state->noOfLines -= diff;
 }
