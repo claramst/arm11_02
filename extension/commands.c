@@ -492,9 +492,8 @@ void delete(Editor *state) {
     return;
   }
   int diff = end - start;
-  for (int i = start; i < end; i++) {
-    if (i + diff < state->noOfLines)
-      state->lines[i] = state->lines[i + diff];
+  for (int i = end; i < state->noOfLines; i++) {
+    state->lines[i - diff] = state->lines[i];
   }
   state->noOfLines -= diff;
 }
