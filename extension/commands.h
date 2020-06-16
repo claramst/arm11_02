@@ -43,6 +43,10 @@ typedef enum command {
   LOAD,
   EXPORT,
   DELETE,
+  INSERT,
+  CONTINUE,
+  BREAK,
+  DISABLE,
   NONE
 } Command;
 
@@ -62,6 +66,7 @@ typedef struct editor {
   DECODED_INSTR *decoded;
   int *toDecode, *toExecute;
   int isRunning;
+  bool *breakpoints;
 } Editor;
 
 typedef void (*commands)(Editor *);
@@ -85,6 +90,10 @@ void stop(Editor *state);
 void load(Editor *state);
 void export(Editor *state);
 void delete(Editor *state);
+void insert(Editor *state);
+void continueBreak(Editor *state);
+void setBreak(Editor *state);
+void disableBreak(Editor *state);
 void none(Editor *state);
 
 #endif

@@ -25,37 +25,44 @@ void getInput(char *input, int MAX_LINE_LENGTH) {
 }
 
 Command getCommand(char *str) {
-  if (SAME(str, "help") || SAME(str, "h")) {
+  if (SAME(str, "help") || SAME(str, "h"))
 	return HELP;
-  } else if (SAME(str, "quit") || SAME(str, "q")) {
+  if (SAME(str, "quit") || SAME(str, "q"))
 	return QUIT;
-  } else if (SAME(str, "about") || SAME(str, "a")) {
+  if (SAME(str, "about") || SAME(str, "a"))
 	return ABOUT;
-  } else if (SAME(str, "info") || SAME(str, "i")) {
+  if (SAME(str, "info") || SAME(str, "i"))
 	return INFO;
-  } else if (SAME(str, "write") || SAME(str, "w")) {
+  if (SAME(str, "write") || SAME(str, "w"))
 	return WRITE;
-  } else if (SAME(str, "clear") || SAME(str, "c")) {
+  if (SAME(str, "clear") || SAME(str, "cl"))
 	return CLEAR;
-  } else if (SAME(str, "display") || SAME(str, "d")) {
+  if (SAME(str, "display") || SAME(str, "d"))
 	return DISPLAY;
-  } else if (SAME(str, "next") || SAME(str, "n")) {
+  if (SAME(str, "next") || SAME(str, "n"))
 	return NEXT;
-  } else if (SAME(str, "run") || SAME(str, "r")) {
+  if (SAME(str, "run") || SAME(str, "r"))
 	return RUN;
-  } else if (SAME(str, "finish") || SAME(str, "f")) {
+  if (SAME(str, "finish") || SAME(str, "f"))
 	return FINISH;
-  } else if (SAME(str, "state") || SAME(str, "st")) {
+  if (SAME(str, "state") || SAME(str, "st"))
 	return STATE;
-  } else if (SAME(str, "load") || SAME(str, "l")) {
+  if (SAME(str, "load") || SAME(str, "l"))
 	return LOAD;
-  } else if (SAME(str, "stop") || SAME(str, "X")) {
+  if (SAME(str, "stop") || SAME(str, "X"))
 	return STOP;
-  } else if (SAME(str, "export") || SAME(str, "ex")) {
+  if (SAME(str, "export") || SAME(str, "ex"))
 	return EXPORT;
-  } else if (SAME(str, "delete") || SAME(str, "del")) {
+  if (SAME(str, "delete") || SAME(str, "del"))
 	return DELETE;
-  }
+  if (SAME(str, "continue") || SAME(str, "c"))
+	return CONTINUE;
+  if (SAME(str, "break") || SAME(str, "b"))
+	return BREAK;
+  if (SAME(str, "disable") || SAME(str, "da"))
+	return DISABLE;
+  if (SAME(str, "insert") || SAME(str, "ins"))
+	return INSERT;
   return NONE;
 }
 
@@ -69,15 +76,20 @@ void help(Editor *state) {
   printf("| %s |", "clear");
   printf("| %s |", "display");
   printf("| %s |", "write");
+  printf("| %s |", "insert");
   printf("| %s |", "delete");
   printf("| %s |", "load");
   printf("| %s |", "export");
-  printf("| %s ", "run\n");
+  printf("| %s |", "run");
+  printf("\n");
   printf("========= Running mode commands: =========\n");
   printf("| %s |", "next");
   printf("| %s |", "finish");
   printf("| %s |", "state");
   printf("| %s |", "stop");
+  printf("| %s |", "continue");
+  printf("| %s |", "break");
+  printf("| %s |", "disable");
   printf("\n");
   printf("%s", RESET);
   printf("Type \"info <command>\" to learn more about what it does.\n");
@@ -122,9 +134,13 @@ void print_line(char *instr) {
 void print_lines(Editor *state, int start, int end, bool lineNumbers) {
   char *spaces;
   for (int i = start; i < end; i++) {
-	if (i == state->currentLine) {
-	  printf("=>");
+	if (state->isRunning) {
+	  if (state->breakpoints[i])
+		printf("%s", RED);
 	}
+	if (i == state->currentLine)
+	  printf("=>");
+
 	if (i + 1 >= 10) {
 	  spaces = " ";
 	} else {
@@ -159,8 +175,7 @@ void display(Editor *state) {
 		end = start + 1;
 	  }
 	  break;
-	case 3:
-	  start = atoi(state->tokens[1]) - 1;
+	case 3: start = atoi(state->tokens[1]) - 1;
 	  end = (SAME(state->tokens[2], "end")) ? state->noOfLines : atoi(state->tokens[2]);
 	  break;
 	default: printf("Too many arguments\n");
@@ -194,7 +209,8 @@ void write(Editor *state) {
   if (state->noOfTokens > 1) {
 	if (SAME(state->tokens[1], "options")) {
 	  printf("write <START (= 1)> \nYou can start writing from line START.\nNOTE: writing on a line will overwrite "
-			 "what was previous there.\n");
+			 "what was previous there.\nTyping \"write end\" will allow you to start typing from the final line.\n"
+			 "Type exit to escape write mode.\nType back to backtrack to the previous line.\n");
 	  return;
 	} else if (SAME(state->tokens[1], "end")) {
 	  start = state->noOfLines;
@@ -272,8 +288,8 @@ void run(Editor *state) {
 	return;
   }
   if (state->noOfLines <= 0) {
-    printf("You haven't written / loaded anything yet!\n");
-    return;
+	printf("You haven't written / loaded anything yet!\n");
+	return;
   }
   printf("%sEntering run mode.\n%s", MAGENTA, RESET);
   state->currentLine = 0;
@@ -299,6 +315,7 @@ void run(Editor *state) {
   *(state->toDecode) = 0;
   *(state->toExecute) = 0;
 
+  state->breakpoints = calloc(state->noOfLines, sizeof(bool));
   if (state->noOfTokens == 2) {
 	if (SAME(state->tokens[1], "all")) {
 	  runAll(state);
@@ -324,7 +341,7 @@ void next(Editor *state) {
 	  break;
 	case 2: n = atoi(state->tokens[1]);
 	  break;
-	default: printf("Too many arguments\n");
+	default: printf("Too many arguments.\n");
 	  return;
   }
   if (state->currentLine < 0) {
@@ -381,6 +398,10 @@ void internal_save(Editor *state) {
 }
 
 void load(Editor *state) {
+  if (state->isRunning) {
+	printf("You have to enter run mode before setting breakpoints!\n");
+	return;
+  }
   FILE *fp;
   switch (state->noOfTokens) {
 	case 1: printf("%s", "Load requires one argument\n");
@@ -431,7 +452,7 @@ void stop(Editor *state) {
  */
 void export(Editor *state) {
   if (state->isRunning) {
-	printf("You can't save while you're running!\n");
+	printf("You can't export while you're running!\n");
 	return;
   }
   switch (state->noOfTokens) {
@@ -470,35 +491,161 @@ void clear(Editor *state) {
 }
 
 void delete(Editor *state) {
+  if (state->isRunning) {
+	printf("You can't delete while running!\n");
+	return;
+  }
   int start, end;
   switch (state->noOfTokens) {
-  case 1:
-    start = 0;
-    end = state->noOfLines;
-    break;
-  case 2:
-    if (SAME(state->tokens[1], "options")) {
-      printf("%s", "delete <start = 0> <end = END>\n");
-      return;
-    }
-    start = atoi(state->tokens[1]) - 1;
-    end = start + 1;
-    break;
-  case 3:
-    start = atoi(state->tokens[1]) - 1;
-    end = (SAME(state->tokens[2], "end")) ? state->noOfLines : atoi(state->tokens[2]);
-    break;
-  default:
-    printf("Too many arguments.\n");
-    return;
+	case 1: start = 0;
+	  end = state->noOfLines;
+	  break;
+	case 2:
+	  if (SAME(state->tokens[1], "options")) {
+		printf("%s", "delete <start = 0> <end = END>\n");
+		return;
+	  }
+	  start = atoi(state->tokens[1]) - 1;
+	  end = start + 1;
+	  break;
+	case 3: start = atoi(state->tokens[1]) - 1;
+	  end = (SAME(state->tokens[2], "end")) ? state->noOfLines : atoi(state->tokens[2]);
+	  break;
+	default: printf("Too many arguments.\n");
+	  return;
   }
   if (start + 1 > end || start < 0 || end < 0 || start + 1 > state->noOfLines || end > state->noOfLines) {
-    printf("%sInvalid line numbers.%s\n", RED, RESET);
-    return;
+	printf("%sInvalid line numbers.%s\n", RED, RESET);
+	return;
   }
   int diff = end - start;
   for (int i = end; i < state->noOfLines; i++) {
 	strcpy(state->lines[i - diff], state->lines[i]);
   }
   state->noOfLines -= diff;
+}
+
+void shiftBack(int start, Editor *state) {
+  for (int i = state->noOfLines; i > start; i--) {
+	strcpy(state->lines[i], state->lines[i - 1]);
+  }
+}
+
+void insert(Editor *state) {
+  if (state->isRunning) {
+	printf("You can't insert while you're running!\n");
+	return;
+  }
+  int start, end;
+  if (state->noOfTokens > 1) {
+	if (SAME(state->tokens[1], "options")) {
+	  printf(
+		  "insert <START (= 1)> \nYou can start insert from line START.\nType exit to escape write mode.\nType back to backtrack to the previous line.\n");
+	  return;
+	} else {
+	  start = atoi(state->tokens[1]);
+	  start--;
+	}
+  } else {
+	start = 0;
+  }
+  end = state->MAX_LINES;
+  if (start < 0 || start > state->noOfLines + 1) {
+	printf("Invalid start");
+	return;
+  }
+  int i;
+  for (i = start; i < end; i++) {
+	char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char));
+	printf("%3d| ", i + 1);
+	getInput(instr, state->MAX_LINE_LENGTH);
+	if (SAME(instr, "exit"))
+	  break;
+
+	if (SAME(instr, "back")) {
+	  printf("%sBacktracking to the previous line.%s\n", BLUE, RESET);
+	  i = (i - 1 >= 0) ? i - 2 : i - 1;
+	  continue;
+	}
+	shiftBack(i, state);
+	state->noOfLines++;
+	strcpy(state->lines[i], instr);
+  }
+}
+
+void continueBreak(Editor *state) {
+  if (!state->isRunning) {
+	printf("%s", "No program is currently running.\n");
+	return;
+  }
+  switch (state->noOfTokens) {
+	case 1:
+	  do {
+		next(state);
+		if (!state->isRunning) {
+		  break;
+		}
+	  } while (!state->breakpoints[state->currentLine]);
+	  if (state->isRunning) {
+		printf("%s!Hit breakpoint at line %d!%s\n", BLUE, state->currentLine + 1, RESET);
+	  }
+	  break;
+	default: printf("%scontinue doesn't take any arguments%s\n", RED, RESET);
+  }
+}
+
+void setBreak(Editor *state) {
+  if (!state->isRunning) {
+	printf("You have to enter run mode before setting breakpoints!\n");
+	return;
+  }
+  int lineNumber = atoi(state->tokens[1]) - 1;
+  switch (state->noOfTokens) {
+	case 2:
+	  if (SAME(state->tokens[1], "options")) {
+		printf("break <line-number> allows you to set a breakpoint at the desired line.\n");
+		return;
+	  }
+	  if (strstr(state->lines[lineNumber], ":")) {
+		printf(
+			"%sNote: attempting to set a breakpoint on a label line results in a breakpoint only being set on the line "
+			"following it by nature of the assembly language.%s\n",
+			YELLOW,
+			RESET);
+		state->breakpoints[lineNumber + 1] = true;
+	  } else {
+		state->breakpoints[lineNumber] = true;
+	  }
+	  break;
+	default: printf("Break requires you to specify only the line number at which a breakpoint should be set.\n");
+	  break;
+  }
+}
+
+void disableBreak(Editor *state) {
+  if (!state->isRunning) {
+	printf("You have to enter run mode before disabling breakpoints!\n");
+	return;
+  }
+  int n;
+  switch (state->noOfTokens) {
+	case 1: printf("Disable requires a line number.\n");
+	  return;
+	case 2:
+	  if (SAME(state->tokens[1], "options")) {
+		printf("disable <line number of breakpoint> \n");
+		return;
+	  }
+	  n = atoi(state->tokens[1]) - 1;
+	  if (strstr(state->lines[n], ":")) {
+		n++;
+	  }
+	  if (state->breakpoints[n]) {
+		state->breakpoints[n] = false;
+	  } else {
+		printf("%s", "No break point to disable.\n");
+	  }
+	  break;
+	default: printf("%s", "disable only takes one line number\n");
+  }
 }

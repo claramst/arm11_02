@@ -23,7 +23,7 @@ void mainloop(Editor *state) {
   Command cmd;
 
   commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &finish, &next, &currentState,
-	  &stop, &load, &export, &delete, &none};
+	  &stop, &load, &export, &delete, &insert, &continueBreak, &setBreak, &disableBreak, &none};
 
   while (state->running) {
 	printf("%s%s", YELLOW, "➤ ");
@@ -61,6 +61,7 @@ Editor *initialise_state(void) {
   state->isRunning = 0;
   strcpy(state->source, "text.s");
   strcpy(state->assembled, "temp.bin");
+  //memset(state->breakpoints, 0, sizeof(state->breakpoints));
   return state;
 }
 
