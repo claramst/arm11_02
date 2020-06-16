@@ -132,11 +132,11 @@ void print_lines(Editor *state, int start, int end, bool lineNumbers) {
 	  spaces = " ";
 	} else
 	  spaces = "  ";
-	
+
         printf("%s", spaces);
 
 	if (lineNumbers)
-	  printf("%d| ", i + 1);	
+	  printf("%d| ", i + 1);
 
 	print_line(state->lines[i]);
   }
@@ -155,7 +155,7 @@ void display(Editor *state) {
 	  break;
 	case 2:
 	  if (SAME(state->tokens[1], "options")) {
-		printf("display <start> <end> \n prints lines corresponding to line numbers between <start> and <end> inclusive. If either are unspecified then the lines from that number onwards are printed.");
+		printf("display <start> <end> \n prints lines corresponding to line numbers between <start> and <end> inclusive. If either are unspecified then the lines from that number onwards are printed.\n");
 		return;
 	  } else {
 		start = atoi(state->tokens[1]) - 1;
@@ -167,7 +167,7 @@ void display(Editor *state) {
 	  end = atoi(state->tokens[2]);
 	  break;
 	default:
-	  printf("Too many aguments");
+	  printf("Too many arguments\n");
 	  return;
   }
 
@@ -198,8 +198,8 @@ void write(Editor *state) {
   int start, end;
   if (state->noOfTokens > 1) {
 	if (SAME(state->tokens[1], "options")) {
-	  printf(
-		  "write <START (= 1)> \nYou can start writing from line START.\n NOTE: writing on a line will overwrite what was previous there.\n");
+	  printf("write <START (= 1)> \nYou can start writing from line START.\n NOTE: writing on a line will overwrite "
+		  "what was previous there.\n");
 	  return;
 	} else if (SAME(state->tokens[1], "end")) {
 	  start = state->noOfLines;
@@ -207,35 +207,32 @@ void write(Editor *state) {
 	  start = atoi(state->tokens[1]);
 	  start--;
 	}
-  } else
+  } else {
 	start = 0;
-
+  }
   end = state->MAX_LINES;
   if (start < 0 || start > state->noOfLines + 1) {
 	printf("Invalid start");
 	return;
   }
-
   int i;
-  char *spaces;
   for (i = start; i < end; i++) {
 	char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char));
-	if (i + 1 >= 10) {
-	  spaces = " ";
-	} else
-	  spaces = "  ";
-
-	printf("%s%d| ", spaces, i + 1);
+	printf("%3d| ", i + 1);
 	getInput(instr, state->MAX_LINE_LENGTH);
-
 	if (SAME(instr, "exit")) { break; }
+	if (SAME(instr, "back")) {
+	  printf("%sBacktracking to the previous line.%s\n", BLUE, RESET);
+	  i = (i - 1 >= 0) ? i - 2 : i - 1;
+	  continue;
+	}
 	if (!validInstr(trim(instr))) {
 	  printf("%sFailed to write line due to syntax error, try again.%s\n", RED, RESET);
-	  i--; continue;
+	  i--;
+	  continue;
 	}
 	strcpy(state->lines[i], instr);
   }
-
   if (i >= state->noOfLines) {
 	state->noOfLines = i;
   }
@@ -270,7 +267,7 @@ void runAll(Editor *state) {
 // and the file to write to.
 // Then we pass this file into emulate, which prints the machine state.
 // PRE: assemble and emulate should be compiled
-// into executeables
+// into executables
 // Need absolutePath to file
 void run(Editor *state) {
   if (state->isRunning) {
@@ -303,7 +300,7 @@ void run(Editor *state) {
 	  runAll(state);
 	  return;
 	} else {
-	  printf("Invalid argument, run can only be called with no arguments or the argument \"all\"");
+	  printf("Invalid argument, run can only be called with no arguments or the argument \"all\"\n");
 	  return;
 	}
   } else {
@@ -312,7 +309,7 @@ void run(Editor *state) {
 	*(state->toExecute) = 0;
 	for (int i = 0; i < 2; i++)
 	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
-	
+
 	state->isRunning = 1;
   }
 }
@@ -324,7 +321,7 @@ void next(Editor *state) {
 	  break;
 	case 2: n = atoi(state->tokens[1]);
 	  break;
-	default: printf("Too many arguments");
+	default: printf("Too many arguments\n");
 	  return;
   }
   if (state->currentLine < 0) {
@@ -373,8 +370,7 @@ void internal_save(Editor *state) {
    char *trimmed;
    for (int i = 0; i < state->noOfLines; i++) {
      trimmed = trim(state->lines[i]);
-     if (fputs(trimmed, outputFile) <= 0)
-       fprintf(stderr, "fputs failure when writing to file.\n");
+     fputs(trimmed, outputFile);
      if (fputs("\n", outputFile) <= 0)
        fprintf(stderr, "fputs failure when writing to file.\n");
      free(trimmed);
@@ -386,7 +382,7 @@ void load(Editor *state) {
   FILE *fp;
   switch (state->noOfTokens) {
 	case 1:
-	  printf("%s", "Load requires one argument");
+	  printf("%s", "Load requires one argument\n");
 	  break;
 	case 2:
 	  fp = fopen(state->tokens[1], "r");
@@ -405,7 +401,7 @@ void load(Editor *state) {
 	  //state->path = state->tokens[1];
 	  break;
 	default:
-	  printf("Too many arguments. Load requires you to specify only a path to the file to be loaded in.");
+	  printf("Too many arguments. Load requires you to specify only a path to the file to be loaded in.\n");
   }
   internal_save(state);
 }
@@ -426,7 +422,7 @@ void stop(Editor *state) {
   }
   memset(state->machineState->registers, 0, 17 * 4);
   printf("Program stopped, all registers have been reset.\n");
-  //resetState(state->machineState);
+  resetState(state->machineState);
   state->currentLine = -1;
   state->isRunning = 0;
 }
@@ -452,14 +448,14 @@ void export(Editor *state) {
       assert(outputFile);
       if (!outputFile)
 	fprintf(stderr, "Error opening file.");
-      
+
       for (int i = 0; i < state->noOfLines; i++) {
 	if (fputs(state->lines[i], outputFile) <= 0)
 	  fprintf(stderr, "fputs failure when writing to file.\n");
 	if (fputs("\n", outputFile) <= 0)
 	  fprintf(stderr, "fputs failure when writing to file.\n");
       }
-      fclose(outputFile);      
+      fclose(outputFile);
     }
     break;
   default:

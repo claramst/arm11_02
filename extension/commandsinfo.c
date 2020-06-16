@@ -48,16 +48,19 @@ void singleDataTransferInfo(void) {
   printf("These transfer data between memory and registers.\n");
   printf("All data transer instructions are of the form <operation> <Rd> <address>, \n");
   printf(
-	  "When writing data transfer instructions you must be careful where you place brackets as this will impact when the offset will be applied to the address.\n");
+	  "When writing data transfer instructions you must be careful where you place brackets as this will impact when"
+   " the offset will be applied to the address.\n");
   printf("Pre-indexed addresses are of the form. \n");
   printf("[Rn], using base register Rn, with an oﬀset of zero. \n");
   printf("[Rn,<#expression>], using base register Rn, oﬀset of <#expression> bytes. \n");
   printf(
-	  "[Rn,{+/-}Rm{,<shift>},], using base register Rn, oﬀset by +/- the contents of index register Rm which has been shifted by <shift>. \n");
+	  "[Rn,{+/-}Rm{,<shift>},], using base register Rn, oﬀset by +/- the contents of index register Rm which has been"
+   " shifted by <shift>. \n");
   printf("Post-indexed addresses are of the form. \n");
   printf("[Rn],<#expression>, oﬀset base register Rn by <#expression> bytes. \n");
   printf(
-	  "[Rn],{+/-}Rm{,<shift>}, oﬀset base register Rn by +/- the contents of index register Rm which has been shifted by <shift>. \n");
+	  "[Rn],{+/-}Rm{,<shift>}, oﬀset base register Rn by +/- the contents of index register Rm which has been shifted"
+   " by <shift>. \n");
 }
 
 void dataProcessingBinary(void) {
@@ -89,7 +92,8 @@ void instruction(Editor *state) {
   bool running = true;
 
   while (running) {
-	printf("Enter \"mnemonic\" to see a table of all supported ARM instructions.\nWhich instruction type do you want to know about?: \n");
+	printf("Enter \"mnemonic\" to see a table of all supported ARM instructions.\nWhich instruction type do you want to"
+		" know about?: \n");
 	getInput(name, state->MAX_LINE_LENGTH);
 	if (SAME(name, "options")) {
 	  printf("-data processing\n-branch\n-multiply\n-single data transfer\n-mnemonic\n-exit\n");
@@ -140,7 +144,8 @@ void info(Editor *state) {
 	} else if (SAME(state->tokens[1], "display")) {
 	  printf("Shows the program you have written. Use \"options\" to see  more features.\n");
 	} else if (SAME(state->tokens[1], "write")) {
-	  printf("Allows you to edit your assembly program. Use \"options\" to see more features.\nEnter \"exit\" on a line to exit write mode.\n");
+	  printf("Allows you to edit your assembly program. Use \"options\" to see more features.\nEnter \"exit\" on a line"
+		  " to exit write mode.\nEnter \"back\" on a line to go back to the previous line.\n");
 	} else if (SAME(state->tokens[1], "shortcuts")) {
 	  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
 			 "help - h",
@@ -163,9 +168,11 @@ void info(Editor *state) {
 	} else if (SAME(state->tokens[1], "state")) {
 	  printf("Whilst in run mode, prints the current state of registers and memory.\n");
 	} else if (SAME(state->tokens[1], "stop")) {
-	  printf("Whilst in run mode, halts execution of the program, prints the state of the registers and memory, and then exits run mode.\n");
+	  printf("Whilst in run mode, halts execution of the program, prints the state of the registers and memory, and "
+		  "then exits run mode.\n");
 	} else if (SAME(state->tokens[1], "finish")) {
-	  printf("Whilst in run mode, runs the remainder of the program from the current line, prints the final machine state then exits run mode.\n");
+	  printf("Whilst in run mode, runs the remainder of the program from the current line, prints the final machine "
+		  "state then exits run mode.\n");
 	} else if (SAME(state->tokens[1], "load")) {
 	  printf("Loads all the lines of code from a text file.\n");
 	} else if (SAME(state->tokens[1], "export")) {
