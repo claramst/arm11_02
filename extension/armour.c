@@ -18,11 +18,6 @@ void setTokens(char *str, Editor *state) {
   state->noOfTokens = len;
 }
 
-void welcome() {
-  system("clear");
-  printf("============WELCOME TO ARMOUR!===============\n");
-  printf("Type \"help\" if you don't know what to do :)\n");
-}
 
 void mainloop(Editor *state) {
   char *input = malloc(state->MAX_LINE_LENGTH * sizeof(char));

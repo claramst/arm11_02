@@ -64,6 +64,7 @@ typedef struct editor {
 
 typedef void (*commands)(Editor *);
 
+void welcome(void);
 void getInput(char *input, int MAX_LINE_LENGTH);
 Command getCommand(char *str);
 void help(Editor *state);

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "commands.h"
 #include <stdbool.h>
-
+#include <time.h>
 
 Command getCommand(char *str);
 
@@ -13,6 +13,13 @@ char *RESET = "\033\033[0m";
 char *GREEN = "\033\[0;32m";
 char *CYAN = "\033\[0;36m";
 char *MAGENTA = "\033\[0;35m";
+
+
+void welcome(void) {
+  system("clear");
+  printf("============WELCOME TO ARMOUR!===============\n");
+  printf("Type \"help\" if you don't know what to do :)\n");
+}
 
 void getInput(char *input, int MAX_LINE_LENGTH) {
   fgets(input, MAX_LINE_LENGTH, stdin);
@@ -233,13 +240,19 @@ void write(Editor *state) {
 }
 
 void finish(Editor *state) {
+  if (!state->isRunning) {
+    printf("%s", "Program is not currently running.");
+    return;
+  }
   for (int halt = 0; !halt; halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
 }
 
 void runAll(Editor *state) {
   state->isRunning = 1;
-  finish(state);
-  printf("End of program reached. Final machine state:\n\n");
+  double start = clock();
+  for (int halt = 0; !halt; halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
+  double end = clock();
+  printf("End of program reached in %f seconds.\n Final machine state:\n", (end - start) / CLOCKS_PER_SEC);
   currentState(state);
   stop(state);
 }
@@ -259,7 +272,7 @@ void run(Editor *state) {
 	return;
   }
 
-  printf("%sEntering run mode.%s", MAGENTA, RESET);
+  printf("%sEntering run mode.\n%s", MAGENTA, RESET);
 
   // printf("\nPossible commands:\n next\n state\n halt\n display\n run all\n Type \"info <command>\" to learn more about what it does. \n");
   state->currentLine = 0;
@@ -409,9 +422,9 @@ void stop(Editor *state) {
 	printf("You need to run first!\n");
 	return;
   }
+  memset(state->machineState->registers, 0, 17 * 4);
   printf("Program stopped, all registers have been reset.\n");
-//  printState(state->machineState);
-  resetState(state->machineState);
+  //resetState(state->machineState);
   state->currentLine = -1;
   state->isRunning = 0;
 }
@@ -421,5 +434,6 @@ void none(Editor *state) {
 }
 
 void clear(Editor *state) {
+  welcome();
   system("clear");
 }
