@@ -68,10 +68,11 @@ void help(Editor *state) {
   printf("| %s |", "display");
   printf("| %s |", "write");
   printf("| %s |", "load");
-  printf("| %s |", "save");
+  printf("| %s |", "export");
   printf("| %s ", "run\n");
   printf("========= Running mode commands: =========\n");
   printf("| %s |", "next");
+  printf("| %s |", "finish");
   printf("| %s |", "state");
   printf("| %s |", "stop");
   printf("\n");
@@ -241,10 +242,12 @@ void write(Editor *state) {
 
 void finish(Editor *state) {
   if (!state->isRunning) {
-    printf("%s", "Program is not currently running.");
+    printf("%s", "You need to run first!\n");
     return;
   }
   for (int halt = 0; !halt; halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
+  printf("End of program reached. Final machine state:\n");
+  currentState(state);
   stop(state);
 }
 
@@ -272,13 +275,9 @@ void run(Editor *state) {
 	printf("You're already in run mode!\n");
 	return;
   }
-
   printf("%sEntering run mode.\n%s", MAGENTA, RESET);
-
-  // printf("\nPossible commands:\n next\n state\n halt\n display\n run all\n Type \"info <command>\" to learn more about what it does. \n");
   state->currentLine = 0;
   char *assembledBinary = state->assembled;
-
   // a temporary file for assemble to write to. idk we might need a path to assembledBinary
   char *assembleCommand = "cd ../src && ./assemble ../extension/text.s ../extension/temp.bin";
   FILE* objCode = fopen(assembledBinary, "w");
@@ -289,7 +288,6 @@ void run(Editor *state) {
 
   status += 0;
   //just for debugging purposes so we can see if the system() call was sucessful.
-
 
   CHECK_PRED(!objCode, "File could not be opened.");
 
@@ -307,7 +305,7 @@ void run(Editor *state) {
 	  return;
 	}
   } else {
-	printf("\nPossible commands:\n next\n state\n stop\n display\n Type \"info <command>\" to learn more about what the command does. \n");
+	printf("Possible commands:\n next\n state\n stop\n display\n finish \nType \"info <command>\" to learn more about what the command does. \n");
 	*(state->toDecode) = 0;
 	*(state->toExecute) = 0;
 	for (int i = 0; i < 2; i++)
@@ -348,7 +346,7 @@ void next(Editor *state) {
   print_lines(state, startLine, endLine, true);
 
   if (state->currentLine >= state->noOfLines) {
-	printf("End of program reached. Final machine state:\n\n");
+	printf("End of program reached. Final machine state:\n");
 	// todo: decide whether or not we want to delete these files here.
 	// remove("temp");
 	// remove(state->path);
