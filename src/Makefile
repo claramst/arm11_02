@@ -57,3 +57,4 @@ clean:
 	rm -f emulate
 	rm -f ../extension/*.o
 	rm -f ../extension/armour
+	rm -f ../extension/text.s ../extension/temp.bin

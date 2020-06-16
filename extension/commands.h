@@ -76,7 +76,7 @@ void display(Editor *state);
 void run(Editor *state);
 void finish(Editor *state);
 void next(Editor *state);
-void save(Editor *state);
+void internal_save(Editor *state);
 void currentState(Editor *state);
 void clear(Editor *state);
 void stop(Editor *editor);

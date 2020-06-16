@@ -236,7 +236,7 @@ void write(Editor *state) {
   if (i >= state->noOfLines) {
 	state->noOfLines = i;
   }
-  save(state);
+  internal_save(state);
 }
 
 void finish(Editor *state) {
@@ -245,6 +245,7 @@ void finish(Editor *state) {
     return;
   }
   for (int halt = 0; !halt; halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
+  stop(state);
 }
 
 void runAll(Editor *state) {
@@ -360,7 +361,7 @@ void next(Editor *state) {
 /**
  * Saves the written lines of assembly into a file, omitting comments written.
  */
-void save(Editor *state) {
+void internal_save(Editor *state) {
   if (state->isRunning) {
 	printf("You can't save while you're running!\n");
 	return;
@@ -406,6 +407,7 @@ void load(Editor *state) {
 	default:
 	  printf("Too many arguments. Load requires you to specify only a path to the file to be loaded in.");
   }
+  internal_save(state);
 }
 
 void currentState(Editor *state) {
