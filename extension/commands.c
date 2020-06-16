@@ -476,14 +476,14 @@ void delete(Editor *state) {
   int start, end;
   switch (state->noOfTokens) {
   case 1:
-    if (SAME(state->tokens[1], "options")) {
-      printf("%s", "delete <start = 0> <end = END>");
-      return;
-    }
     start = 0;
     end = state->noOfLines;
     break;
   case 2:
+    if (SAME(state->tokens[1], "options")) {
+      printf("%s", "delete <start = 0> <end = END>");
+      return;
+    }
     start = atoi(state->tokens[1]) - 1;
     end = state->noOfLines;
   case 3:
