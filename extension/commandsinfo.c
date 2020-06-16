@@ -168,6 +168,8 @@ void info(Editor *state) {
 	  printf("Whilst in run mode, runs the remainder of the program from the current line, prints the final machine state then exits run mode.\n");
 	} else if (SAME(state->tokens[1], "load")) {
 	  printf("Loads all the lines of code from a text file.\n");
+	} else if (SAME(state->tokens[1], "export")) {
+	  printf("Saves the written lines to a specified output file, comments included.\n");
 	}
   }
 }

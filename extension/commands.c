@@ -441,7 +441,7 @@ void export(Editor *state) {
   }
   switch (state->noOfTokens) {
   case 1:
-    printf("%sRequires at least one argument%s", RED, RESET);
+    printf("%sExport requires at least one argument.\n%s", RED, RESET);
     return;
   case 2:
     if (SAME(state->tokens[1], "options")) {
