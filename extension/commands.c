@@ -484,7 +484,7 @@ void delete(Editor *state) {
     end = state->noOfLines;
     break;
   case 2:
-    start = atoi(state->tokens[1]);
+    start = atoi(state->tokens[1]) - 1;
     end = state->noOfLines;
   case 3:
     start = atoi(state->tokens[1]);
