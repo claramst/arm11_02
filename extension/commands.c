@@ -5,7 +5,6 @@
 #include <time.h>
 #include <assert.h>
 
-
 char *RED = "\033[1;31m";
 char *YELLOW = "\033[1;33m";
 char *BLUE = "\033\[0;34m";
@@ -13,7 +12,6 @@ char *RESET = "\033\033[0m";
 char *GREEN = "\033\[0;32m";
 char *CYAN = "\033\[0;36m";
 char *MAGENTA = "\033\[0;35m";
-
 
 void welcome(void) {
   system("clear");
@@ -56,7 +54,7 @@ Command getCommand(char *str) {
   } else if (SAME(str, "export") || SAME(str, "ex")) {
 	return EXPORT;
   } else if (SAME(str, "delete") || SAME(str, "del")) {
-    return DELETE;
+	return DELETE;
   }
   return NONE;
 }
@@ -92,85 +90,79 @@ void quit(Editor *state) {
 }
 
 void about(Editor *state) {
-  printf("ARMOUR is a tool for writing and executing small assembly programs using ARM11 architecture\n");
-  printf("Made as part of an extension to an emulator and assembler for Rasberrry Pi.\n");
+  printf("ARMOUR is a tool for writing, executing and debugging small assembly programs using ARM11 architecture.\n");
+  printf("Made as part of an extension to an emulator and assembler for Raspberry Pi.\n");
 }
 
 void print_line(char *instr) {
   if (!strstr(instr, ":"))
-    printf("%s", CYAN); // opcode
+	printf("%s", CYAN); // opcode
   else
-    printf("%s", MAGENTA);
+	printf("%s", MAGENTA);
   for (; *instr; instr++) {
 	switch (*instr) {
 	  case '=':
-	  case '#':
-		printf("%s", GREEN); // immediate values
+	  case '#': printf("%s", GREEN); // immediate values
 		break;
 	  case '[':
-	  case ']':
-		printf("%s", RED); // brackets
+	  case ']': printf("%s", RED); // brackets
 		break;
-	  case 'r':
-		printf("%s", YELLOW); // registers
+	  case 'r': printf("%s", YELLOW); // registers
 		break;
 	  case '/':
 	  case ',':
-	  case ' ':
-		printf("%s", RESET); // regular
+	  case ' ': printf("%s", RESET); // regular
+		break;
 	}
 	printf("%c", *instr);
   }
   printf("%s\n", RESET);
 }
 
-
 void print_lines(Editor *state, int start, int end, bool lineNumbers) {
   char *spaces;
   for (int i = start; i < end; i++) {
-	if (i == state->currentLine)
+	if (i == state->currentLine) {
 	  printf("=>");
-
+	}
 	if (i + 1 >= 10) {
 	  spaces = " ";
-	} else
+	} else {
 	  spaces = "  ";
-
-        printf("%s", spaces);
-
-	if (lineNumbers)
+	}
+	printf("%s", spaces);
+	if (lineNumbers) {
 	  printf("%d| ", i + 1);
-
+	}
 	print_line(state->lines[i]);
   }
 }
 
 void display(Editor *state) {
-  if (state->noOfLines == 0){
+  if (state->noOfLines == 0) {
 	printf("Nothing has been written yet. Type \"write\" to start editing.\n");
 	return;
   }
   int start, end;
   switch (state->noOfTokens) {
-	case 1:
-	  start = 0;
+	case 1: start = 0;
 	  end = state->noOfLines;
 	  break;
 	case 2:
 	  if (SAME(state->tokens[1], "options")) {
-		printf("display <start> <end> \n prints lines corresponding to line numbers between <start> and <end> inclusive. If either are unspecified then the lines from that number onwards are printed.\n");
+		printf(
+			"display <start> <end> \n prints lines corresponding to line numbers between <start> and <end> inclusive."
+			" If either are unspecified then the lines from that number onwards are printed.\n");
 		return;
 	  } else {
 		start = atoi(state->tokens[1]) - 1;
 		end = state->noOfLines;
 	  }
 	  break;
-	case 3:
-	  start = atoi(state->tokens[1]) - 1;
+	case 3: start = atoi(state->tokens[1]) - 1;
 	  end = atoi(state->tokens[2]);
 	  break;
-	default:
-	  printf("Too many arguments\n");
+	default: printf("Too many arguments\n");
 	  return;
   }
 
@@ -192,7 +184,6 @@ char *trim(char *str) {
   return str2;
 }
 
-
 void write(Editor *state) {
   if (state->isRunning) {
 	printf("You can't write while you're running!\n");
@@ -202,7 +193,7 @@ void write(Editor *state) {
   if (state->noOfTokens > 1) {
 	if (SAME(state->tokens[1], "options")) {
 	  printf("write <START (= 1)> \nYou can start writing from line START.\n NOTE: writing on a line will overwrite "
-		  "what was previous there.\n");
+			 "what was previous there.\n");
 	  return;
 	} else if (SAME(state->tokens[1], "end")) {
 	  start = state->noOfLines;
@@ -244,10 +235,11 @@ void write(Editor *state) {
 
 void finish(Editor *state) {
   if (!state->isRunning) {
-    printf("%s", "You need to run first!\n");
-    return;
+	printf("%s", "You need to run first!\n");
+	return;
   }
-  for (int halt = 0; !halt; halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
+  for (int halt = 0; !halt;
+	   halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
   printf("End of program reached. Final machine state:\n");
   currentState(state);
   stop(state);
@@ -256,7 +248,8 @@ void finish(Editor *state) {
 void runAll(Editor *state) {
   state->isRunning = 1;
   double start = clock();
-  for (int halt = 0; !halt; halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
+  for (int halt = 0; !halt;
+	   halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
   double end = clock();
   printf("End of program reached in %f seconds.\n Final machine state:\n", (end - start) / CLOCKS_PER_SEC);
   currentState(state);
@@ -282,7 +275,7 @@ void run(Editor *state) {
   char *assembledBinary = state->assembled;
   // a temporary file for assemble to write to. idk we might need a path to assembledBinary
   char *assembleCommand = "cd ../src && ./assemble ../extension/text.s ../extension/temp.bin";
-  FILE* objCode = fopen(assembledBinary, "w");
+  FILE *objCode = fopen(assembledBinary, "w");
   fclose(objCode);
   objCode = fopen(assembledBinary, "rb");
 
@@ -297,7 +290,7 @@ void run(Editor *state) {
 
   CHECK_PRED(ferror(objCode), "An error has occurred whilst file reading.");
   fclose(objCode);
-  
+
   *(state->toDecode) = 0;
   *(state->toExecute) = 0;
 
@@ -310,10 +303,11 @@ void run(Editor *state) {
 	  return;
 	}
   } else {
-	printf("Possible commands:\n next\n state\n stop\n display\n finish \nType \"info <command>\" to learn more about what the command does. \n");
-	for (int i = 0; i < 2; i++)
+	printf("Possible commands:\n next\n state\n stop\n display\n finish \nType \"info <command>\" to learn more about"
+		   " what the command does. \n");
+	for (int i = 0; i < 2; i++) {
 	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
-
+	}
 	state->isRunning = 1;
   }
 }
@@ -358,7 +352,6 @@ void next(Editor *state) {
   }
 }
 
-
 /**
  * Saves the written lines of assembly into a file, omitting comments written.
  */
@@ -368,28 +361,26 @@ void internal_save(Editor *state) {
 	return;
   }
   FILE *outputFile = fopen(state->source, "w");
-   if (!outputFile) {
-     fprintf(stderr, "Error opening file.");
-   }
-   char *trimmed;
-   for (int i = 0; i < state->noOfLines; i++) {
-     trimmed = trim(state->lines[i]);
-     fputs(trimmed, outputFile);
-     if (fputs("\n", outputFile) <= 0)
-       fprintf(stderr, "fputs failure when writing to file.\n");
-     free(trimmed);
-   }
-   fclose(outputFile);
- }
+  if (!outputFile) {
+	fprintf(stderr, "Error opening file.");
+  }
+  char *trimmed;
+  for (int i = 0; i < state->noOfLines; i++) {
+	trimmed = trim(state->lines[i]);
+	fputs(trimmed, outputFile);
+	if (fputs("\n", outputFile) <= 0)
+	  fprintf(stderr, "fputs failure when writing to file.\n");
+	free(trimmed);
+  }
+  fclose(outputFile);
+}
 
 void load(Editor *state) {
   FILE *fp;
   switch (state->noOfTokens) {
-	case 1:
-	  printf("%s", "Load requires one argument\n");
+	case 1: printf("%s", "Load requires one argument\n");
 	  break;
-	case 2:
-	  fp = fopen(state->tokens[1], "r");
+	case 2: fp = fopen(state->tokens[1], "r");
 	  CHECK_PRED(!fp, "Error opening file.");
 	  int i = 0;
 	  while (!feof(fp)) {
@@ -404,8 +395,7 @@ void load(Editor *state) {
 	  state->noOfLines = i;
 	  //state->path = state->tokens[1];
 	  break;
-	default:
-	  printf("Too many arguments. Load requires you to specify only a path to the file to be loaded in.\n");
+	default: printf("Too many arguments. Load requires you to specify only a path to the file to be loaded in.\n");
   }
   internal_save(state);
 }
@@ -440,30 +430,28 @@ void export(Editor *state) {
 	return;
   }
   switch (state->noOfTokens) {
-  case 1:
-    printf("%sExport requires at least one argument.\n%s", RED, RESET);
-    return;
-  case 2:
-    if (SAME(state->tokens[1], "options")) {
-	printf("%s", "-filepath\n");
-	return;
-    } else {
-      FILE *outputFile = fopen(state->tokens[1], "w");
-      assert(outputFile);
-      if (!outputFile)
-	fprintf(stderr, "Error opening file.\n");
+	case 1:printf("%sExport requires at least one argument.\n%s", RED, RESET);
+	  return;
+	case 2:
+	  if (SAME(state->tokens[1], "options")) {
+		printf("%s", "-filepath\n");
+		return;
+	  } else {
+		FILE *outputFile = fopen(state->tokens[1], "w");
+		assert(outputFile);
+		if (!outputFile)
+		  fprintf(stderr, "Error opening file.\n");
 
-      for (int i = 0; i < state->noOfLines; i++) {
-	if (fputs(state->lines[i], outputFile) <= 0)
-	  fprintf(stderr, "fputs failure when writing to file.\n");
-	if (fputs("\n", outputFile) <= 0)
-	  fprintf(stderr, "fputs failure when writing to file.\n");
-      }
-      fclose(outputFile);
-    }
-    break;
-  default:
-    printf("%sOnly requires 1 argument.\n%s", RED, RESET);
+		for (int i = 0; i < state->noOfLines; i++) {
+		  if (fputs(state->lines[i], outputFile) <= 0)
+			fprintf(stderr, "fputs failure when writing to file.\n");
+		  if (fputs("\n", outputFile) <= 0)
+			fprintf(stderr, "fputs failure when writing to file.\n");
+		}
+		fclose(outputFile);
+	  }
+	  break;
+	default:printf("%sOnly requires 1 argument.\n%s", RED, RESET);
   }
 }
 
@@ -479,8 +467,7 @@ void clear(Editor *state) {
 void delete(Editor *state) {
   int start, end;
   switch (state->noOfTokens) {
-	case 1:
-	  start = 0;
+	case 1: start = 0;
 	  end = state->noOfLines;
 	  break;
 	case 2:
@@ -491,12 +478,10 @@ void delete(Editor *state) {
 	  start = atoi(state->tokens[1]) - 1;
 	  end = state->noOfLines;
 	  break;
-	case 3:
-	  start = atoi(state->tokens[1]) - 1;
+	case 3: start = atoi(state->tokens[1]) - 1;
 	  end = atoi(state->tokens[2]);
 	  break;
-	default:
-	  printf("Too many arguments.\n");
+	default: printf("Too many arguments.\n");
 	  return;
   }
   if (start >= end || start < 0 || end < 0) {

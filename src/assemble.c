@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
   freeConstants(sdtConstants);
   for (int i = 0; i < noOfLines; i++) {
 	free(array_of_lines[i]);
-  } 
+  }
   free(array_of_lines);
   free(array_of_instructions);
 
