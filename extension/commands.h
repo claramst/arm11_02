@@ -25,6 +25,7 @@ extern char *BLUE;
 extern char *RESET;
 extern char *GREEN;
 extern char *CYAN;
+extern char *MAGENTA;
 
 typedef enum command {
   HELP,
@@ -35,8 +36,8 @@ typedef enum command {
   WRITE,
   DISPLAY,
   RUN,
+  FINISH,
   NEXT,
-  SAVE,
   STATE,
   STOP,
   LOAD,
@@ -52,7 +53,8 @@ typedef struct editor {
   char **lines;
   int noOfLines;
   int currentLine;
-  char *path;
+  char *source;
+  char *assembled;
   MACHINE_STATE *machineState;
   INSTRUCTION *fetched;
   DECODED_INSTR *decoded;
@@ -71,6 +73,7 @@ void info(Editor *state);
 void write(Editor *state);
 void display(Editor *state);
 void run(Editor *state);
+void finish(Editor *state);
 void next(Editor *state);
 void save(Editor *state);
 void currentState(Editor *state);

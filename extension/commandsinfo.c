@@ -153,10 +153,8 @@ void info(Editor *state) {
 			 "state - st",
 			 "run - r",
 			 "stop - X",
-			 "next - +",
+			 "next - n",
 			 "about - a");
-	} else if (SAME(state->tokens[1], "save")) {
-	  printf("Saves all written lines into a .s file at the given path.\n");
 	} else if (SAME(state->tokens[1], "run")) {
 	  printf("Enters run mode with the saved program.\n");
 	} else if (SAME(state->tokens[1], "next")) {

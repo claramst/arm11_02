@@ -12,6 +12,7 @@ char *BLUE = "\033\[0;34m";
 char *RESET = "\033\033[0m";
 char *GREEN = "\033\[0;32m";
 char *CYAN = "\033\[0;36m";
+char *MAGENTA = "\033\[0;35m";
 
 void getInput(char *input, int MAX_LINE_LENGTH) {
   fgets(input, MAX_LINE_LENGTH, stdin);
@@ -33,12 +34,12 @@ Command getCommand(char *str) {
 	return CLEAR;
   } else if (SAME(str, "display") || SAME(str, "d")) {
 	return DISPLAY;
-  } else if (SAME(str, "next") || SAME(str, "+")) {
+  } else if (SAME(str, "next") || SAME(str, "n")) {
 	return NEXT;
-  } else if (SAME(str, "save") || SAME(str, "s")) {
-	return SAVE;
   } else if (SAME(str, "run") || SAME(str, "r")) {
 	return RUN;
+  } else if (SAME(str, "finish") || SAME(str, "f")) {
+	return FINISH;
   } else if (SAME(str, "state") || SAME(str, "st")) {
 	return STATE;
   } else if (SAME(str, "load") || SAME(str, "l")) {
@@ -84,7 +85,9 @@ void about(Editor *state) {
 
 void print_line(char *instr) {
   if (!strstr(instr, ":"))
-	printf("%s", CYAN); // opcode
+    printf("%s", CYAN); // opcode
+  else
+    printf("%s", MAGENTA);
   for (; *instr; instr++) {
 	switch (*instr) {
 	  case '=':
@@ -112,14 +115,18 @@ void print_line(char *instr) {
 void print_lines(Editor *state, int start, int end, bool lineNumbers) {
   char *spaces;
   for (int i = start; i < end; i++) {
-	if (i == state->currentLine) {
+	if (i == state->currentLine)
 	  printf("=>");
-	}
-	if (lineNumbers) { printf(" %d| ", i + 1); }
+
 	if (i + 1 >= 10) {
 	  spaces = " ";
 	} else
 	  spaces = "  ";
+	
+        printf("%s", spaces);
+
+	if (lineNumbers)
+	  printf("%d| ", i + 1);	
 
 	print_line(state->lines[i]);
   }
@@ -222,11 +229,16 @@ void write(Editor *state) {
   if (i >= state->noOfLines) {
 	state->noOfLines = i;
   }
+  save(state);
+}
+
+void finish(Editor *state) {
+  for (int halt = 0; !halt; halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
 }
 
 void runAll(Editor *state) {
   state->isRunning = 1;
-  for (; !pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);) {}
+  finish(state);
   printf("End of program reached. Final machine state:\n\n");
   currentState(state);
   stop(state);
@@ -246,35 +258,36 @@ void run(Editor *state) {
 	printf("You're already in run mode!\n");
 	return;
   }
-  if (!*state->path) {
-	printf("You haven't saved a file yet.\n");
-	return;
-  }
-  printf("%s", RED);
-  printf("Entering run mode.");
-  printf("%s", RESET);
+
+  printf("%sEntering run mode.%s", MAGENTA, RESET);
+
   // printf("\nPossible commands:\n next\n state\n halt\n display\n run all\n Type \"info <command>\" to learn more about what it does. \n");
   state->currentLine = 0;
-  char *assembledBinary = "temp";
-  // a temporary file for assemble to write to. idk we might need a path to assembledBinary
-  char assembleCommand[100];
+  char *assembledBinary = state->assembled;
 
-  snprintf(assembleCommand, 100, "./assemble \"%s\" \"%s\"", state->path, assembledBinary);
+  // a temporary file for assemble to write to. idk we might need a path to assembledBinary
+  char *assembleCommand = "cd ../src && ./assemble ../extension/text.s ../extension/temp.bin";
+  FILE* objCode = fopen(assembledBinary, "w");
+  fclose(objCode);
+  objCode = fopen(assembledBinary, "rb");
 
   int status = system(assembleCommand);
+
   status += 0;
   //just for debugging purposes so we can see if the system() call was sucessful.
 
-  FILE *objCode = fopen(assembledBinary, "rb");
+
   CHECK_PRED(!objCode, "File could not be opened.");
 
   for (int i = 0; fread(&state->machineState->memory[i], sizeof(BYTE), 1, objCode); i++);
+
   CHECK_PRED(ferror(objCode), "An error has occurred whilst file reading.");
   fclose(objCode);
 
   if (state->noOfTokens == 2) {
 	if (SAME(state->tokens[1], "all")) {
-	  return runAll(state);
+	  runAll(state);
+	  return;
 	} else {
 	  printf("Invalid argument, run can only be called with no arguments or the argument \"all\"");
 	  return;
@@ -283,9 +296,9 @@ void run(Editor *state) {
 	printf("\nPossible commands:\n next\n state\n stop\n display\n Type \"info <command>\" to learn more about what the command does. \n");
 	*(state->toDecode) = 0;
 	*(state->toExecute) = 0;
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++)
 	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
-	}
+	
 	state->isRunning = 1;
   }
 }
@@ -339,27 +352,21 @@ void save(Editor *state) {
 	printf("You can't save while you're running!\n");
 	return;
   }
-  if (state->noOfTokens != 2) {
-	printf("Save requires you to specify only a path to which the file should be saved.\n");
-	return;
-  } else {
-	FILE *outputFile = fopen(state->tokens[1], "w");
-	if (!outputFile) {
-	  fprintf(stderr, "Error opening file.");
-	}
-	char *trimmed;
-	for (int i = 0; i < state->noOfLines; i++) {
-	  trimmed = trim(state->lines[i]);
-	  if (fputs(trimmed, outputFile) <= 0)
-		fprintf(stderr, "fputs failure when writing to file.\n");
-	  if (fputs("\n", outputFile) <= 0)
-		fprintf(stderr, "fputs failure when writing to file.\n");
-	  free(trimmed);
-	}
-	fclose(outputFile);
-	strcpy(state->path, state->tokens[1]);
-  }
-}
+  FILE *outputFile = fopen(state->source, "w");
+   if (!outputFile) {
+     fprintf(stderr, "Error opening file.");
+   }
+   char *trimmed;
+   for (int i = 0; i < state->noOfLines; i++) {
+     trimmed = trim(state->lines[i]);
+     if (fputs(trimmed, outputFile) <= 0)
+       fprintf(stderr, "fputs failure when writing to file.\n");
+     if (fputs("\n", outputFile) <= 0)
+       fprintf(stderr, "fputs failure when writing to file.\n");
+     free(trimmed);
+   }
+   fclose(outputFile);
+ }
 
 void load(Editor *state) {
   FILE *fp;
@@ -381,7 +388,7 @@ void load(Editor *state) {
 	  }
 	  fclose(fp);
 	  state->noOfLines = i;
-	  state->path = state->tokens[1];
+	  //state->path = state->tokens[1];
 	  break;
 	default:
 	  printf("Too many arguments. Load requires you to specify only a path to the file to be loaded in.");

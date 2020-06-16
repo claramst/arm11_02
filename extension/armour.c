@@ -28,7 +28,7 @@ void mainloop(Editor *state) {
   char *input = malloc(state->MAX_LINE_LENGTH * sizeof(char));
   Command cmd;
 
-  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &next, &save, &currentState, &stop, &load, &none};
+  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &finish, &next, &currentState, &stop, &load, &none};
 
   while (state->running) {
 	printf("%s%s", YELLOW, "➤ ");
@@ -56,12 +56,15 @@ Editor *initialise_state(void) {
 	state->lines[i] = malloc(state->MAX_LINE_LENGTH * sizeof(char));
   }
   state->currentLine = -1;
-  state->path = calloc(MAX_PATH_LENGTH, sizeof(char));
+  state->source = calloc(MAX_PATH_LENGTH, sizeof(char));
+  state->assembled = calloc(MAX_PATH_LENGTH, sizeof(char));
   state->machineState = initialiseState();
   state->fetched = calloc(1, sizeof(INSTRUCTION));
   state->decoded  = calloc(1, sizeof(DECODED_INSTR));
   state->toDecode = calloc(1, sizeof(int));
   state->toExecute = calloc(1, sizeof(int));
+  strcpy(state->source, "text.s");
+  strcpy(state->assembled, "temp.bin");
   return state;
 }
 
@@ -71,7 +74,7 @@ void freeState(Editor *state) {
 	free(state->lines[i]);
   }
   free(state->lines);
-  free(state->path);
+  //free(state->path);
   free(state->machineState->registers);
   free(state->machineState->memory);
   free(state->machineState);
