@@ -123,7 +123,7 @@ bool validInstr(char *str) {
 	  case 'r':
 		if (i == len - 1) {
 		  return false;
-		} else if (!isNum(str[i + 1]) && (isBracket(str[i - 1]) || str[i-1] == ' ' || str[i-1] == ',')) {
+		} else if (!isNum(str[i + 1]) && (isBracket(str[i - 1]) || str[i - 1] == ' ' || str[i - 1] == ',')) {
 		  return false;
 		}
 		break;
