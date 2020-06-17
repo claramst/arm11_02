@@ -23,7 +23,7 @@ void mainloop(Editor *state) {
   Command cmd;
 
   commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &finish, &next, &currentState,
-	  &stop, &load, &export, &delete, &insert, &continueBreak, &setBreak, &disableBreak, &none};
+			  &stop, &load, &export, &delete, &insert, &continueBreak, &setBreak, &disableBreak, &append, &none};
 
   while (state->running) {
 	printf("%s%s", YELLOW, "➤");

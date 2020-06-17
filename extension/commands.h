@@ -47,6 +47,7 @@ typedef enum command {
   CONTINUE,
   BREAK,
   DISABLE,
+  APPEND,
   NONE
 } Command;
 
@@ -67,6 +68,7 @@ typedef struct editor {
   int *toDecode, *toExecute;
   int isRunning;
   bool *breakpoints;
+  bool nextLocation;
 } Editor;
 
 typedef void (*commands)(Editor *);
@@ -94,6 +96,7 @@ void insert(Editor *state);
 void continueBreak(Editor *state);
 void setBreak(Editor *state);
 void disableBreak(Editor *state);
+void append(Editor *state);
 void none(Editor *state);
 
 #endif

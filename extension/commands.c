@@ -63,6 +63,8 @@ Command getCommand(char *str) {
 	return DISABLE;
   if (SAME(str, "insert") || SAME(str, "ins"))
 	return INSERT;
+  if (SAME(str, "append") || SAME(str, "ap"))
+	return APPEND;
   return NONE;
 }
 
@@ -111,6 +113,7 @@ void print_line(char *instr) {
 	printf("%s", CYAN); // opcode
   else
 	printf("%s", MAGENTA);
+  bool comment = false;
   for (; *instr; instr++) {
 	switch (*instr) {
 	  case '=':
@@ -120,18 +123,22 @@ void print_line(char *instr) {
 	  case ']': printf("%s", RED); // brackets
 		break;
 	  case 'r':
-	    if (*(instr + 1) <= '9' && *(instr + 1) >= '0') {
+	    if (*(instr + 1) <= '9' && *(instr + 1) >= '0')
 		  printf("%s", YELLOW); // registers
-		}
+		
 		break;
 	  case '/':
+	    comment = true;
+	    printf("%s", RED);
+	    break;
 	  case ',':
 	  case ' ': printf("%s", RESET); // regular
 		break;
 	}
+	if (comment) break;	
 	printf("%c", *instr);
   }
-  printf("%s\n", RESET);
+  printf("%s%s\n", instr, RESET);
 }
 
 void print_lines(Editor *state, int start, int end, bool lineNumbers) {
@@ -171,7 +178,7 @@ void display(Editor *state) {
 	  if (SAME(state->tokens[1], "options")) {
 		printf(
 			"display <start> <end> \n prints lines corresponding to line numbers between <start> and <end> inclusive."
-			" If either are unspecified then the lines from that number onwards are printed.\n");
+			" If end is unspecified then only the start line is printed.\n");
 		return;
 	  } else {
 		start = atoi(state->tokens[1]) - 1;
@@ -230,8 +237,8 @@ void write(Editor *state) {
 	return;
   }
   int i;
+  char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char));
   for (i = start; i < end; i++) {
-	char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char));
 	printf("%3d| ", i + 1);
 	getInput(instr, state->MAX_LINE_LENGTH);
 	if (SAME(instr, "exit")) { break; }
@@ -250,6 +257,7 @@ void write(Editor *state) {
   if (i >= state->noOfLines) {
 	state->noOfLines = i;
   }
+  free(instr);
   internal_save(state);
 }
 
@@ -365,7 +373,8 @@ void next(Editor *state) {
   state->currentLine = (strstr(state->lines[i], ":")) ? i + 1 : i;
   int startLine = state->currentLine - 3 >= 0 ? state->currentLine - 3 : 0;
   int endLine = state->currentLine + 3 < state->noOfLines ? state->currentLine + 3 : state->noOfLines;
-  print_lines(state, startLine, endLine, true);
+  if (state->nextLocation)
+    print_lines(state, startLine, endLine, true);
 
   if (state->currentLine >= state->noOfLines) {
 	printf("End of program reached. Final machine state:\n");
@@ -558,8 +567,8 @@ void insert(Editor *state) {
 	return;
   }
   int i;
+  char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char));
   for (i = start; i < end; i++) {
-	char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char));
 	printf("%3d| ", i + 1);
 	getInput(instr, state->MAX_LINE_LENGTH);
 	if (SAME(instr, "exit"))
@@ -574,6 +583,7 @@ void insert(Editor *state) {
 	state->noOfLines++;
 	strcpy(state->lines[i], instr);
   }
+  free(instr);
   internal_save(state);
 }
 
@@ -582,6 +592,7 @@ void continueBreak(Editor *state) {
 	printf("%s", "No program is currently running.\n");
 	return;
   }
+  state->nextLocation = false;
   switch (state->noOfTokens) {
 	case 1:
 	  do {
@@ -596,6 +607,7 @@ void continueBreak(Editor *state) {
 	  break;
 	default: printf("%scontinue doesn't take any arguments%s\n", RED, RESET);
   }
+  state->nextLocation = true;
 }
 
 void setBreak(Editor *state) {
@@ -603,26 +615,22 @@ void setBreak(Editor *state) {
 	printf("You have to enter run mode before setting breakpoints!\n");
 	return;
   }
-  int lineNumber = atoi(state->tokens[1]) - 1;
+  int lineNumber;
   switch (state->noOfTokens) {
-	case 2:
-	  if (SAME(state->tokens[1], "options")) {
-		printf("break <line-number> allows you to set a breakpoint at the desired line.\n");
-		return;
-	  }
-	  if (strstr(state->lines[lineNumber], ":")) {
-		printf(
-			"%sNote: attempting to set a breakpoint on a label line results in a breakpoint only being set on the line "
-			"following it by nature of the assembly language.%s\n",
-			YELLOW,
-			RESET);
-		state->breakpoints[lineNumber + 1] = true;
-	  } else {
-		state->breakpoints[lineNumber] = true;
-	  }
-	  break;
-	default: printf("Break requires you to specify only the line number at which a breakpoint should be set.\n");
-	  break;
+  case 2:
+    if (SAME(state->tokens[1], "options")) {
+      printf("break <line-number> ... allows you to set a breakpoint at the desired line(s).\n");
+      return;
+    }
+  default:
+    for (int i = 1; i < state->noOfTokens; i++) {
+      lineNumber = atoi(state->tokens[i]) - 1;
+      if (strstr(state->lines[lineNumber], ":")) {
+	state->breakpoints[lineNumber + 1] = true;
+      } else {
+	state->breakpoints[lineNumber] = true;
+      }
+    }
   }
 }
 
@@ -631,25 +639,76 @@ void disableBreak(Editor *state) {
 	printf("You have to enter run mode before disabling breakpoints!\n");
 	return;
   }
-  int n;
+  int lineNumber;
   switch (state->noOfTokens) {
-	case 1: printf("Disable requires a line number.\n");
-	  return;
-	case 2:
-	  if (SAME(state->tokens[1], "options")) {
-		printf("disable <line number of breakpoint> \n");
-		return;
-	  }
-	  n = atoi(state->tokens[1]) - 1;
-	  if (strstr(state->lines[n], ":")) {
-		n++;
-	  }
-	  if (state->breakpoints[n]) {
-		state->breakpoints[n] = false;
-	  } else {
-		printf("%s", "No break point to disable.\n");
-	  }
-	  break;
-	default: printf("%s", "disable only takes one line number\n");
+  case 1: printf("Disable requires a line number.\n");
+    return;
+  case 2:
+    if (SAME(state->tokens[1], "options")) {
+      printf("disable <line number of breakpoint> ... \n");
+      return;
+    } else if (SAME(state->tokens[1], "all")) {
+      for (int i = 0; i < state->noOfLines; i++)
+	state->breakpoints[i] = false;
+      return;
+    }
+  default:	  
+    for (int i = 1; i < state->noOfTokens; i++) {
+      lineNumber = atoi(state->tokens[i]) - 1;
+      if (strstr(state->lines[lineNumber], ":")) {
+	state->breakpoints[lineNumber + 1] = false;
+      } else {
+	state->breakpoints[lineNumber] = false;
+      }
+    }
+
   }
+}
+
+
+void append(Editor *state) {
+  if (state->isRunning) {
+	printf("You can't append while you're running!\n");
+	return;
+  }
+  int start, end;
+  if (state->noOfTokens > 1) {
+	if (SAME(state->tokens[1], "options")) {
+	  printf("append <START (= 1)> \nYou can start writing from line START.\nNOTE: writing on a line will overwrite "
+			 "what was previous there.\nTyping \"write end\" will allow you to start typing from the final line.\n"
+			 "Type exit to escape write mode.\nType back to backtrack to the previous line.\n");
+	  return;
+	} else if (SAME(state->tokens[1], "end")) {
+	  start = state->noOfLines;
+	} else {
+	  start = atoi(state->tokens[1]);
+	  start--;
+	}
+  } else {
+	start = 0;
+  }
+  end = state->noOfLines;
+  if (start < 0 || start > state->noOfLines + 1) {
+	printf("Invalid start");
+	return;
+  }
+  int i;
+  char *text = calloc(state->MAX_LINE_LENGTH, sizeof(char));  
+  for (i = start; i < end; i++) {
+    printf("%3d| %s", i + 1, state->lines[i]);
+	getInput(text, state->MAX_LINE_LENGTH);
+	if (SAME(text, "exit"))
+	  break;
+	if (SAME(text, "back")) {
+	  printf("%sBacktracking to the previous line.%s\n", BLUE, RESET);
+	  i = (i - 1 >= 0) ? i - 2 : i - 1;
+	  continue;
+	}
+	strcat(state->lines[i], text);
+  }
+  if (i >= state->noOfLines) {
+	state->noOfLines = i;
+  }
+  free(text);
+  internal_save(state);
 }
