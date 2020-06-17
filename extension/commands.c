@@ -247,12 +247,15 @@ void write(Editor *state) {
 	  i = (i - 1 >= 0) ? i - 2 : i - 1;
 	  continue;
 	}
-	if (!validInstr(trim(instr))) {
+  char* trimmedInstr = trim(instr);
+	if (!validInstr(trimmedInstr)) {
 	  printf("%sFailed to write line due to syntax error, try again.%s\n", RED, RESET);
 	  i--;
+    free(trimmedInstr);
 	  continue;
 	}
 	strcpy(state->lines[i], instr);
+  free(trimmedInstr);
   }
   if (i >= state->noOfLines) {
 	state->noOfLines = i;

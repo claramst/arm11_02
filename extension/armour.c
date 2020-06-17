@@ -8,14 +8,15 @@
 
 void setTokens(char *str, Editor *state) {
   char *s = malloc(state->MAX_LINE_LENGTH * sizeof(char));
-  strcpy(s, str);
+  strcpy(s, str); 
   char *token = strtok(s, " ");
   int len;
   for (len = 0; token != NULL; len++) {
-	state->tokens[len] = token;
+	state->tokens[len] = strdup(token);
 	token = strtok(NULL, " ");
   }
   state->noOfTokens = len;
+  free(s);
 }
 
 void mainloop(Editor *state) {
@@ -37,6 +38,7 @@ void mainloop(Editor *state) {
 	cmd = getCommand(state->tokens[0]);
 	functions[cmd](state);
   }
+  free(input);
 }
 
 Editor *initialise_state(void) {
@@ -67,9 +69,21 @@ Editor *initialise_state(void) {
 }
 
 void freeState(Editor *state) {
+  for (int i = 0; i < state->noOfTokens; i++) {
+    free(state->tokens[i]);
+  }
   free(state->tokens);
-  for (int i = 0; i < state->noOfLines; i++) {
+  for (int i = 0; i < state->MAX_LINES; i++) {
 	free(state->lines[i]);
+  }
+  free(state->source);
+  free(state->assembled);
+  free(state->fetched);
+  free(state->decoded);
+  free(state->toDecode);
+  free(state->toExecute);
+  if (state->breakpoints != NULL) {
+    free(state->breakpoints);
   }
   free(state->lines);
   free(state->machineState->registers);
