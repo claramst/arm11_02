@@ -1,0 +1,24 @@
+Mnemonic     Instruction                          Action in Emulator           Type
+
+add          Add                                  Rd := Rn + Op2               Data Processing
+sub          Subtract                             Rd := Rn - Op2               Data Processing
+rsb          Reverse Subtract                     Rd := Op2 - Rn               Data Processing
+and          AND                                  Rd := Rn AND Op2             Data Processing
+eor          exclusive OR                         Rd := Rn XOR Op2             Data Processing
+orr          OR                                   Rd := Rn OR Op2              Data Processing
+mov          Move Assignment                      Rd := Op2                    Data Processing
+tst          Test bits                            CPSR ﬂags := Rn AND Op2      Data Processing
+teq          Test bitwise equality                CPSR ﬂags := Rn XOR Op2      Data Processing
+cmp          Compare                              CPSR ﬂags := Rn - Op2        Data Processing
+mul          Multiply                             Rd := Rm × Rs                Multiply
+mla          Multiply accumulate                  Rd := (Rm × Rs) + Rn         Multiply
+ldr          Load register                        Rd := (address)              Single Data Transfer
+str          store register                       (address) := Rd              Single Data Transfer
+beq          Branch if equal                      PC := address                Branch
+bne          Branch if not equal                  PC := address                Branch
+bge          Branch if greater than or equal      PC := address                Branch
+blt          Branch if less than                  PC := address                Branch
+bgt          Branch if greater than               PC := address                Branch
+bleb         Branch if less than or equal         PC := address                Branch
+lsl          Left shift                           Rd := shifted Rd             Special
+andeq        Halt                                 Halt                         Special

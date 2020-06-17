@@ -124,19 +124,18 @@ void print_line(char *instr) {
 	  case ']': printf("%s", RED); // brackets
 		break;
 	  case 'r':
-	    if (*(instr + 1) <= '9' && *(instr + 1) >= '0')
+		if (*(instr + 1) <= '9' && *(instr + 1) >= '0')
 		  printf("%s", YELLOW); // registers
-		
+
 		break;
-	  case '/':
-	    comment = true;
-	    printf("%s", RED);
-	    break;
+	  case '/': comment = true;
+		printf("%s", RED);
+		break;
 	  case ',':
 	  case ' ': printf("%s", RESET); // regular
 		break;
 	}
-	if (comment) break;	
+	if (comment) break;
 	printf("%c", *instr);
   }
   printf("%s%s\n", instr, RESET);
@@ -261,18 +260,19 @@ void write(Editor *state) {
   free(instr);
   internal_save(state);
 }
+
 void runAll(Editor *state) {
   state->isRunning = 1;
   double start = clock();
   int cycles = 0;
   for (int halt = 0; !halt;
-       halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
-    cycles++;
-    if (cycles > state->CYCLES_LIMIT) {
-      printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
-      stop(state);
-      break;
-    }
+	   halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
+	cycles++;
+	if (cycles > state->CYCLES_LIMIT) {
+	  printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
+	  stop(state);
+	  return;
+	}
 
   }
   double end = clock();
@@ -333,8 +333,9 @@ void run(Editor *state) {
 	  return;
 	}
   } else {
-	printf("Possible commands:\n next | continue | state | stop | break | disable | finish \nType \"info <command>\" to learn more about"
-		   " what the command does. \n");
+	printf(
+		"Possible commands:\n next | continue | state | stop | break | disable | finish \nType \"info <command>\" to learn more about"
+		" what the command does. \n");
 	for (int i = 0; i < 2; i++) {
 	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
 	}
@@ -371,7 +372,7 @@ void next(Editor *state) {
   int startLine = state->currentLine - 3 >= 0 ? state->currentLine - 3 : 0;
   int endLine = state->currentLine + 3 < state->noOfLines ? state->currentLine + 3 : state->noOfLines;
   if (state->nextLocation)
-    print_lines(state, startLine, endLine, true);
+	print_lines(state, startLine, endLine, true);
 
   if (state->currentLine >= state->noOfLines) {
 	printf("End of program reached. Final machine state:\n");
@@ -389,19 +390,19 @@ void finish(Editor *state) {
 	return;
   }
   int cycles = 0;
-  for (int halt = 0; !halt; halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
-    cycles++;
-    if (cycles > state->CYCLES_LIMIT) {
-      printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
-      stop(state);
-      return;
-    }
+  for (int halt = 0; !halt;
+	   halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
+	cycles++;
+	if (cycles > state->CYCLES_LIMIT) {
+	  printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
+	  stop(state);
+	  return;
+	}
   }
   printf("End of program reached. Final machine state:\n");
   currentState(state);
   stop(state);
 }
-
 
 /**
  * Saves the written lines of assembly into a file, omitting comments written.
@@ -552,6 +553,7 @@ void delete(Editor *state) {
 	strcpy(state->lines[i - diff], state->lines[i]);
   }
   state->noOfLines -= diff;
+  internal_save(state);
 }
 
 void shiftBack(int start, Editor *state) {
@@ -580,7 +582,7 @@ void insert(Editor *state) {
   }
   end = state->MAX_LINES;
   if (start < 0 || start > state->noOfLines + 1) {
-	printf("Invalid start");
+	printf("Invalid start.\n");
 	return;
   }
   int i;
@@ -619,7 +621,7 @@ void continueBreak(Editor *state) {
 		if (!state->isRunning) {
 		  break;
 		} else if (cycles > state->CYCLES_LIMIT) {
-		  printf("%sLIMIT OF CYCLES EXCEEDED.%s", RED, RESET);
+		  printf("%sLIMIT OF CYCLES EXCEEDED.\n%s", RED, RESET);
 		  stop(state);
 		  break;
 		}
@@ -640,20 +642,20 @@ void setBreak(Editor *state) {
   }
   int lineNumber;
   switch (state->noOfTokens) {
-  case 2:
-    if (SAME(state->tokens[1], "options")) {
-      printf("break <line-number> ... allows you to set a breakpoint at the desired line(s).\n");
-      return;
-    }
-  default:
-    for (int i = 1; i < state->noOfTokens; i++) {
-      lineNumber = atoi(state->tokens[i]) - 1;
-      if (strstr(state->lines[lineNumber], ":")) {
-	state->breakpoints[lineNumber + 1] = true;
-      } else {
-	state->breakpoints[lineNumber] = true;
-      }
-    }
+	case 2:
+	  if (SAME(state->tokens[1], "options")) {
+		printf("break <line-number> ... allows you to set a breakpoint at the desired line(s).\n");
+		return;
+	  }
+	default:
+	  for (int i = 1; i < state->noOfTokens; i++) {
+		lineNumber = atoi(state->tokens[i]) - 1;
+		if (strstr(state->lines[lineNumber], ":")) {
+		  state->breakpoints[lineNumber + 1] = true;
+		} else {
+		  state->breakpoints[lineNumber] = true;
+		}
+	  }
   }
 }
 
@@ -664,30 +666,28 @@ void disableBreak(Editor *state) {
   }
   int lineNumber;
   switch (state->noOfTokens) {
-  case 1: printf("Disable requires a line number.\n");
-    return;
-  case 2:
-    if (SAME(state->tokens[1], "options")) {
-      printf("disable <line number of breakpoint> ... \n");
-      return;
-    } else if (SAME(state->tokens[1], "all")) {
-      for (int i = 0; i < state->noOfLines; i++)
-	state->breakpoints[i] = false;
-      return;
-    }
-  default:	  
-    for (int i = 1; i < state->noOfTokens; i++) {
-      lineNumber = atoi(state->tokens[i]) - 1;
-      if (strstr(state->lines[lineNumber], ":")) {
-	state->breakpoints[lineNumber + 1] = false;
-      } else {
-	state->breakpoints[lineNumber] = false;
-      }
-    }
-
+	case 1: printf("Disable requires a line number.\n");
+	  return;
+	case 2:
+	  if (SAME(state->tokens[1], "options")) {
+		printf("disable <line number of breakpoint> ... \n");
+		return;
+	  } else if (SAME(state->tokens[1], "all")) {
+		for (int i = 0; i < state->noOfLines; i++)
+		  state->breakpoints[i] = false;
+		return;
+	  }
+	default:
+	  for (int i = 1; i < state->noOfTokens; i++) {
+		lineNumber = atoi(state->tokens[i]) - 1;
+		if (strstr(state->lines[lineNumber], ":")) {
+		  state->breakpoints[lineNumber + 1] = false;
+		} else {
+		  state->breakpoints[lineNumber] = false;
+		}
+	  }
   }
 }
-
 
 void append(Editor *state) {
   if (state->isRunning) {
@@ -716,9 +716,9 @@ void append(Editor *state) {
 	return;
   }
   int i;
-  char *text = calloc(state->MAX_LINE_LENGTH, sizeof(char));  
+  char *text = calloc(state->MAX_LINE_LENGTH, sizeof(char));
   for (i = start; i < end; i++) {
-    printf("%3d| %s", i + 1, state->lines[i]);
+	printf("%3d| %s", i + 1, state->lines[i]);
 	getInput(text, state->MAX_LINE_LENGTH);
 	if (SAME(text, "exit"))
 	  break;

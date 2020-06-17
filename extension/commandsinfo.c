@@ -93,7 +93,7 @@ void instruction(Editor *state) {
 
   while (running) {
 	printf("Enter \"mnemonic\" to see a table of all supported ARM instructions.\nWhich instruction type do you want to"
-		   " know about?: \n");
+		   " know about?:\nType \"options\" to see options.\n");
 	getInput(name, state->MAX_LINE_LENGTH);
 	if (SAME(name, "options")) {
 	  printf("-data processing\n-branch\n-multiply\n-single data transfer\n-mnemonic\n-exit\n");
@@ -187,9 +187,9 @@ void info(Editor *state) {
 	} else if (SAME(state->tokens[1], "disable")) {
 	  printf("Disables a breakpoint at the desired line.\n");
 	} else if (SAME(state->tokens[1], "insert")) {
-	  printf("Allows code to be inserted from the desired line.");
+	  printf("Allows code to be inserted from the desired line.\n");
 	} else if (SAME(state->tokens[1], "append")) {
-	  printf("Sets cursor at the of the line to write to.");
+	  printf("Sets cursor at the of the line to write to.\n");
 	}
   }
 }
