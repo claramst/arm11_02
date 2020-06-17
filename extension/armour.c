@@ -61,7 +61,8 @@ Editor *initialise_state(void) {
   state->isRunning = 0;
   strcpy(state->source, "text.s");
   strcpy(state->assembled, "temp.bin");
-  //memset(state->breakpoints, 0, sizeof(state->breakpoints));
+  state->nextLocation = true;
+  state->CYCLES_LIMIT = 100;
   return state;
 }
 

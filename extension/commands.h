@@ -69,6 +69,7 @@ typedef struct editor {
   int isRunning;
   bool *breakpoints;
   bool nextLocation;
+  int CYCLES_LIMIT;
 } Editor;
 
 typedef void (*commands)(Editor *);

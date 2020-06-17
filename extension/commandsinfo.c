@@ -147,26 +147,21 @@ void info(Editor *state) {
 	  printf("Allows you to edit your assembly program. Use \"options\" to see more features.\nEnter \"exit\" on a line"
 			 " to exit write mode.\nEnter \"back\" on a line to go back to the previous line.\n");
 	} else if (SAME(state->tokens[1], "shortcuts")) {
-	  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
-			 "about - a",
-			 "break - b",
-			 "clear - cl",
-			 "continue - c",
-			 "delete - del",
-			 "disable - da",
-			 "display - d",
-			 "export - ex",
-			 "finish - f",
-			 "help - h",
-			 "info - i",
-			 "insert - ins",
-			 "load - l",
-			 "next - n",
-			 "quit - q",
-			 "run - r",
-			 "state - st",
-			 "stop - X",
-			 "write - w");
+	  printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+		 "about - a", "append - ap",
+		 "break - b",
+		 "clear - cl", "continue - c",
+		 "delete - del", "disable - da", "display - d",
+		 "export - ex",
+		 "finish - f",
+		 "help - h",
+		 "info - i","insert - ins",
+		 "load - l",
+	       	 "next - n",
+		 "quit - q",
+	       	 "run - r",
+	       	 "state - st",  "stop - X",
+		 "write - w");
 	} else if (SAME(state->tokens[1], "run")) {
 	  printf("Enters run mode with the saved program.\n");
 	} else if (SAME(state->tokens[1], "next")) {
@@ -193,6 +188,8 @@ void info(Editor *state) {
 	  printf("Disables a breakpoint at the desired line.\n");
 	} else if (SAME(state->tokens[1], "insert")) {
 	  printf("Allows code to be inserted from the desired line.");
+	} else if (SAME(state->tokens[1], "append")) {
+	  printf("Sets cursor at the of the line to write to.");
 	}
   }
 }

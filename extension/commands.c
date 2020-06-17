@@ -83,6 +83,7 @@ void help(Editor *state) {
   printf("| %s |", "load");
   printf("| %s |", "export");
   printf("| %s |", "run");
+  printf("| %s |", "append");
   printf("\n");
   printf("========= Running mode commands: =========\n");
   printf("| %s |", "next");
@@ -260,24 +261,20 @@ void write(Editor *state) {
   free(instr);
   internal_save(state);
 }
-
-void finish(Editor *state) {
-  if (!state->isRunning) {
-	printf("%s", "You need to run first!\n");
-	return;
-  }
-  for (int halt = 0; !halt;
-	   halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
-  printf("End of program reached. Final machine state:\n");
-  currentState(state);
-  stop(state);
-}
-
 void runAll(Editor *state) {
   state->isRunning = 1;
   double start = clock();
+  int cycles = 0;
   for (int halt = 0; !halt;
-	   halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute));
+       halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
+    cycles++;
+    if (cycles > state->CYCLES_LIMIT) {
+      printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
+      stop(state);
+      break;
+    }
+
+  }
   double end = clock();
   printf("End of program reached in %f seconds.\nFinal machine state:\n", (end - start) / CLOCKS_PER_SEC);
   currentState(state);
@@ -336,7 +333,7 @@ void run(Editor *state) {
 	  return;
 	}
   } else {
-	printf("Possible commands:\n next\n state\n stop\n display\n finish \nType \"info <command>\" to learn more about"
+	printf("Possible commands:\n next | continue | state | stop | break | disable | finish \nType \"info <command>\" to learn more about"
 		   " what the command does. \n");
 	for (int i = 0; i < 2; i++) {
 	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
@@ -385,6 +382,26 @@ void next(Editor *state) {
 	stop(state);
   }
 }
+
+void finish(Editor *state) {
+  if (!state->isRunning) {
+	printf("%s", "You need to run first!\n");
+	return;
+  }
+  int cycles = 0;
+  for (int halt = 0; !halt; halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
+    cycles++;
+    if (cycles > state->CYCLES_LIMIT) {
+      printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
+      stop(state);
+      return;
+    }
+  }
+  printf("End of program reached. Final machine state:\n");
+  currentState(state);
+  stop(state);
+}
+
 
 /**
  * Saves the written lines of assembly into a file, omitting comments written.
@@ -452,7 +469,7 @@ void stop(Editor *state) {
 	printf("You need to run first!\n");
 	return;
   }
-  memset(state->machineState->registers, 0, 17 * 4);
+
   printf("Program stopped, all registers have been reset.\n");
   resetState(state->machineState);
   state->currentLine = -1;
@@ -593,11 +610,17 @@ void continueBreak(Editor *state) {
 	return;
   }
   state->nextLocation = false;
+  int cycles = 0;
   switch (state->noOfTokens) {
 	case 1:
 	  do {
 		next(state);
+		cycles++;
 		if (!state->isRunning) {
+		  break;
+		} else if (cycles > state->CYCLES_LIMIT) {
+		  printf("%sLIMIT OF CYCLES EXCEEDED.%s", RED, RESET);
+		  stop(state);
 		  break;
 		}
 	  } while (!state->breakpoints[state->currentLine]);
