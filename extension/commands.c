@@ -142,25 +142,40 @@ void print_line(char *instr) {
 }
 
 void print_lines(Editor *state, int start, int end, bool lineNumbers) {
-  char *spaces;
+  int digits;
   for (int i = start; i < end; i++) {
-	if (state->isRunning) {
-	  if (state->breakpoints[i])
-		printf("%s", RED);
-	}
-	if (i == state->currentLine)
-	  printf("=>");
+        if (i + 1 >= 1000){
+          digits = 4;
+        } else if (i + 1>= 100) {
+          digits = 3;
+        } else if (i + 1 >= 10) {
+          digits = 2;
+        } else {
+          digits = 1;
+        }
+        if (lineNumbers) {
+          printf("%*c", 4 - digits, ' ');
+          printf("%d|", i + 1);
+        }
+        if (state->isRunning) {
+          if (state->breakpoints[i])
+            printf("%s", RED);
 
-	if (i + 1 >= 10) {
-	  spaces = " ";
-	} else {
-	  spaces = "  ";
-	}
-	printf("%s", spaces);
-	if (lineNumbers) {
-	  printf("%d| ", i + 1);
-	}
-	print_line(state->lines[i]);
+
+          if (i == state->currentLine) {
+            printf("%s", "=>|");
+          } else {
+            if (state->isRunning) {
+              if (state->breakpoints[i]) {
+                printf("%s|", "--");
+              } else
+                printf("%s|", "  ");
+            } else {
+              printf("%s|", "  ");
+            }
+          }
+        }
+        print_line(state->lines[i]);
   }
 }
 
