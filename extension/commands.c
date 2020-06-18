@@ -224,53 +224,59 @@ char *trim(char *str) {
   str2[i + 1] = '\0';
   return str2;
 }
-
+/**
+ * Allows user to write assembly line by line, saving each line into our struct.
+ */
 void write(Editor *state) {
   if (state->isRunning) {
-	printf("You can't write while you're running!\n");
-	return;
+        printf("You can't write while you're running!\n");
+        return;
   }
-  int start, end;
+  int start;
   if (state->noOfTokens > 1) {
-	if (SAME(state->tokens[1], "options")) {
-	  printf("write <START (= 1)> \nYou can start writing from line START.\nNOTE: writing on a line will overwrite "
-			 "what was previous there.\nTyping \"write end\" will allow you to start typing from the final line.\n"
-			 "Type exit to escape write mode.\nType back to backtrack to the previous line.\n");
-	  return;
-	} else if (SAME(state->tokens[1], "end")) {
-	  start = state->noOfLines;
-	} else {
-	  start = atoi(state->tokens[1]);
-	  start--;
-	}
+        if (SAME(state->tokens[1], "options")) {
+          printf("write <START (= 1)> \nYou can start writing from line START.\nNOTE: writing on a line will overwrite "
+                         "what was previous there.\nTyping \"write end\" will allow you to start typing from the final line.\n"
+                         "Type exit to escape write mode.\nType back to backtrack to the previous line.\n");
+          return;
+        } else if (SAME(state->tokens[1], "end")) {
+          start = state->noOfLines;
+        } else {
+          start = atoi(state->tokens[1]);
+          start--;
+        }
   } else {
-	start = 0;
+        start = 0;
   }
-  end = state->MAX_LINES;
   if (start < 0 || start > state->noOfLines + 1) {
-	printf("Invalid start");
-	return;
+        printf("Invalid start");
+        return;
   }
   int i;
   char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char));
-  for (i = start; i < end; i++) {
-	printf("%3d| ", i + 1);
-	getInput(instr, state->MAX_LINE_LENGTH);
-	if (SAME(instr, "exit")) { break; }
-	if (SAME(instr, "back")) {
-	  printf("%sBacktracking to the previous line.%s\n", BLUE, RESET);
-	  i = (i - 1 >= 0) ? i - 2 : i - 1;
-	  continue;
-	}
-  char* trimmedInstr = trim(instr);
-	if (!validInstr(trimmedInstr)) {
-	  printf("%sFailed to write line due to syntax error, try again.%s\n", RED, RESET);
-	  i--;
+  char* trimmedInstr;
+  for (i = start; i < state->MAX_LINES; i++) {
+    printf("%3d| ", i + 1);
+    getInput(instr, state->MAX_LINE_LENGTH);
+    if (SAME(instr, "exit")) { break; }
+    if (SAME(instr, "back")) {
+      printf("%sBacktracking to the previous line.%s\n", BLUE, RESET);
+      i = (i - 1 >= 0) ? i - 2 : i - 1;
+      continue;
+    }
+
+    trimmedInstr = trim(instr);
+    if (!validInstr(trimmedInstr)) {
+      printf("%sFailed to write line due to syntax error, try again.%s\n", RED, RESET);
+      i--;
+      free(trimmedInstr);
+      continue;
+    }
+    strcpy(state->lines[i], instr);
     free(trimmedInstr);
-	  continue;
-	}
-	strcpy(state->lines[i], instr);
-  free(trimmedInstr);
+    if (i == state->MAX_LINES - 1)
+      resizeLines(state);
+   free(trimmedInstr);
   }
   if (i >= state->noOfLines) {
 	state->noOfLines = i;
@@ -580,45 +586,57 @@ void shiftBack(int start, Editor *state) {
   }
 }
 
+/**
+ * Allows user to insert new assembly lines in between existing lines.
+ */
 void insert(Editor *state) {
   if (state->isRunning) {
-	printf("You can't insert while you're running!\n");
-	return;
+        printf("You can't insert while you're running!\n");
+        return;
   }
-  int start, end;
+  int start;
   if (state->noOfTokens > 1) {
-	if (SAME(state->tokens[1], "options")) {
-	  printf(
-		  "insert <START (= 1)> \nYou can start insert from line START.\nType exit to escape write mode.\nType back to backtrack to the previous line.\n");
-	  return;
-	} else {
-	  start = atoi(state->tokens[1]);
-	  start--;
-	}
+        if (SAME(state->tokens[1], "options")) {
+          printf(
+                  "insert <START (= 1)> \nYou can start insert from line START.\nType exit to escape write mode.\nType back to backtrack to the previous line.\n");
+          return;
+        } else {
+          start = atoi(state->tokens[1]);
+          start--;
+        }
   } else {
-	start = 0;
+        start = 0;
   }
-  end = state->MAX_LINES;
   if (start < 0 || start > state->noOfLines + 1) {
-	printf("Invalid start.\n");
-	return;
+        printf("Invalid start.\n");
+        return;
   }
   int i;
-  char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char));
-  for (i = start; i < end; i++) {
-	printf("%3d| ", i + 1);
-	getInput(instr, state->MAX_LINE_LENGTH);
-	if (SAME(instr, "exit"))
-	  break;
+  char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char)), *trimmedInstr;
+  for (i = start; i < state->MAX_LINES; i++) {
+    printf("%3d| ", i + 1);
+    getInput(instr, state->MAX_LINE_LENGTH);
+    if (SAME(instr, "exit"))
+      break;
 
-	if (SAME(instr, "back")) {
-	  printf("%sBacktracking to the previous line.%s\n", BLUE, RESET);
-	  i = (i - 1 >= 0) ? i - 2 : i - 1;
-	  continue;
-	}
-	shiftBack(i, state);
-	state->noOfLines++;
-	strcpy(state->lines[i], instr);
+    if (SAME(instr, "back")) {
+      printf("%sBacktracking to the previous line.%s\n", BLUE, RESET);
+      i = (i - 1 >= 0) ? i - 2 : i - 1;
+      continue;
+    }
+    trimmedInstr = trim(instr);
+    if (!validInstr(trimmedInstr)) {
+      printf("%sFailed to write line due to syntax error, try again.%s\n", RED, RESET);
+      i--;
+      free(trimmedInstr);
+      continue;
+    }
+    free(trimmedInstr);
+    shiftBack(i, state);
+    state->noOfLines++;
+    strcpy(state->lines[i], instr);
+    if (state->noOfLines == state->MAX_LINES)
+      resizeLines(state);
   }
   free(instr);
   internal_save(state);
