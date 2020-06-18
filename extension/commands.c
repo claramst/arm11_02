@@ -461,26 +461,25 @@ void load(Editor *state) {
   }
   FILE *fp;
   switch (state->noOfTokens) {
-	case 1: 
+  case 1: 
     printf("%s", "Load requires one argument\n");
-	  break;
-	case 2: 
+    break;
+  case 2: 
     fp = fopen(state->tokens[1], "r");
-	  CHECK_PRED(!fp, "Error opening file.");
-	  int i = 0;
-	  while (!feof(fp)) {
+    CHECK_PRED(!fp, "Error opening file.");
+    int i;
+    for (i = 0; !feof(fp); i++) {
       fgets(state->lines[i], state->MAX_LINE_LENGTH, fp);
       state->lines[i][strlen(state->lines[i]) - 1] = '\0';
-      if (EMPTY_STRING(state->lines[i])) {
+      if (EMPTY_STRING(state->lines[i]))
         i--;
-      }
-      i++;
-	  }
-	  fclose(fp);
-	  state->noOfLines = i;
-	  //state->path = state->tokens[1];
-	  break;
-	default: 
+      if (i == state->MAX_LINES - 1)
+	resize_lines(state);
+    }
+    fclose(fp);
+    state->noOfLines = i;
+    break;
+  default: 
     printf("Too many arguments. Load requires you to specify only a path to the file to be loaded in.\n");
   }
   internal_save(state);
