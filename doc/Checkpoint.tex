@@ -1,8 +1,7 @@
+
 \documentclass[11pt]{article}
 
 \usepackage{fullpage}
-
-\begin{document}
 
 \title{Checkpoint Report: Building an Emulator}
 \author{Ashton Choy, Rohan Pandit, Clara Stoddart, Ian Ren }
@@ -20,14 +19,14 @@ We began work on the project via the online IDE \textit{repl.it} which allowed a
 
 Since the start of the project, all four group members have convened via Discord every day at around 2:30PM BST, as we decided it best that all members were present when working on code so that important design decisions were discussed, understood and agreed upon by all.
 
-For the majority of the code, each function was mainly written by one member and then touched up by the other 3 members. Ashton wrote the execute function for "data processing" instructions, \textit{printState} in emulate.c and the code for calculation of the shifter carry output. Ashton also wrote \textit{fetch} and \textit{willExecute} in instruction.c. Clara wrote the decode and execute functions for "single data transfer" instructions. Our Makefile and the file reading in the main function were also written by Clara. Ian wrote the decode function for "data processing" instructions and both functions for "multiply" instructions and Rohan wrote the function for the "branch" instruction. The files in our binary\_utils sub-directory, and our pipelining in the main function were also written by Rohan. 
+For the majority of the code, each function was mainly written by one member and then touched up by the other 3 members. Ashton wrote the execute function for "data processing" instructions, \textit{printState} in emulate.c and the code for calculation of the shifter carry output. Ashton also wrote \textit{fetch} and \textit{willExecute} in instruction.c. Clara wrote the decode and execute functions for "single data transfer" instructions. Our Makefile and the file reading in the main function were also written by Clara. Ian wrote the decode function for "data processing" instructions and both functions for "multiply" instructions and Rohan wrote the function for the "branch" instruction. The files in our binary\_utils sub-directory, and our pipelining in the main function were also written by Rohan.
 
 \section{Current group dynamics}
 After working on the first part of the project we have a better understanding of each other's strengths, which will help us allocate work more optimally in the future. Currently the group seems to be working well as a unit, however in future we should aim to be more clear on which parts of the spec each member will be in charge of, as at present each member is working on all parts of the code - we may be spreading ourselves too thin. Everyone in our group is quick to provide and respond to constructive criticism / enquiries on code produced.
 
 As a whole, I feel the group is working very well together. By using voice calls we are able to discuss implementation details together, ensuring we all agree on choices made. Personally, one issue I faced was difficulty in setting up CLion on Windows, so I was overly reliant on online IDEs, which made testing code, and the Makefile, very difficult. I solved this by switching to Linux and using Vim. I was then able to easily run local tests and the testsuite itself, and fix issues in the Makefile. \textbf{-- Clara Stoddart}
 
-\tab In the past I haven't had much opportunity for programming as part of a group. However with the tools at our disposal I realised that we could prove to be very productive in a relatively short period of time. Now I have a better understanding of how to use different features on Git and structuring programs in C. 
+\tab In the past I haven't had much opportunity for programming as part of a group. However with the tools at our disposal I realised that we could prove to be very productive in a relatively short period of time. Now I have a better understanding of how to use different features on Git and structuring programs in C.
 \textbf{-- Rohan Pandit}
 
 Working with a group on a coding project for the first time has proven to be very rewarding, and a welcome change of pace from the solo lab exercises. I feel that the group is currently working and communicating efficiently - having regular daily voice calls has been both an effective way to hear feedback from all members and take it into account when coding, and also a great way to strengthen my understanding of C as I can count on my group members to help explain aspects of the language I find confusing. However, the timezone difference between me (GMT+8) and the other group members (all in BST) may become a larger problem going forward: as COVID-19 lockdown policies in Malaysia become more relaxed I may find myself out of the house more often during our scheduled call hours, so we will have to find a way to work around this in future.
@@ -37,11 +36,11 @@ As the group meets up everyday to call and work together, we end up being very e
 In that situation we would need to have more rigid responsibilities so that we are able to work alone without the risk of interfering with each other.
 \textbf{-- Ian Ren}
 \section{Emulator structure}
-To structure the emulator, we created two utility directories in src: binary\_utils and emulator\_utils. For each .c file we defined a corresponding header file. These header files contain function declarations and definitions of constants, structures and enums, which are all used in the header's respective .c file. 
+To structure the emulator, we created two utility directories in src: binary\_utils and emulator\_utils. For each .c file we defined a corresponding header file. These header files contain function declarations and definitions of constants, structures and enums, which are all used in the header's respective .c file.
 
 In binary\_utils we store files for manipulating binary numbers, for example functions for accessing specific bytes of an instruction. These could also be used by our assembler. Our emulator\_utils directory contains files responsible for specific stages of the instruction cycle: decode and execute. The fetch stage is handled in our instruction.c file, which also contains functions for finding the type of a given instruction and checking if it will execute. We wanted to clearly split the instruction cycle into these three phases in order to effectively emulate the "three-stage pipeline" used by ARM processors. Our decode.c file breaks down each 32 bit instruction into fields, returning them as part of a DECODED\_INSTR structure, which we define in decode.h. Then our execute.c file has specific execute functions for each instruction type, which take in this DECODED\_INSTR and use the relevant fields to make the desired changes to the structure representing our ARM machine state.
 
-Our machine state structure is defined in our state.h header file. We chose to emulate the state of the ARM machine by creating a \texttt{struct} containing arrays for storing the register values and the (byte-sized) memory locations. The corresponding state.c file contains functions for accessing memory, as well as printing the machine state at the end of program execution.  
+Our machine state structure is defined in our state.h header file. We chose to emulate the state of the ARM machine by creating a \texttt{struct} containing arrays for storing the register values and the (byte-sized) memory locations. The corresponding state.c file contains functions for accessing memory, as well as printing the machine state at the end of program execution.
 
 For each file and function we all wrote detailed comments together, outlining the functions included in each file, and the parameters passed to each function. This made our code easier to understand at a glance, which increased efficiency when writing additional code based off of previous work.
 
