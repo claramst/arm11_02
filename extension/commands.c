@@ -224,6 +224,18 @@ char *trim(char *str) {
   str2[i + 1] = '\0';
   return str2;
 }
+
+/**
+ * Increases the memory allocated for the text written by the user by 50%.
+ */
+void resize_lines(Editor *state) {
+  int i = state->MAX_LINES;
+  state->MAX_LINES *= 1.5;
+  state->lines = realloc(state->lines, state->MAX_LINES * sizeof(char *));
+  for (; i < state->MAX_LINES; i++)
+    state->lines[i] = calloc(state->MAX_LINE_LENGTH, sizeof(char));
+}
+
 /**
  * Allows user to write assembly line by line, saving each line into our struct.
  */
@@ -275,7 +287,7 @@ void write(Editor *state) {
     strcpy(state->lines[i], instr);
     free(trimmedInstr);
     if (i == state->MAX_LINES - 1)
-      resizeLines(state);
+      resize_lines(state);
    free(trimmedInstr);
   }
   if (i >= state->noOfLines) {
@@ -301,7 +313,7 @@ void runAll(Editor *state) {
   }
   double end = clock();
   printf("End of program reached in %f seconds.\nFinal machine state:\n", (end - start) / CLOCKS_PER_SEC);
-  currentState(state);
+  current_state(state);
   stop(state);
 }
 
@@ -403,7 +415,7 @@ void next(Editor *state) {
 	// todo: decide whether or not we want to delete these files here.
 	// remove("temp");
 	// remove(state->path);
-	currentState(state);
+	current_state(state);
 	stop(state);
   }
 }
@@ -424,7 +436,7 @@ void finish(Editor *state) {
 	}
   }
   printf("End of program reached. Final machine state:\n");
-  currentState(state);
+  current_state(state);
   stop(state);
 }
 
@@ -480,7 +492,7 @@ void load(Editor *state) {
   internal_save(state);
 }
 
-void currentState(Editor *state) {
+void current_state(Editor *state) {
   if (state->currentLine < 0) {
 	printf("You need to run first!\n");
 	return;
@@ -636,13 +648,13 @@ void insert(Editor *state) {
     state->noOfLines++;
     strcpy(state->lines[i], instr);
     if (state->noOfLines == state->MAX_LINES)
-      resizeLines(state);
+      resize_lines(state);
   }
   free(instr);
   internal_save(state);
 }
 
-void continueBreak(Editor *state) {
+void continue_break(Editor *state) {
   if (!state->isRunning) {
 	printf("%s", "No program is currently running.\n");
 	return;
@@ -671,7 +683,7 @@ void continueBreak(Editor *state) {
   state->nextLocation = true;
 }
 
-void setBreak(Editor *state) {
+void set_break(Editor *state) {
   if (!state->isRunning) {
 	printf("You have to enter run mode before setting breakpoints!\n");
 	return;
@@ -695,7 +707,7 @@ void setBreak(Editor *state) {
   }
 }
 
-void disableBreak(Editor *state) {
+void disable_break(Editor *state) {
   if (!state->isRunning) {
 	printf("You have to enter run mode before disabling breakpoints!\n");
 	return;

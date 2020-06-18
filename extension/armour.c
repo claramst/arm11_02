@@ -6,7 +6,7 @@
 
 #define EMPTY(s) (s[0] == '\0')
 
-void setTokens(char *str, Editor *state) {
+void set_tokens(char *str, Editor *state) {
   char *s = malloc(state->MAX_LINE_LENGTH * sizeof(char));
   strcpy(s, str); 
   char *token = strtok(s, " ");
@@ -24,7 +24,7 @@ void mainloop(Editor *state) {
   Command cmd;
 
   commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &finish, &next, &currentState,
-			  &stop, &load, &export, &delete, &insert, &continueBreak, &setBreak, &disableBreak, &append, &none};
+			  &stop, &load, &export, &delete, &insert, &continue_break, &set_break, &disable_break, &append, &none};
 
   while (state->running) {
 	printf("%s%s", YELLOW, "➤");
@@ -34,7 +34,7 @@ void mainloop(Editor *state) {
 	printf("%s", RESET);
 	if (EMPTY(input))
 	  continue;
-	setTokens(input, state);
+	set_tokens(input, state);
 	cmd = getCommand(state->tokens[0]);
 	functions[cmd](state);
   }
@@ -58,7 +58,7 @@ Editor *initialise_state(void) {
   state->currentLine = -1;
   state->source = calloc(MAX_PATH_LENGTH, sizeof(char));
   state->assembled = calloc(MAX_PATH_LENGTH, sizeof(char));
-  state->machineState = initialiseState();
+  state->machineState = initialise_state();
   state->fetched = calloc(1, sizeof(INSTRUCTION));
   state->decoded = calloc(1, sizeof(DECODED_INSTR));
   state->toDecode = calloc(1, sizeof(int));
@@ -72,7 +72,7 @@ Editor *initialise_state(void) {
 }
 
 
-void freeState(Editor *state) {
+void free_state(Editor *state) {
   for (int i = 0; i < state->noOfTokens; i++) {
     free(state->tokens[i]);
   }
@@ -100,7 +100,7 @@ int main(void) {
   Editor *state = initialise_state();
   welcome();
   mainloop(state);
-  freeState(state);
+  free_state(state);
   return 0;
 }
 
