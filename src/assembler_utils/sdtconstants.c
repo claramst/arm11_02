@@ -28,7 +28,7 @@
  * program we are executing
  * @return A pointer to the initialised SDT_CONSTANTS struct
  */
-SDT_CONSTANTS *createSDTConstants(int noOfInstructions) {
+SDT_CONSTANTS *create_sdt_constants(int noOfInstructions) {
   SDT_CONSTANTS *constStruct = (SDT_CONSTANTS *) malloc(sizeof(SDT_CONSTANTS));
   CHECK_PRED(!constStruct, "Error allocating SDT_CONSTANTS memory.");
   constStruct->constants = calloc(noOfInstructions, sizeof(uint32_t));
@@ -41,7 +41,7 @@ SDT_CONSTANTS *createSDTConstants(int noOfInstructions) {
 /**
  * Adds a constant to the SDT_CONSTANTS struct.
  */
-void addToConstants(SDT_CONSTANTS *sdtConstants, uint32_t constant) {
+void add_to_constants(SDT_CONSTANTS *sdtConstants, uint32_t constant) {
   assert(sdtConstants);
   sdtConstants->constants[sdtConstants->size++] = constant;
 }
@@ -49,7 +49,7 @@ void addToConstants(SDT_CONSTANTS *sdtConstants, uint32_t constant) {
 /**
  * For a given SDT_CONSTANTS struct, frees the struct and its elements.
  */
-void freeConstants(SDT_CONSTANTS *sdtConstants) {
+void free_constants(SDT_CONSTANTS *sdtConstants) {
   free(sdtConstants->constants);
   free(sdtConstants);
 }

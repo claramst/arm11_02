@@ -8,7 +8,7 @@
 
 #ifndef ENCODE_H
 #define ENCODE_H
-INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable, SDT_CONSTANTS *constants);
+INSTRUCTION encode_instruction(INSTR_TOKENS *tokens, Map *symbolTable, SDT_CONSTANTS *constants);
 
 INSTRUCTION branch(INSTR_TOKENS *tokens);
 

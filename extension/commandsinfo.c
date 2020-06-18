@@ -8,9 +8,8 @@ void mnemonic(void) {
   FILE *file;
   char s;
   file = fopen("mnemonic.txt", "r");
-  while ((s = fgetc(file)) != EOF) {
+  while ((s = fgetc(file)) != EOF) 
 	printf("%c", s);
-  }
 }
 
 void dataProcessingInfo(void) {

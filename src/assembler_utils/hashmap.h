@@ -17,13 +17,12 @@ typedef struct map {
   Node *front;
 } Map;
 
-Map *createMap(void);
-Node *createNode(char *label, int value);
-int getValue(Map *map, char *label);
-void addNode(Map *map, char *label, int value);
-void freeNode(Node *node);
-void freeMap(Map *map);
-void addNodes(Map *map, char **label, int *value, int n);
-int countNodes(Map *map);
+Map *create_map(void);
+Node *create_node(char *label, int value);
+int get_value(Map *map, char *label);
+void add_node(Map *map, char *label, int value);
+void free_node(Node *node);
+void free_map(Map *map);
+void add_nodes(Map *map, char **label, int *value, int n);
 
 #endif

@@ -27,7 +27,7 @@
  * @return An INSTRUCTION (a 32 bit unsigned int) result of encoding the tokenised
  * instruction
  */
-INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable, SDT_CONSTANTS *constants) {
+INSTRUCTION encode_instruction(INSTR_TOKENS *tokens, Map *symbolTable, SDT_CONSTANTS *constants) {
   if (isProcessing(tokens->opcode))
 	return dpi(tokens, symbolTable);
 
@@ -62,7 +62,7 @@ INSTRUCTION encodeInstruction(INSTR_TOKENS *tokens, Map *symbolTable, SDT_CONSTA
 /**
  * For a given branch instruction, returns its condition.
  */
-int getCondition(int opcode) {
+int get_condition(int opcode) {
   switch (opcode) {
 	case B:return AL;
 	case BEQ:return EQ;
@@ -100,7 +100,7 @@ unsigned int convertShift(char *shift) {
  * @param I The value of the I flag of the corresponding instruction.
  * @return A 16-bit binary number representing operand2 (top 4 bits are unused).
  */
-uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
+uint16_t find_operand2(INSTR_TOKENS *tokens, int I) {
   uint16_t operand2 = 0;
   uint32_t expr;
   if (I) {
@@ -115,6 +115,7 @@ uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
 	  }
 	  expr = rotateLeft(expr, 2);
 	}
+
 	CHECK_PRED(!foundRepresentation, "Numeric constant can't be represented");
   } else { // I == 0
 	//set the shift type bits (5 and 6)
@@ -124,9 +125,9 @@ uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
 	  operand2 = setBit(operand2, 5);
 	} else if (!strcmp(tokens->shift, "asr")) {
 	  operand2 = setBit(operand2, 6);
-	} else if (!strcmp(tokens->shift, "ror")) {
+	} else if (!strcmp(tokens->shift, "ror"))
 	  operand2 = setBits(operand2, 2, 5);
-	} // otherwhise tokens->shift should be lsl with code 00
+	// otherwhise tokens->shift should be lsl with code 00
 	// OR, there is no shift specified, just a register.
 
 	switch (tokens->opcode) {
@@ -170,34 +171,35 @@ uint16_t findOperand2(INSTR_TOKENS *tokens, int I) {
 INSTRUCTION dpi(INSTR_TOKENS *tokens, Map *map) {
   INSTRUCTION instr;
   int opcode = tokens->opcode;
-  int rn, rd, I, S, operand2;
+  int rn, rd, imm, S, operand2;
 
   switch (opcode) {
-	case ANDEQ: assert(tokens->noOfRegisters == 3);
+	case ANDEQ:
+	  assert(tokens->noOfRegisters == 3);
 	  return 0;
 	case TST:
 	case TEQ:
 	case CMP: S = 1;
-	  I = (tokens->shift == NULL && tokens->noOfRegisters == 1) ? 1 : 0;
+	  imm = (tokens->shift == NULL && tokens->noOfRegisters == 1) ? 1 : 0;
 	  rd = 0;
 	  rn = tokens->registers[0];
 	  break;
 	case MOV: S = 0;
-	  I = (tokens->shift == NULL && tokens->noOfRegisters == 1) ? 1 : 0;
+	  imm = (tokens->shift == NULL && tokens->noOfRegisters == 1) ? 1 : 0;
 	  rd = tokens->registers[0];
 	  rn = 0;
 	  break;
 	default: // and, eor, sub etc...
 	  S = 0;
-	  I = (tokens->shift == NULL && tokens->noOfRegisters == 2) ? 1 : 0;
+	  imm = (tokens->shift == NULL && tokens->noOfRegisters == 2) ? 1 : 0;
 	  rd = tokens->registers[0];
 	  rn = tokens->registers[1];
 	  break;
   }
 
-  operand2 = findOperand2(tokens, I);
+  operand2 = find_operand2(tokens, imm);
 
-  instr = (AL << 28) + (I << 25) + (opcode << 21) + (S << 20) + (rn << 16) + (rd << 12) + (operand2);
+  instr = (AL << 28) + (imm << 25) + (opcode << 21) + (S << 20) + (rn << 16) + (rd << 12) + (operand2);
 
   return instr;
 }
@@ -223,7 +225,7 @@ INSTRUCTION multiply(INSTR_TOKENS *tokens) {
  * @param len The length of symbols.
  * @return the index of the second register in the array.
  */
-unsigned int findSecondReg(TOKEN_TYPE *symbols, int len) {
+unsigned int find_second_reg(TOKEN_TYPE *symbols, int len) {
   int regCount = 0;
   for (int i = 0; i < len; i++) {
 	if (symbols[i] == REG) {
@@ -233,6 +235,7 @@ unsigned int findSecondReg(TOKEN_TYPE *symbols, int len) {
 	}
   }
   fprintf(stderr, "Malformed SDT instruction.");
+
   return EXIT_FAILURE;
 }
 
@@ -248,12 +251,10 @@ unsigned int findSecondReg(TOKEN_TYPE *symbols, int len) {
  * @return the equivalent encoded instruction of type INSTRUCTION
  */
 INSTRUCTION sdt(INSTR_TOKENS *tokens, SDT_CONSTANTS *constants) {
-  int I = 0;
-  int L = (tokens->opcode == LDR);
-  int P = 1;
-  int U = tokens->sign != '-';
-  REGISTER rn;
-  REGISTER rd = tokens->registers[0];
+  int imm = 0, , P = 1, L = (tokens->opcode == LDR), U = tokens->sign != '-';
+
+  REGISTER rn, rd = tokens->registers[0];
+
   int offset = 0;
   if (tokens->noOfRegisters == 1) {
 	// form ldr r1 =1
@@ -267,16 +268,17 @@ INSTRUCTION sdt(INSTR_TOKENS *tokens, SDT_CONSTANTS *constants) {
   } else if (tokens->noOfRegisters == 3) {
 	//form ldr r1 r2, r3, shift, #imm
 	rn = tokens->registers[1];
-	I = 1;
-	P = (tokens->symbols[findSecondReg(tokens->symbols, tokens->noOfSymbols) + 1] != CLOSE);
+	imm = 1;
+	P = (tokens->symbols[find_second_reg(tokens->symbols, tokens->noOfSymbols) + 1] != CLOSE);
 	offset = (tokens->immediateHash[0] << 7) + (convertShift(tokens->shift) << 5) + tokens->registers[2];
   } else {
 	//form ldr r1, r2, #imm
 	rn = tokens->registers[1];
 	offset = tokens->immediateHash[0];
-	P = (tokens->symbols[findSecondReg(tokens->symbols, tokens->noOfSymbols) + 1] != CLOSE);
+	P = (tokens->symbols[find_second_reg(tokens->symbols, tokens->noOfSymbols) + 1] != CLOSE);
   }
-  return (AL << 28) + (1 << 26) + (I << 25) + (P << 24) + (U << 23) + (L << 20) + (rn << 16) + (rd << 12) + offset;
+
+  return (AL << 28) + (1 << 26) + (imm << 25) + (P << 24) + (U << 23) + (L << 20) + (rn << 16) + (rd << 12) + offset;
 }
 
 /**
@@ -286,13 +288,13 @@ INSTRUCTION sdt(INSTR_TOKENS *tokens, SDT_CONSTANTS *constants) {
  * @return the equivalent encoded instruction of type INSTRUCTION
  */
 INSTRUCTION branch(INSTR_TOKENS *tokens) {
-  int cond = getCondition(tokens->opcode);
+  int cond = get_condition(tokens->opcode);
   int offset = tokens->branchAddr - tokens->currAddr - 8;
   // We minus 8 to take in to account the PC pipelining offset
   if (offset > 0x3FFFFFF || tokens->currAddr + offset > MAX_ADDRESSES) {
 	fprintf(stderr, "Branch jump is too large");
-  } else {
+  } else 
 	offset >>= 2;
-  }
+  
   return (cond << 28) + (10 << 24) + getBits(offset, 24, 0);
 }

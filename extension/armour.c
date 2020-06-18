@@ -27,16 +27,21 @@ static void mainloop(Editor *state) {
 			  &stop, &load, &export, &delete, &insert, &continue_break, &set_break, &disable_break, &append, &none};
 
   while (state->running) {
-	printf("%s%s", YELLOW, "➤");
-	if (state->isRunning) printf("Running");
-	printf("%s%s", "➤ ", CYAN);
-	get_input(input, state->MAX_LINE_LENGTH);
-	printf("%s", RESET);
-	if (EMPTY(input))
-	  continue;
-	set_tokens(input, state);
-	cmd = get_command(state->tokens[0]);
-	functions[cmd](state);
+    printf("%s%s", YELLOW, "➤");
+
+    if (state->isRunning) 
+      printf("Running");
+
+    printf("%s%s", "➤ ", CYAN);
+    get_input(input, state->MAX_LINE_LENGTH);
+    printf("%s", RESET);
+
+    if (EMPTY(input))
+      continue;
+    
+    set_tokens(input, state);
+    cmd = get_command(state->tokens[0]);
+    functions[cmd](state);
   }
   free(input);
 }
@@ -53,7 +58,7 @@ Editor *initialise_editor(void) {
   state->MAX_LINES = 10;
   state->lines = malloc(state->MAX_LINES * sizeof(char *));
   for (int i = 0; i < state->MAX_LINES; i++) {
-          state->lines[i] = calloc(state->MAX_LINE_LENGTH, sizeof(char));
+    state->lines[i] = calloc(state->MAX_LINE_LENGTH, sizeof(char));
   }
   state->currentLine = -1;
   state->source = calloc(MAX_PATH_LENGTH, sizeof(char));
@@ -68,6 +73,7 @@ Editor *initialise_editor(void) {
   strcpy(state->assembled, "temp.bin");
   state->nextLocation = true;
   state->CYCLES_LIMIT = 4000;
+
   return state;
 }
 
@@ -86,7 +92,7 @@ void free_state(Editor *state) {
   free(state->decoded);
   free(state->toDecode);
   free(state->toExecute);
-  if (state->breakpoints != NULL) {
+  if (state->breakpoints) {
     free(state->breakpoints);
   }
   free(state->lines);
@@ -101,7 +107,8 @@ int main(void) {
   welcome();
   mainloop(state);
   free_state(state);
-  return 0;
+
+  return EXIT_SUCCESSFUL;
 }
 
 

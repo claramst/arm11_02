@@ -36,23 +36,22 @@ int isBranch(OPCODE opcode) {
  * A helper function for tokenizing branch instructions specifically.
  *
  */
-void tokenizeBranch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS *tokens) {
+void tokenize_branch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS *tokens) {
   char *tokenisedInstruction[2];
-  char *temp;
-  char *token = strtok_r(instrLine, " ", &temp);
+  char *temp, *token = strtok_r(instrLine, " ", &temp);
   for (int i = 0; token; i++) {
-	tokenisedInstruction[i] = token;
-	token = strtok_r(NULL, " ", &temp);
+    tokenisedInstruction[i] = token;
+    token = strtok_r(NULL, " ", &temp);
   }
 
   char *branchAddress = tokenisedInstruction[1];
-  if (getValue(symbolTable, branchAddress) == -1) {
+  if (get_Value(symbolTable, branchAddress) == -1) {
 	// Address is in hex
-	char *endptr;
-	tokens->branchAddr = strtol(&branchAddress[2], &endptr, 16);
-  } else {
-	tokens->branchAddr = getValue(symbolTable, branchAddress);
-  }
+	  char *endptr;
+	  tokens->branchAddr = strtol(&branchAddress[2], &endptr, 16);
+  } else
+	  tokens->branchAddr = getValue(symbolTable, branchAddress);
+
   tokens->opcode = getValue(symbolTable, tokenisedInstruction[0]);
 }
 
@@ -65,7 +64,7 @@ void tokenizeBranch(char *instrLine, int address, Map *symbolTable, INSTR_TOKENS
  * @param length A pointer to a location where the amount of numbers retrieved should be written.
  * @return an array of ints.
  */
-int *getValues(char *str, char start, int max, int *length) {
+int *get_values(char *str, char start, int max, int *length) {
   int *values = calloc(max, sizeof(int));
   if (!values) {
 	perror("Error allocating values memory");
@@ -114,8 +113,8 @@ int *getValues(char *str, char start, int max, int *length) {
 INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   INSTR_TOKENS *tokens = (INSTR_TOKENS *) malloc(sizeof(INSTR_TOKENS));
   if (!tokens) {
-	perror("Error allocating tokens memory");
-	exit(EXIT_FAILURE);
+    perror("Error allocating tokens memory");
+    exit(EXIT_FAILURE);
   }
   tokens->registers = NULL;
   tokens->immediateHash = NULL;
@@ -130,19 +129,19 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   OPCODE opcode = getValue(symbolTable, s);
 
   if (isBranch(opcode)) {
-	tokenizeBranch(instrLine, address, symbolTable, tokens);
-	return tokens;
+    tokenize_branch(instrLine, address, symbolTable, tokens);
+
+    return tokens;
   }
   int index = 0;
   int MAX = (int) strlen(instrLine);
   tokens->symbols = calloc(MAX, sizeof(TOKEN_TYPE));
-  int i = 0;
+  int i;
   for (i = 0; i < MAX; i++) {
 	switch (instrLine[i]) {
 	  case 'r':
-		if (IS_DIGIT(instrLine[i + 1])) {
+		if (IS_DIGIT(instrLine[i + 1]))
 		  tokens->symbols[index++] = REG;
-		}
 		break;
 	  case '[': tokens->symbols[index++] = OPEN;
 		break;
@@ -161,35 +160,37 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   tokens->noOfSymbols = index;
 
   tokens->opcode = opcode;
-  tokens->registers = getValues(instrLine, 'r', 4, &tokens->noOfRegisters);
-  tokens->immediateHash = getValues(instrLine, '#', 1, &tokens->noOfImmsHash);
-  tokens->immediateEquals = getValues(instrLine, '=', 1, &tokens->noOfImmsEquals);
+  tokens->registers = get_values(instrLine, 'r', 4, &tokens->noOfRegisters);
+  tokens->immediateHash = get_values(instrLine, '#', 1, &tokens->noOfImmsHash);
+  tokens->immediateEquals = get_values(instrLine, '=', 1, &tokens->noOfImmsEquals);
+
   if (strstr(instrLine, "lsl")) {
-	tokens->shift = "lsl";
+	  tokens->shift = "lsl";
   } else if (strstr(instrLine, "lsr")) {
-	tokens->shift = "lsr";
+	  tokens->shift = "lsr";
   } else if (strstr(instrLine, "asr")) {
-	tokens->shift = "asr";
+	  tokens->shift = "asr";
   } else if (strstr(instrLine, "ror")) {
-	tokens->shift = "ror";
+	  tokens->shift = "ror";
   } else {
-	tokens->shift = NULL;
+	  tokens->shift = NULL;
   }
   if (strstr(instrLine, "+")) {
-	tokens->sign = '+';
+	  tokens->sign = '+';
   } else if (strstr(instrLine, "-")) {
-	tokens->sign = '-';
+	  tokens->sign = '-';
   } else {
-	tokens->sign = '\0';
+	  tokens->sign = '\0';
   }
   free(str);
+
   return tokens;
 }
 
 /**
  * For a given INSTR_TOKENS struct, frees the struct and its elements.
  */
-void freeTokens(INSTR_TOKENS *tokens) {
+void free_tokens(INSTR_TOKENS *tokens) {
   free(tokens->registers);
   free(tokens->immediateHash);
   free(tokens->immediateEquals);

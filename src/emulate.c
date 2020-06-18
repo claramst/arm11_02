@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "emulator_utils/execute.h"
 #include <assert.h>
+
+#include "emulator_utils/execute.h"
 #include "global_utils/arm.h"
+
 /**
  * emulate.c contains a main function which handles file reading,
  * machine state initialisation and our pipeline.
@@ -32,6 +34,7 @@ int main(int argc, char **argv) {
   MACHINE_STATE *state = initialise_state();
 
   for (int i = 0; fread(&(state->memory[i]), sizeof(BYTE), 1, objCode) == 1; i++);
+
   CHECK_PRED(ferror(objCode), "An error has occurred whilst file reading.");
   fclose(objCode);
 
@@ -40,18 +43,17 @@ int main(int argc, char **argv) {
 
   INSTRUCTION fetched;
   DECODED_INSTR decoded;
-  int toDecode = 0;
-  int toExecute = 0;
-  int halt = 0;
+  int toDecode = 0, toExecute = 0, halt = 0;
 
-  while (!halt) {
-	halt = pipeline_cycle(state, &fetched, &decoded, &toDecode, &toExecute);
-  }
+  while (!halt)
+	  halt = pipeline_cycle(state, &fetched, &decoded, &toDecode, &toExecute);
+  
   print_state(state);
 
   free(state->registers);
   free(state->memory);
   free(state);
+
   return EXIT_SUCCESS;
 }
 

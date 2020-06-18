@@ -36,7 +36,7 @@ typedef struct instrTokens {
   int noOfSymbols;
 } INSTR_TOKENS;
 
-void freeTokens(INSTR_TOKENS *tokens);
+void free_tokens(INSTR_TOKENS *tokens);
 int isProcessing(OPCODE opcode);
 int isMultiply(OPCODE opcode);
 int isTransfer(OPCODE opcode);
