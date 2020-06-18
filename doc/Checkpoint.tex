@@ -4,27 +4,56 @@
 
 \begin{document}
 
-\title{ARM Checkpoint... }
-\author{TODO}
+\title{Checkpoint Report: Building an Emulator}
+\author{Ashton Choy, Rohan Pandit, Clara Stoddart, Ian Ren }
+\date{June 2020}
+
+\begin{document}
 
 \maketitle
 
-\section{Group Organisation}
+\section*{Introduction}
+Our first programming group task has been a challenging, but also a very rewarding experience thus far. We have gained a greater understanding of programming in C, and learnt about the ARM instruction set. Starting from virtually no skeleton code, we have built up a code base larger than that for any assignment at Imperial we have worked on in our first year. This is a short group summary of our work on this task to date.
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+\section{Division of workload}
+We began work on the project via the online IDE \textit{repl.it} which allowed all four of us to collaboratively edit code in real time, easing communication between group members. The IDE also maintains a history of all the changes made to the code over time. As the project developed, we became more comfortable working with GitLab. We created a develop branch where we could make our initial commits. After group discussion, and a careful examination of each commit, we would then merge to master.
 
-\section{Implementation Strategies}
+Since the start of the project, all four group members have convened via Discord every day at around 2:30PM BST, as we decided it best that all members were present when working on code so that important design decisions were discussed, understood and agreed upon by all.
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+For the majority of the code, each function was mainly written by one member and then touched up by the other 3 members. Ashton wrote the execute function for "data processing" instructions, \textit{printState} in emulate.c and the code for calculation of the shifter carry output. Ashton also wrote \textit{fetch} and \textit{willExecute} in instruction.c. Clara wrote the decode and execute functions for "single data transfer" instructions. Our Makefile and the file reading in the main function were also written by Clara. Ian wrote the decode function for "data processing" instructions and both functions for "multiply" instructions and Rohan wrote the function for the "branch" instruction. The files in our binary\_utils sub-directory, and our pipelining in the main function were also written by Rohan. 
+
+\section{Current group dynamics}
+After working on the first part of the project we have a better understanding of each other's strengths, which will help us allocate work more optimally in the future. Currently the group seems to be working well as a unit, however in future we should aim to be more clear on which parts of the spec each member will be in charge of, as at present each member is working on all parts of the code - we may be spreading ourselves too thin. Everyone in our group is quick to provide and respond to constructive criticism / enquiries on code produced.
+
+As a whole, I feel the group is working very well together. By using voice calls we are able to discuss implementation details together, ensuring we all agree on choices made. Personally, one issue I faced was difficulty in setting up CLion on Windows, so I was overly reliant on online IDEs, which made testing code, and the Makefile, very difficult. I solved this by switching to Linux and using Vim. I was then able to easily run local tests and the testsuite itself, and fix issues in the Makefile. \textbf{-- Clara Stoddart}
+
+\tab In the past I haven't had much opportunity for programming as part of a group. However with the tools at our disposal I realised that we could prove to be very productive in a relatively short period of time. Now I have a better understanding of how to use different features on Git and structuring programs in C. 
+\textbf{-- Rohan Pandit}
+
+Working with a group on a coding project for the first time has proven to be very rewarding, and a welcome change of pace from the solo lab exercises. I feel that the group is currently working and communicating efficiently - having regular daily voice calls has been both an effective way to hear feedback from all members and take it into account when coding, and also a great way to strengthen my understanding of C as I can count on my group members to help explain aspects of the language I find confusing. However, the timezone difference between me (GMT+8) and the other group members (all in BST) may become a larger problem going forward: as COVID-19 lockdown policies in Malaysia become more relaxed I may find myself out of the house more often during our scheduled call hours, so we will have to find a way to work around this in future.
+\textbf{-- Ashton Choy}
+
+As the group meets up everyday to call and work together, we end up being very effective and always end each day with solid progress. All four members are able to always stay on the same page while implementing the emulator. However in the future, it may not be possible for everybody to meet up as frequently as we do now.
+In that situation we would need to have more rigid responsibilities so that we are able to work alone without the risk of interfering with each other.
+\textbf{-- Ian Ren}
+\section{Emulator structure}
+To structure the emulator, we created two utility directories in src: binary\_utils and emulator\_utils. For each .c file we defined a corresponding header file. These header files contain function declarations and definitions of constants, structures and enums, which are all used in the header's respective .c file. 
+
+In binary\_utils we store files for manipulating binary numbers, for example functions for accessing specific bytes of an instruction. These could also be used by our assembler. Our emulator\_utils directory contains files responsible for specific stages of the instruction cycle: decode and execute. The fetch stage is handled in our instruction.c file, which also contains functions for finding the type of a given instruction and checking if it will execute. We wanted to clearly split the instruction cycle into these three phases in order to effectively emulate the "three-stage pipeline" used by ARM processors. Our decode.c file breaks down each 32 bit instruction into fields, returning them as part of a DECODED\_INSTR structure, which we define in decode.h. Then our execute.c file has specific execute functions for each instruction type, which take in this DECODED\_INSTR and use the relevant fields to make the desired changes to the structure representing our ARM machine state.
+
+Our machine state structure is defined in our state.h header file. We chose to emulate the state of the ARM machine by creating a \texttt{struct} containing arrays for storing the register values and the (byte-sized) memory locations. The corresponding state.c file contains functions for accessing memory, as well as printing the machine state at the end of program execution.  
+
+For each file and function we all wrote detailed comments together, outlining the functions included in each file, and the parameters passed to each function. This made our code easier to understand at a glance, which increased efficiency when writing additional code based off of previous work.
+
+\section{Challenges to come}
+Our group was fairly effective at communicating changes being made to the code or potential ideas. However in the future our group should make better use of Git features to systematically track our progress. Also we could employ unit testing to ensure that functions are giving the correct results. We could also start using the test suite from an early stage so that it is easier to identify the cause of the error before the code becomes more complex. It may be a challenge to see how what we have written so far for the emulator can be efficiently reused in the assembler. We could reuse the \textit{bitmanipulation} functions and some \texttt{enums} for developing our assembler as well. In the future we can ensure that all the commit messages better explain what each of us have contributed to the code and push more frequently so that it is easier to track our progress. \textbf{-- Rohan Pandit}
+
+It will be an interesting challenge to see how much of our existing emulator code can be reused in the assembler. From what we have written for the assembler so far, it also seems tokenizing and organizing lines from the .s files may prove difficult, with all the different variations of instruction types and possible operand fields. We will have to find an efficient way to represent the parsed lines to be passed between functions, hopefully minimising unneeded memory usage. As we become less reliant on online IDEs we will also have to become more proficient at using Git and resolving possible merge conflicts - we have been self-learning some best practices for a "Git workflow" in preparation.
+\textbf{-- Ashton Choy}
+
+Some future challenges we may face include optimising the structure of our src directory, as well as finding ways to reuse aspects of our emulator code. We may also face difficulty in getting used to relying on GitLab more, as for Part 1 we primarily coded on \textit{repl.it} together, rather than regularly committing to Git from our local machines. \textbf{-- Clara Stoddart}
+
+While working through part one, the most difficult part in my opinion were the design decisions early on. In the beginning we were sometimes unsure about whether we were in the right direction. I believe for the assembly, this will also be our toughest challenge. To overcome this, we have started to attend lab sessions and have found that that they have been really helpful for us. \textbf{-- Ian Ren}
+
 
 \end{document}
