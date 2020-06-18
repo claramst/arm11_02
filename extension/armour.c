@@ -6,7 +6,7 @@
 
 #define EMPTY(s) (s[0] == '\0')
 
-void set_tokens(char *str, Editor *state) {
+static void set_tokens(char *str, Editor *state) {
   char *s = malloc(state->MAX_LINE_LENGTH * sizeof(char));
   strcpy(s, str); 
   char *token = strtok(s, " ");
@@ -19,23 +19,23 @@ void set_tokens(char *str, Editor *state) {
   free(s);
 }
 
-void mainloop(Editor *state) {
-  char *input = malloc(state->MAX_LINE_LENGTH * sizeof(char));
+static void mainloop(Editor *state) {
+  char *input = calloc(state->MAX_LINE_LENGTH, sizeof(char));
   Command cmd;
 
-  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &finish, &next, &currentState,
+  commands functions[] = {&help, &quit, &about, &info, &clear, &write, &display, &run, &finish, &next, &current_state,
 			  &stop, &load, &export, &delete, &insert, &continue_break, &set_break, &disable_break, &append, &none};
 
   while (state->running) {
 	printf("%s%s", YELLOW, "➤");
 	if (state->isRunning) printf("Running");
 	printf("%s%s", "➤ ", CYAN);
-	getInput(input, state->MAX_LINE_LENGTH);
+	get_input(input, state->MAX_LINE_LENGTH);
 	printf("%s", RESET);
 	if (EMPTY(input))
 	  continue;
 	set_tokens(input, state);
-	cmd = getCommand(state->tokens[0]);
+	cmd = get_command(state->tokens[0]);
 	functions[cmd](state);
   }
   free(input);
@@ -44,7 +44,7 @@ void mainloop(Editor *state) {
 /**
  * Initialises an instance of our Editor struct
  */
-Editor *initialise_state(void) {
+Editor *initialise_editor(void) {
   Editor *state = malloc(sizeof(Editor));
   state->noOfLines = 0;
   state->tokens = malloc(5 * sizeof(char *));
@@ -97,7 +97,7 @@ void free_state(Editor *state) {
 }
 
 int main(void) {
-  Editor *state = initialise_state();
+  Editor *state = initialise_editor();
   welcome();
   mainloop(state);
   free_state(state);

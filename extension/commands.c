@@ -5,26 +5,18 @@
 #include <time.h>
 #include <assert.h>
 
-char *RED = "\033[1;31m";
-char *YELLOW = "\033[1;33m";
-char *BLUE = "\033\[0;34m";
-char *RESET = "\033\033[0m";
-char *GREEN = "\033\[0;32m";
-char *CYAN = "\033\[0;36m";
-char *MAGENTA = "\033\[0;35m";
-
 void welcome(void) {
   system("clear");
   printf("============WELCOME TO ARMOUR!===============\n");
   printf("Type \"help\" if you don't know what to do :)\n");
 }
 
-void getInput(char *input, int MAX_LINE_LENGTH) {
+void get_input(char *input, int MAX_LINE_LENGTH) {
   fgets(input, MAX_LINE_LENGTH, stdin);
   input[strlen(input) - 1] = '\0';
 }
 
-Command getCommand(char *str) {
+Command get_command(char *str) {
   if (SAME(str, "help") || SAME(str, "h"))
 	return HELP;
   if (SAME(str, "quit") || SAME(str, "q"))
@@ -269,7 +261,7 @@ void write(Editor *state) {
   char* trimmedInstr;
   for (i = start; i < state->MAX_LINES; i++) {
     printf("%3d| ", i + 1);
-    getInput(instr, state->MAX_LINE_LENGTH);
+    get_input(instr, state->MAX_LINE_LENGTH);
     if (SAME(instr, "exit")) { break; }
     if (SAME(instr, "back")) {
       printf("%sBacktracking to the previous line.%s\n", BLUE, RESET);
@@ -302,7 +294,7 @@ void runAll(Editor *state) {
   double start = clock();
   int cycles = 0;
   for (int halt = 0; !halt;
-	   halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
+	   halt = pipeline_cycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
 	cycles++;
 	if (cycles > state->CYCLES_LIMIT) {
 	  printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
@@ -373,7 +365,7 @@ void run(Editor *state) {
 		"Possible commands:\n next | continue | state | stop | break | disable | finish \nType \"info <command>\" to learn more about"
 		" what the command does. \n");
 	for (int i = 0; i < 2; i++) {
-	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
+	  pipeline_cycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
 	}
 	state->isRunning = 1;
   }
@@ -395,7 +387,7 @@ void next(Editor *state) {
   }
   for (int i = 0; i < n; i++) {
 	do {
-	  pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
+	  pipeline_cycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
 	} while (*(state->toExecute) != 1);
   }
   int i, instrCount = 0;
@@ -427,7 +419,7 @@ void finish(Editor *state) {
   }
   int cycles = 0;
   for (int halt = 0; !halt;
-	   halt = pipelineCycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
+	   halt = pipeline_cycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)) {
 	cycles++;
 	if (cycles > state->CYCLES_LIMIT) {
 	  printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
@@ -497,7 +489,7 @@ void current_state(Editor *state) {
 	printf("You need to run first!\n");
 	return;
   }
-  printState(state->machineState);
+  print_state(state->machineState);
   printf("\n");
 }
 
@@ -508,7 +500,7 @@ void stop(Editor *state) {
   }
 
   printf("Program stopped, all registers have been reset.\n");
-  resetState(state->machineState);
+  reset_state(state->machineState);
   state->currentLine = -1;
   state->isRunning = 0;
 }
@@ -627,7 +619,7 @@ void insert(Editor *state) {
   char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char)), *trimmedInstr;
   for (i = start; i < state->MAX_LINES; i++) {
     printf("%3d| ", i + 1);
-    getInput(instr, state->MAX_LINE_LENGTH);
+    get_input(instr, state->MAX_LINE_LENGTH);
     if (SAME(instr, "exit"))
       break;
 
@@ -767,7 +759,7 @@ void append(Editor *state) {
   char *text = calloc(state->MAX_LINE_LENGTH, sizeof(char));
   for (i = start; i < end; i++) {
 	printf("%3d| %s", i + 1, state->lines[i]);
-	getInput(text, state->MAX_LINE_LENGTH);
+	get_input(text, state->MAX_LINE_LENGTH);
 	if (SAME(text, "exit"))
 	  break;
 	if (SAME(text, "back")) {
