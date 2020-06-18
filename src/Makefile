@@ -55,9 +55,13 @@ clean:
 	rm -f $(wildcard *.o)
 	rm -f assemble
 	rm -f emulate
+<<<<<<< HEAD
 	rm -f ./assembler_utils/*.o
 	rm -f ./emulator_utils/*.o
 	rm -f ./global_utils/*.o
+=======
+	rm -f emulator_utils/*.o assembler_utils/*.o global_utils/*.o
+>>>>>>> 1f6fdcaea8f6e5493636e3043e196a52e843dd4a
 	rm -f ../extension/*.o
 	rm -f ../extension/armour
 	rm -f ../extension/text.s ../extension/temp.bin

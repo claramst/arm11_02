@@ -16,7 +16,7 @@
  * be 0, since we should not be executing and decoding the subsequent instructions,
  * since the branch means they should be skipped.
  */
-int pipelineCycle(MACHINE_STATE *state, INSTRUCTION *fetched, DECODED_INSTR *decoded, int *toDecode, int *toExecute) {
+int pipeline_cycle(MACHINE_STATE *state, INSTRUCTION *fetched, DECODED_INSTR *decoded, int *toDecode, int *toExecute) {
   REGISTER *pc = &state->registers[15];
   if (*toExecute) {
 	if (decoded->type == HALT) {
@@ -39,7 +39,7 @@ int pipelineCycle(MACHINE_STATE *state, INSTRUCTION *fetched, DECODED_INSTR *dec
  * Clears all register / general memory, setting all to 0.
  * @param state Struct representing the ARM machine state.
  */
-void resetState(MACHINE_STATE *state) {
+void reset_state(MACHINE_STATE *state) {
   memset(state->registers, 0, NUM_OF_REG * sizeof(REGISTER));
   memset(state->memory, 0, MAX_ADDRESSES);
 }
@@ -48,7 +48,7 @@ void resetState(MACHINE_STATE *state) {
  * Allocates memory for a struct representing our ARM machine state.
  * @return a pointer to the initialised state.
  */
-MACHINE_STATE *initialiseState() {
+MACHINE_STATE *initialise_state() {
   MACHINE_STATE *state = malloc(sizeof(MACHINE_STATE));
 
   state->registers = calloc(NUM_OF_REG, sizeof(REGISTER));

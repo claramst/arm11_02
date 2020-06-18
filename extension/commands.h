@@ -19,13 +19,14 @@ fprintf(stderr, \
 
 #define PRINT(s1) do { printf("%s", s1) } while (0)
 
-extern char *RED;
-extern char *YELLOW;
-extern char *BLUE;
-extern char *RESET;
-extern char *GREEN;
-extern char *CYAN;
-extern char *MAGENTA;
+#define RED "\x1b[31m"
+#define GREEN "\x1b[32m"
+#define YELLOW "\x1b[33m"
+#define BLUE "\x1b[34m"
+#define MAGENTA "\x1b[35m"
+#define CYAN "\x1b[36m"
+#define RESET "\x1b[0m"
+
 
 typedef enum command {
   HELP,
@@ -51,7 +52,7 @@ typedef enum command {
   NONE
 } Command;
 
-typedef struct editor {
+typedef struct Editor {
   bool running;
   char **tokens;
   int noOfTokens;
@@ -75,8 +76,8 @@ typedef struct editor {
 typedef void (*commands)(Editor *);
 
 void welcome(void);
-void getInput(char *input, int MAX_LINE_LENGTH);
-Command getCommand(char *str);
+void get_input(char *input, int MAX_LINE_LENGTH);
+Command get_command(char *str);
 void help(Editor *state);
 void quit(Editor *state);
 void about(Editor *state);

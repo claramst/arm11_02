@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
   FILE *objCode = fopen(argv[1], "rb");
   CHECK_PRED(!objCode, "File could not be opened.");
 
-  MACHINE_STATE *state = initialiseState();
+  MACHINE_STATE *state = initialise_state();
 
   for (int i = 0; fread(&(state->memory[i]), sizeof(BYTE), 1, objCode) == 1; i++);
   CHECK_PRED(ferror(objCode), "An error has occurred whilst file reading.");
@@ -45,9 +45,9 @@ int main(int argc, char **argv) {
   int halt = 0;
 
   while (!halt) {
-	halt = pipelineCycle(state, &fetched, &decoded, &toDecode, &toExecute);
+	halt = pipeline_cycle(state, &fetched, &decoded, &toDecode, &toExecute);
   }
-  printState(state);
+  print_state(state);
 
   free(state->registers);
   free(state->memory);

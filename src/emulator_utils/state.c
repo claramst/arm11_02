@@ -46,7 +46,7 @@ WORD getLittleEndian(ADDRESS address, MACHINE_STATE *state) {
  *
  * @param state A structure MACHINE_STATE representing the state of our ARM machine.
  */
-void printState(MACHINE_STATE *state) {
+void print_state(MACHINE_STATE *state) {
   printf("Registers:\n");
   /* Prints the first 13 registers */
   for (int i = 0; i < 13; i++) {
