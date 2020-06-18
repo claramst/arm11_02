@@ -293,18 +293,17 @@ void write(Editor *state) {
   internal_save(state);
 }
 
-void runAll(Editor *state) {
+void run_all(Editor *state) {
   state->isRunning = 1;
   double start = clock();
   int cycles = 0;
   for (int halt = 0; !halt; cycles++) {
-    halt = pipeline_cycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute)
     if (cycles > state->CYCLES_LIMIT) {
       printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
       stop(state);
       return;
     }
-
+    halt = pipeline_cycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
   }
   double end = clock();
   printf("End of program reached in %f seconds.\nFinal machine state:\n", (end - start) / CLOCKS_PER_SEC);
@@ -356,7 +355,7 @@ void run(Editor *state) {
   state->breakpoints = calloc(state->noOfLines, sizeof(bool));
   if (state->noOfTokens == 2) {
     if (SAME(state->tokens[1], "all")) {
-      runAll(state);
+      run_all(state);
       return;
     } else {
       printf("Invalid argument, run can only be called with no arguments or the argument \"all\"\n");
@@ -420,12 +419,12 @@ void finish(Editor *state) {
   }
   int cycles = 0;
   for (int halt = 0; !halt; cycles++) {
-    halt = pipeline_cycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute
     if (cycles > state->CYCLES_LIMIT) {
       printf("%sLIMIT OF CYCLES EXCEEDED!%s\n", RED, RESET);
       stop(state);
       return;
     }
+    halt = pipeline_cycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
   }
   printf("End of program reached. Final machine state:\n");
   current_state(state);

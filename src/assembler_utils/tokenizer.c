@@ -45,14 +45,14 @@ void tokenize_branch(char *instrLine, int address, Map *symbolTable, INSTR_TOKEN
   }
 
   char *branchAddress = tokenisedInstruction[1];
-  if (get_Value(symbolTable, branchAddress) == -1) {
+  if (get_value(symbolTable, branchAddress) == -1) {
 	// Address is in hex
 	  char *endptr;
 	  tokens->branchAddr = strtol(&branchAddress[2], &endptr, 16);
   } else
-	  tokens->branchAddr = getValue(symbolTable, branchAddress);
+	  tokens->branchAddr = get_value(symbolTable, branchAddress);
 
-  tokens->opcode = getValue(symbolTable, tokenisedInstruction[0]);
+  tokens->opcode = get_value(symbolTable, tokenisedInstruction[0]);
 }
 
 /**
@@ -126,7 +126,7 @@ INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   strcpy(str, instrLine);
   char *s = strtok(str, " ");
 
-  OPCODE opcode = getValue(symbolTable, s);
+  OPCODE opcode = get_value(symbolTable, s);
 
   if (isBranch(opcode)) {
     tokenize_branch(instrLine, address, symbolTable, tokens);

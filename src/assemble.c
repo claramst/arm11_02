@@ -50,7 +50,7 @@ void add_opcodes(Map *symbolTable) {
  * @param noOfLines The number of lines to read in.
  * @param sourceFile File to read lines from.
  */
-void read_lines(char **array_of_lines, int noOfLines, FILE *sourceFile) {
+void read_lines(char **array_of_lines, int noOfLines, int MAX_LINE_LENGTH, FILE *sourceFile) {
   for (int i = 0; i < noOfLines; i++) {
     array_of_lines[i] = (char *) calloc(MAX_LINE_LENGTH, sizeof(char));
     CHECK_PRED(!array_of_lines[i], "Error allocating memory for entry in array of lines");
@@ -85,7 +85,7 @@ int first_pass(Map *symbolTable, char *array_of_lines[], char *array_of_instruct
     char *str = strchr(array_of_lines[i], ':');
     if (str) {
       char *temp = array_of_lines[i], *label = strtok(temp, ":");
-      add_node(symbolTable, label, sizeof(ADDRESS) * address);
+      add_node(symbolTable, label, sizeof(ADDRESS) * j);
     } else {
       array_of_instructions[j] = array_of_lines[i];
       j++;
@@ -119,8 +119,8 @@ int main(int argc, char **argv) {
 
   char **array_of_lines = (char **) calloc(noOfLines, sizeof(char *));
   CHECK_PRED(!array_of_lines, "Error allocating memory for array of lines");
-
-  read_lines(array_of_lines, noOfLines, sourceFile);
+  int MAX_LINE_LENGTH = 511;
+  read_lines(array_of_lines, noOfLines, MAX_LINE_LENGTH, sourceFile);
   CHECK_PRED(ferror(sourceFile), "An error has occurred whilst file reading");
 
   fclose(sourceFile);
@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
   free(array_of_instructions);
 
   // Free memory and exit
-  freeMap(symbolTable);
+  free_map(symbolTable);
   return 0;
 }
 

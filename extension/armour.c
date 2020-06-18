@@ -108,7 +108,7 @@ int main(void) {
   mainloop(state);
   free_state(state);
 
-  return EXIT_SUCCESSFUL;
+  return EXIT_SUCCESS;
 }
 
 

@@ -21,7 +21,7 @@ Map *create_map(void) {
 }
 
 /**
- * freeNode frees memory allocated for the given node
+ * free_node frees memory allocated for the given node
  */
 void free_node(Node *node) {
   free(node);
@@ -34,13 +34,13 @@ void free_map(Map *map) {
   assert(map);
   for (Node *elem = map->front, *next; elem; elem = next) {
 	next = elem->next;
-	freeNode(elem);
+	free_node(elem);
   }
   free(map);
 }
 
 /**
- * createNode allocates memory for a node and assigns it the given
+ * create_node allocates memory for a node and assigns it the given
  * key and value.
  */
 Node *create_node(char *key, int value) {
@@ -72,17 +72,17 @@ int get_value(Map *map, char *key) {
  * Creates a new node and adds it to the front of the specified map.
  */
 void add_node(Map *map, char *label, int value) {
-  Node *node = createNode(label, value);
+  Node *node = create_node(label, value);
   node->next = map->front;
   map->front = node;
 }
 
 /**
- * Analogous to addNode, however multiple nodes can be added at once.
+ * Analogous to add_node, however multiple nodes can be added at once.
  * Note that keys[] and values[] must both be of length n.
  * @param n The number of nodes to be added.
  */
 void add_nodes(Map *map, char *keys[], int values[], int n) {
   for (int i = 0; i < n; i++)
-	addNode(map, keys[i], values[i]);
+	add_node(map, keys[i], values[i]);
 }

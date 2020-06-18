@@ -251,7 +251,7 @@ unsigned int find_second_reg(TOKEN_TYPE *symbols, int len) {
  * @return the equivalent encoded instruction of type INSTRUCTION
  */
 INSTRUCTION sdt(INSTR_TOKENS *tokens, SDT_CONSTANTS *constants) {
-  int imm = 0, , P = 1, L = (tokens->opcode == LDR), U = tokens->sign != '-';
+  int imm = 0, P = 1, L = (tokens->opcode == LDR), U = tokens->sign != '-';
 
   REGISTER rn, rd = tokens->registers[0];
 
@@ -261,7 +261,7 @@ INSTRUCTION sdt(INSTR_TOKENS *tokens, SDT_CONSTANTS *constants) {
 	rn = PC_REG_NUM;
 	rd = tokens->registers[0];
 	offset = (constants->noOfInstructions + constants->size) * 4 - tokens->currAddr - 8;
-	addToConstants(constants, tokens->immediateEquals[0]);
+	add_to_constants(constants, tokens->immediateEquals[0]);
   } else if (tokens->noOfRegisters == 2 && tokens->noOfImmsHash == 0) {
 	// form ldr r1 [r2]
 	rn = tokens->registers[1];
