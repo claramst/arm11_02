@@ -85,13 +85,12 @@ int first_pass(Map *symbolTable, char *array_of_lines[], char *array_of_instruct
     char *str = strchr(array_of_lines[i], ':');
     if (str) {
       char *temp = array_of_lines[i], *label = strtok(temp, ":");
-      add_node(symbolTable, label, sizeof(ADDRESS) * j);
+      add_node(symbolTable, label, sizeof(WORD) * j);
     } else {
       array_of_instructions[j] = array_of_lines[i];
       j++;
     }
   }
-
   return j;
 }
 
@@ -99,8 +98,8 @@ int first_pass(Map *symbolTable, char *array_of_lines[], char *array_of_instruct
  * Writes one 32-bit big-endian word to the given file in little-endian.
  */
 void write_to_file(FILE *file, WORD word) {
-  for (int j = 0; j < sizeof(ADDRESS); j++) {
-    BYTE byte = getByte(word, j);
+  for (int j = 0; j < sizeof(WORD); j++) {
+    BYTE byte = get_byte(word, j);
     fwrite(&byte, sizeof(BYTE), 1, file);
   }
 }

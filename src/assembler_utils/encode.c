@@ -113,7 +113,7 @@ uint16_t find_operand2(INSTR_TOKENS *tokens, int I) {
 		foundRepresentation = 1;
 		break;
 	  }
-	  expr = rotateLeft(expr, 2);
+	  expr = rotate_left(expr, 2);
 	}
 
 	CHECK_PRED(!foundRepresentation, "Numeric constant can't be represented");
@@ -122,11 +122,11 @@ uint16_t find_operand2(INSTR_TOKENS *tokens, int I) {
 	if (tokens->shift == NULL) {
 	  operand2 = 0;
 	} else if (!strcmp(tokens->shift, "lsr")) {
-	  operand2 = setBit(operand2, 5);
+	  operand2 = set_bit(operand2, 5);
 	} else if (!strcmp(tokens->shift, "asr")) {
-	  operand2 = setBit(operand2, 6);
+	  operand2 = set_bit(operand2, 6);
 	} else if (!strcmp(tokens->shift, "ror"))
-	  operand2 = setBits(operand2, 2, 5);
+	  operand2 = set_bits(operand2, 2, 5);
 	// otherwhise tokens->shift should be lsl with code 00
 	// OR, there is no shift specified, just a register.
 
@@ -140,7 +140,7 @@ uint16_t find_operand2(INSTR_TOKENS *tokens, int I) {
 		if (tokens->noOfRegisters == 3) {
 		  operand2 |= tokens->immediateHash[0] << 7;
 		} else if (tokens->noOfRegisters == 4) { // should be the only other case
-		  operand2 = setBit(operand2, 4);
+		  operand2 = set_bit(operand2, 4);
 		  operand2 |= tokens->registers[3] << 8;
 		}
 		break;
@@ -151,7 +151,7 @@ uint16_t find_operand2(INSTR_TOKENS *tokens, int I) {
 		if (tokens->noOfRegisters == 2) {
 		  operand2 |= tokens->immediateHash[0] << 7;
 		} else if (tokens->noOfRegisters == 3) { // should be the only other case
-		  operand2 = setBit(operand2, 4);
+		  operand2 = set_bit(operand2, 4);
 		  operand2 |= tokens->registers[2] << 8;
 		}
 		break;
@@ -296,5 +296,5 @@ INSTRUCTION branch(INSTR_TOKENS *tokens) {
   } else 
 	offset >>= 2;
   
-  return (cond << 28) + (10 << 24) + getBits(offset, 24, 0);
+  return (cond << 28) + (10 << 24) + get_bits(offset, 24, 0);
 }

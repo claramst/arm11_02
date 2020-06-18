@@ -23,7 +23,7 @@ WORD getWord(ADDRESS address, MACHINE_STATE *state) {
  */
 void storeWord(WORD word, ADDRESS address, MACHINE_STATE *state) {
   for (int i = 0; i < 4; i++) {
-	state->memory[address + i] = getByte(word, i);
+	state->memory[address + i] = get_byte(word, i);
   }
 }
 

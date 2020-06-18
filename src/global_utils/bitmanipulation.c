@@ -12,7 +12,7 @@
  * @param n Index of first bit to retrieve.
  * @return The desired selection of bits from bin.
  */
-uint32_t getBits(uint32_t bin, uint32_t noOfBits, uint32_t n) {
+uint32_t get_bits(uint32_t bin, uint32_t noOfBits, uint32_t n) {
   uint32_t mask = (1 << noOfBits) - 1;
   return (bin & (mask << n)) >> n;
 }
@@ -24,15 +24,15 @@ uint32_t getBits(uint32_t bin, uint32_t noOfBits, uint32_t n) {
  * @param n Index of first bit to clear.
  * @return The supplied binary int with the designated bits set to 0.
  */
-uint32_t clearBits(uint32_t bin, uint32_t noOfBits, uint32_t n) {
+uint32_t clear_bits(uint32_t bin, uint32_t noOfBits, uint32_t n) {
   uint32_t mask = (1 << noOfBits) - 1;
   return bin & ~(mask << n);
 }
 
 /**
- * Analogous to clearBits, except sets them instead.
+ * Analogous to clear_bits, except sets them instead.
  */
-uint32_t setBits(uint32_t bin, uint32_t noOfBits, uint32_t n) {
+uint32_t set_bits(uint32_t bin, uint32_t noOfBits, uint32_t n) {
   uint32_t mask = (1 << noOfBits) - 1;
   return bin | (mask << n);
 }
@@ -43,46 +43,46 @@ uint32_t setBits(uint32_t bin, uint32_t noOfBits, uint32_t n) {
  * @param n the index of the bit to clear.
  * @return The given binary number with its nth bit set to 1.
  */
-uint32_t setBit(uint32_t bin, uint32_t n) {
+uint32_t set_bit(uint32_t bin, uint32_t n) {
   return (bin | (1 << n));
 }
 
 /**
- * Analogous to setBit, but clears a desired bit instead.
+ * Analogous to set_bit, but clears a desired bit instead.
  */
-uint32_t clearBit(uint32_t bin, uint32_t n) {
-  return clearBits(bin, 1, n);
+uint32_t clear_bit(uint32_t bin, uint32_t n) {
+  return clear_bits(bin, 1, n);
 }
 
 /**
  * Retrieves the nth bit of bin.
  */
-uint32_t getBit(uint32_t bin, uint32_t n) {
-  return getBits(bin, 1, n);
+uint32_t get_bit(uint32_t bin, uint32_t n) {
+  return get_bits(bin, 1, n);
 }
 
 /**
  * Returns the nth nibble of bin.
  */
-uint32_t getNibble(uint32_t bin, uint32_t n) {
-  return getBits(bin, 4, n * 4);
+uint32_t get_nibble(uint32_t bin, uint32_t n) {
+  return get_bits(bin, 4, n * 4);
 }
 
 /**
  * Returns the nth byte of bin.
  */
-uint32_t getByte(uint32_t bin, uint32_t n) {
-  return getBits(bin, 8, n * 8);
+uint32_t get_byte(uint32_t bin, uint32_t n) {
+  return get_bits(bin, 8, n * 8);
 }
 
 /**
  * Performs an arithmetic right shift by n on bin.
  */
-uint32_t arithmeticRight(uint32_t bin, uint32_t n) {
-  uint32_t sign = getBit(bin, 31);
+uint32_t arithmetic_right(uint32_t bin, uint32_t n) {
+  uint32_t sign = get_bit(bin, 31);
   bin >>= n;
   if (sign) {
-	bin = setBit(bin, 31);
+	bin = set_bit(bin, 31);
   }
   return bin;
 }
@@ -90,17 +90,17 @@ uint32_t arithmeticRight(uint32_t bin, uint32_t n) {
 /**
  * Rotates bin right by n.
  */
-uint32_t rotateRight(uint32_t bin, uint32_t n) {
+uint32_t rotate_right(uint32_t bin, uint32_t n) {
   for (uint32_t i = 0; i < n; i++) {
-	uint32_t lsb = getBit(bin, 0);
+	uint32_t lsb = get_bit(bin, 0);
 	bin = (bin >> 1) | (lsb << 31);
   }
   return bin;
 }
 
-uint32_t rotateLeft(uint32_t bin, uint32_t n) {
+uint32_t rotate_left(uint32_t bin, uint32_t n) {
   for (uint32_t i = 0; i < n; i++) {
-	uint32_t msb = getBit(bin, 31);
+	uint32_t msb = get_bit(bin, 31);
 	bin = (bin << 1) | msb;
   }
   return bin;
@@ -109,10 +109,10 @@ uint32_t rotateLeft(uint32_t bin, uint32_t n) {
 /**
  * Extends the sign of bin with the nth bit as the sign bit.
  */
-int signExtend(uint32_t bin, uint32_t n) {
-  uint32_t signBit = getBit(bin, n);
+int sign_extend(uint32_t bin, uint32_t n) {
+  uint32_t signBit = get_bit(bin, n);
   if (signBit) {
-	bin = setBits(bin, 32 - n, n);
+	bin = set_bits(bin, 32 - n, n);
   }
   return bin;
 }

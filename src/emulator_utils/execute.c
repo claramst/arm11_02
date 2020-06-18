@@ -28,16 +28,16 @@ void executeMultiply(REGISTER *dest, REGISTER rn, REGISTER rs, REGISTER rm,
   if (setFlags) {
 	//for N flag
 	REGISTER *cpsr = &state->registers[16];
-	if (getBit(*dest, 31)) {
-	  *cpsr = setBit(*cpsr, 31);
+	if (get_bit(*dest, 31)) {
+	  *cpsr = set_bit(*cpsr, 31);
 	} else {
-	  *cpsr = clearBit(*cpsr, 31);
+	  *cpsr = clear_bit(*cpsr, 31);
 	}
 	//for Z flag
 	if (!*dest) {
-	  *cpsr = setBit(*cpsr, 30);
+	  *cpsr = set_bit(*cpsr, 30);
 	} else {
-	  *cpsr = clearBit(*cpsr, 30);
+	  *cpsr = clear_bit(*cpsr, 30);
 	}
   }
 }
@@ -97,49 +97,49 @@ void executeProcessing(REGISTER *dest,
 	  case TST:
 	  case MOV:
 		if (shiftCarryOut == 1) {
-		  *cpsr = setBit(*cpsr, 29);
+		  *cpsr = set_bit(*cpsr, 29);
 		} else {
-		  *cpsr = clearBit(*cpsr, 29);
+		  *cpsr = clear_bit(*cpsr, 29);
 		}
 		break;
 	  case ADD:
 		// Check if addition produced overflow
 		if ((op1 + op2) > INT_MAX) {
-		  *cpsr = setBit(*cpsr, 29);
+		  *cpsr = set_bit(*cpsr, 29);
 		} else {
-		  *cpsr = clearBit(*cpsr, 29);
+		  *cpsr = clear_bit(*cpsr, 29);
 		}
 		break;
 	  case SUB:
 	  case CMP:
 		// Check if subtraction produces carry
 		if (op1 < op2) {
-		  *cpsr = clearBit(*cpsr, 29);
+		  *cpsr = clear_bit(*cpsr, 29);
 		} else {
-		  *cpsr = setBit(*cpsr, 29);
+		  *cpsr = set_bit(*cpsr, 29);
 		}
 		break;
 	  case RSB:
 		// Check if subtraction produces carry
 		if (op2 < op1) {
-		  *cpsr = clearBit(*cpsr, 29);
+		  *cpsr = clear_bit(*cpsr, 29);
 		} else {
-		  *cpsr = setBit(*cpsr, 29);
+		  *cpsr = set_bit(*cpsr, 29);
 		}
 	  default: perror("Invalid opcode.");
 		break;
 	}
 	// For Z flag
 	if (!result) {
-	  *cpsr = setBit(*cpsr, 30);
+	  *cpsr = set_bit(*cpsr, 30);
 	} else {
-	  *cpsr = clearBit(*cpsr, 30);
+	  *cpsr = clear_bit(*cpsr, 30);
 	}
 	//for N flag
-	if (getBit(result, 31)) {
-	  *cpsr = setBit(*cpsr, 31);
+	if (get_bit(result, 31)) {
+	  *cpsr = set_bit(*cpsr, 31);
 	} else {
-	  *cpsr = clearBit(*cpsr, 31);
+	  *cpsr = clear_bit(*cpsr, 31);
 	}
   }
 }
@@ -253,7 +253,7 @@ void execute(DECODED_INSTR decoded, MACHINE_STATE *state, int *toDecode, int *to
 	  case BRANCH:*toDecode = 0;
 		*toExecute = 0;
 		int shiftedOffset = decoded.offset << 2;
-		int offset = signExtend(shiftedOffset, 25);
+		int offset = sign_extend(shiftedOffset, 25);
 		executeBranch(offset, state);
 		break;
 	  case PROCESSING:rdReg = &state->registers[decoded.rd];

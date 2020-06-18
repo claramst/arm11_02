@@ -8,18 +8,18 @@
 
 typedef uint8_t BYTE;
 
-uint32_t getBits(uint32_t bin, uint32_t noOfBits, uint32_t n);
-uint32_t clearBits(uint32_t bin, uint32_t noOfBits, uint32_t n);
-uint32_t setBit(uint32_t bin, uint32_t n);
-uint32_t setBits(uint32_t bin, uint32_t noOfBits, uint32_t n);
-uint32_t getBit(uint32_t bin, uint32_t n);
-uint32_t getNibble(uint32_t bin, uint32_t n);
-uint32_t getByte(uint32_t bin, uint32_t n);
-uint32_t arithmeticRight(uint32_t bin, uint32_t n);
-uint32_t rotateRight(uint32_t bin, uint32_t n);
-uint32_t rotateLeft(uint32_t bin, uint32_t n);
-uint32_t clearBit(uint32_t bin, uint32_t n);
-int signExtend(uint32_t bin, uint32_t n);
+uint32_t get_bits(uint32_t bin, uint32_t noOfBits, uint32_t n);
+uint32_t clear_bits(uint32_t bin, uint32_t noOfBits, uint32_t n);
+uint32_t set_bit(uint32_t bin, uint32_t n);
+uint32_t set_bits(uint32_t bin, uint32_t noOfBits, uint32_t n);
+uint32_t get_bit(uint32_t bin, uint32_t n);
+uint32_t get_nibble(uint32_t bin, uint32_t n);
+uint32_t get_byte(uint32_t bin, uint32_t n);
+uint32_t arithmetic_right(uint32_t bin, uint32_t n);
+uint32_t rotate_right(uint32_t bin, uint32_t n);
+uint32_t rotate_left(uint32_t bin, uint32_t n);
+uint32_t clear_bit(uint32_t bin, uint32_t n);
+int sign_extend(uint32_t bin, uint32_t n);
 
 #endif
 

@@ -29,14 +29,14 @@ INSTR_TYPE findType(INSTRUCTION instr) {
   if (instr == 0) {
 	return HALT;
   }
-  if (getBit(instr, 27)) {
+  if (get_bit(instr, 27)) {
 	return BRANCH;
-  } else if (getBit(instr, 26)) {
+  } else if (get_bit(instr, 26)) {
 	return TRANSFER;
-  } else if (getBit(instr, 25)) {
+  } else if (get_bit(instr, 25)) {
 	return PROCESSING;
   } else {
-	if (getBit(instr, 4) && getBit(instr, 7)) {
+	if (get_bit(instr, 4) && get_bit(instr, 7)) {
 	  return MULTIPLY;
 	} else {
 	  return PROCESSING;
@@ -53,10 +53,10 @@ INSTR_TYPE findType(INSTRUCTION instr) {
  */
 int willExecute(CONDITION cond, MACHINE_STATE *state) {
   int cpsr = state->registers[16];
-  int N = getBit(cpsr, 31);
-  int Z = getBit(cpsr, 30);
+  int N = get_bit(cpsr, 31);
+  int Z = get_bit(cpsr, 30);
 
-  int V = getBit(cpsr, 28);
+  int V = get_bit(cpsr, 28);
 
   switch (cond) {
 	case EQ:return Z;
