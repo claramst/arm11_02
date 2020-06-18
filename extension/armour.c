@@ -41,16 +41,19 @@ void mainloop(Editor *state) {
   free(input);
 }
 
+/**
+ * Initialises an instance of our Editor struct
+ */
 Editor *initialise_state(void) {
   Editor *state = malloc(sizeof(Editor));
   state->noOfLines = 0;
   state->tokens = malloc(5 * sizeof(char *));
   state->running = true;
-  state->MAX_LINE_LENGTH = 100;
-  state->MAX_LINES = 20;
-  state->lines = calloc(state->MAX_LINES, sizeof(char *));
+  state->MAX_LINE_LENGTH = 150;
+  state->MAX_LINES = 10;
+  state->lines = malloc(state->MAX_LINES * sizeof(char *));
   for (int i = 0; i < state->MAX_LINES; i++) {
-	state->lines[i] = malloc(state->MAX_LINE_LENGTH * sizeof(char));
+          state->lines[i] = calloc(state->MAX_LINE_LENGTH, sizeof(char));
   }
   state->currentLine = -1;
   state->source = calloc(MAX_PATH_LENGTH, sizeof(char));
@@ -64,9 +67,10 @@ Editor *initialise_state(void) {
   strcpy(state->source, "text.s");
   strcpy(state->assembled, "temp.bin");
   state->nextLocation = true;
-  state->CYCLES_LIMIT = 100;
+  state->CYCLES_LIMIT = 4000;
   return state;
 }
+
 
 void freeState(Editor *state) {
   for (int i = 0; i < state->noOfTokens; i++) {
