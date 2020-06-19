@@ -66,10 +66,7 @@ void tokenize_branch(char *instrLine, int address, Map *symbolTable, INSTR_TOKEN
  */
 int *get_values(char *str, char start, int max, int *length) {
   int *values = calloc(max, sizeof(int));
-  if (!values) {
-	perror("Error allocating values memory");
-	exit(EXIT_FAILURE);
-  }
+  CHECK_PRED(!values, "Error allocating values memory");
   int len = strlen(str);
   int index = 0;
   int isHex = 0;
@@ -112,10 +109,7 @@ int *get_values(char *str, char start, int max, int *length) {
  */
 INSTR_TOKENS *tokenize(char *instrLine, int address, Map *symbolTable) {
   INSTR_TOKENS *tokens = (INSTR_TOKENS *) malloc(sizeof(INSTR_TOKENS));
-  if (!tokens) {
-    perror("Error allocating tokens memory");
-    exit(EXIT_FAILURE);
-  }
+  CHECK_PRED(!tokens, "Error allocating tokens memory");
   tokens->registers = NULL;
   tokens->immediateHash = NULL;
   tokens->immediateEquals = NULL;

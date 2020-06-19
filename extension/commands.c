@@ -4,18 +4,32 @@
 #include <stdbool.h>
 #include <time.h>
 #include <assert.h>
+/**
+ * Contains functions for all commands available to the user.
+ */
 
+/**
+ * Prints a welcome message to stdout.
+ */
 void welcome(void) {
   system("clear");
   printf("============WELCOME TO ARMOUR!===============\n");
   printf("Type \"help\" if you don't know what to do :)\n");
 }
 
+/**
+ * Writes a given length of user input from stdin into a specified location, null terminating it.
+ * @param input Location which to write to
+ * @param MAX_LINE_LENGTH The maximum number of characters to write.
+ */
 void get_input(char *input, int MAX_LINE_LENGTH) {
   fgets(input, MAX_LINE_LENGTH, stdin);
   input[strlen(input) - 1] = '\0';
 }
 
+/**
+ * Returns an enum corresponding to the typed user command.
+ */
 Command get_command(char *str) {
   if (SAME(str, "help") || SAME(str, "h"))
 	return HELP;
@@ -60,6 +74,9 @@ Command get_command(char *str) {
   return NONE;
 }
 
+/**
+ * Prints all commands available to the user to stdout.
+ */
 void help(Editor *state) {
   printf("--COMMANDS--\n");
   printf("%s", CYAN);
@@ -91,16 +108,25 @@ void help(Editor *state) {
   printf("Type \"options\" after a command when unsure about which arguments to give.\n");
 }
 
+/**
+ * Causes program to terminate on next iteration of main while loop.
+ */
 void quit(Editor *state) {
   printf("Hope you liked it...\n");
   state->running = false;
 }
 
+/**
+ * Prints an "about page" to stdout.
+ */
 void about(Editor *state) {
   printf("ARMOUR is a tool for writing, executing and debugging small assembly programs using ARM11 architecture.\n");
   printf("Made as part of an extension to an emulator and assembler for Raspberry Pi.\n");
 }
 
+/**
+ * Helper function for print_lines, prints the desired line to stdout with basic syntax highlighting.
+ */
 void print_line(char *instr) {
   if (!strstr(instr, ":"))
 	printf("%s", CYAN); // opcode
@@ -133,6 +159,14 @@ void print_line(char *instr) {
   printf("%s%s\n", instr, RESET);
 }
 
+/**
+ * Prints the desired lines with basic syntax highlighting, and indicates
+ * the current line the user is on when running, plus any set breakpoints.
+ * @param state The state from which to retrieve lines
+ * @param start The first line to print
+ * @param end The last line to print
+ * @param lineNumbers Whether or not to show line numbers.
+ */
 void print_lines(Editor *state, int start, int end, bool lineNumbers) {
   int digits;
   for (int i = start; i < end; i++) {
@@ -171,6 +205,9 @@ void print_lines(Editor *state, int start, int end, bool lineNumbers) {
   }
 }
 
+/**
+ * Allows user to see all / a selection of lines previously written.
+ */
 void display(Editor *state) {
   if (state->noOfLines == 0) {
 	printf("Nothing has been written yet. Type \"write\" to start editing.\n");
@@ -207,6 +244,9 @@ void display(Editor *state) {
   print_lines(state, start, end, lineNumbers);
 }
 
+/**
+ * Returns a pointer to a copy of the string str with any //comments removed.
+ */
 char *trim(char *str) {
   int i;
   for (i = 0; str[i] != '/' && i < strlen(str); i++);
@@ -258,15 +298,15 @@ void write(Editor *state) {
         printf("Invalid start");
         return;
   }
-  
+
   char *instr = calloc(state->MAX_LINE_LENGTH, sizeof(char));
   char *trimmedInstr;
   int i;
   for (i = start; i < state->MAX_LINES; i++) {
     printf("%3d| ", i + 1);
     get_input(instr, state->MAX_LINE_LENGTH);
-    if (SAME(instr, "exit"))  
-      break; 
+    if (SAME(instr, "exit"))
+      break;
 
     if (SAME(instr, "back")) {
       printf("%sBacktracking to the previous line.%s\n", BLUE, RESET);
@@ -293,6 +333,10 @@ void write(Editor *state) {
   internal_save(state);
 }
 
+/**
+ * Runs the written assembly program from start to finish, printing the final machine state
+ * and time taken to run.
+ */
 void run_all(Editor *state) {
   state->isRunning = 1;
   double start = clock();
@@ -311,15 +355,10 @@ void run_all(Editor *state) {
   stop(state);
 }
 
-// Saves the current file, assembles this file.
-// Need to save assembled file.
-// Assemble takes in two arguments. The file
-// to read from (which we should get from save)
-// and the file to write to.
-// Then we pass this file into emulate, which prints the machine state.
-// PRE: assemble and emulate should be compiled
-// into executables
-// Need absolutePath to file
+/**
+ * Enters "run mode", from which the written assembly program can be stepped through
+ * or run to completion, among other commands.
+ */
 void run(Editor *state) {
   if (state->isRunning) {
     printf("You're already in run mode!\n");
@@ -332,7 +371,7 @@ void run(Editor *state) {
   printf("%sEntering run mode.\n%s", MAGENTA, RESET);
   state->currentLine = 0;
   char *assembledBinary = state->assembled;
-  // a temporary file for assemble to write to. idk we might need a path to assembledBinary
+
   char *assembleCommand = "cd ../src && ./assemble ../extension/text.s ../extension/temp.bin";
   FILE *objCode = fopen(assembledBinary, "w");
   fclose(objCode);
@@ -365,22 +404,25 @@ void run(Editor *state) {
 	printf(
 		"Possible commands:\n next | continue | state | stop | break | disable | finish \nType \"info <command>\" to learn more about"
 		" what the command does. \n");
-	for (int i = 0; i < 2; i++) 
+	for (int i = 0; i < 2; i++)
 	  pipeline_cycle(state->machineState, state->fetched, state->decoded, state->toDecode, state->toExecute);
 	state->isRunning = 1;
   }
 }
 
+/**
+ * Analogous to "next" in GDB, allows user to step through their program a given number of times.
+ */
 void next(Editor *state) {
   int n;
   switch (state->noOfTokens) {
     case 1:
       n = 1;
       break;
-    case 2: 
+    case 2:
       n = atoi(state->tokens[1]);
       break;
-    default: 
+    default:
       printf("Too many arguments.\n");
       return;
   }
@@ -412,6 +454,9 @@ void next(Editor *state) {
   }
 }
 
+/**
+ * Runs the remainder of the program to completion.
+ */
 void finish(Editor *state) {
   if (!state->isRunning) {
     printf("%s", "You need to run first!\n");
@@ -440,9 +485,9 @@ void internal_save(Editor *state) {
     return;
   }
   FILE *outputFile = fopen(state->source, "w");
-  if (!outputFile) 
+  if (!outputFile)
 	  fprintf(stderr, "Error opening file.");
-  
+
   char *trimmed;
   for (int i = 0; i < state->noOfLines; i++) {
     trimmed = trim(state->lines[i]);
@@ -454,6 +499,9 @@ void internal_save(Editor *state) {
   fclose(outputFile);
 }
 
+/**
+ * Allows user to load in an existing text file, storing the lines in our state.
+ */
 void load(Editor *state) {
   if (state->isRunning) {
     printf("You have to enter run mode before setting breakpoints!\n");
@@ -461,10 +509,10 @@ void load(Editor *state) {
   }
   FILE *fp;
   switch (state->noOfTokens) {
-  case 1: 
+  case 1:
     printf("%s", "Load requires one argument\n");
     break;
-  case 2: 
+  case 2:
     fp = fopen(state->tokens[1], "r");
     CHECK_PRED(!fp, "Error opening file.");
     int i;
@@ -479,12 +527,15 @@ void load(Editor *state) {
     fclose(fp);
     state->noOfLines = i;
     break;
-  default: 
+  default:
     printf("Too many arguments. Load requires you to specify only a path to the file to be loaded in.\n");
   }
   internal_save(state);
 }
 
+/**
+ * While in run mode, prints the current ARM machine state as of the current instruction.
+ */
 void current_state(Editor *state) {
   if (state->currentLine < 0) {
     printf("You need to run first!\n");
@@ -494,6 +545,9 @@ void current_state(Editor *state) {
   printf("\n");
 }
 
+/**
+ * Stops run mode and resets state.
+ */
 void stop(Editor *state) {
   if (!state->isRunning) {
     printf("You need to run first!\n");
@@ -541,15 +595,24 @@ void export(Editor *state) {
   }
 }
 
+/**
+ * Called when user has entered an invalid command.
+ */
 void none(Editor *state) {
   printf("I cannot do that :(\n");
 }
 
+/**
+ * Clears the user's screen, printing the welcome screen.
+ */
 void clear(Editor *state) {
   system("clear");
   welcome();
 }
 
+/**
+ * Allows user to delete undesired lines from the state.
+ */
 void delete(Editor *state) {
   if (state->isRunning) {
 	printf("You can't delete while running!\n");
@@ -557,7 +620,7 @@ void delete(Editor *state) {
   }
   int start, end;
   switch (state->noOfTokens) {
-	case 1: 
+	case 1:
     start = 0;
 	  end = state->noOfLines;
 	  break;
@@ -569,11 +632,11 @@ void delete(Editor *state) {
 	  start = atoi(state->tokens[1]) - 1;
 	  end = start + 1;
 	  break;
-	case 3: 
+	case 3:
     start = atoi(state->tokens[1]) - 1;
 	  end = (SAME(state->tokens[2], "end")) ? state->noOfLines : atoi(state->tokens[2]);
 	  break;
-	default: 
+	default:
     printf("Too many arguments.\n");
 	  return;
   }
@@ -584,15 +647,17 @@ void delete(Editor *state) {
   int diff = end - start;
   for (int i = end; i < state->noOfLines; i++)
 	  strcpy(state->lines[i - diff], state->lines[i]);
-  
+
   state->noOfLines -= diff;
   internal_save(state);
 }
 
+/**
+ * Helper function for insert, shifts lines over so they wont be overwritten.
+ */
 void shiftBack(int start, Editor *state) {
   for (int i = state->noOfLines; i > start; i--)
-	  strcpy(state->lines[i], state->lines[i - 1]);
-  
+    strcpy(state->lines[i], state->lines[i - 1]);
 }
 
 /**
@@ -651,6 +716,9 @@ void insert(Editor *state) {
   internal_save(state);
 }
 
+/**
+ * Runs the program until the next breakpoint is hit.
+ */
 void continue_break(Editor *state) {
   if (!state->isRunning) {
 	printf("%s", "No program is currently running.\n");
@@ -675,12 +743,15 @@ void continue_break(Editor *state) {
 		  printf("%s!Hit breakpoint at line %d!%s\n", BLUE, state->currentLine + 1, RESET);
 	  }
 	  break;
-	default: 
+	default:
     printf("%scontinue doesn't take any arguments%s\n", RED, RESET);
   }
   state->nextLocation = true;
 }
 
+/**
+ * Sets a breakpoint at the desired line.
+ */
 void set_break(Editor *state) {
   if (!state->isRunning) {
     printf("You have to enter run mode before setting breakpoints!\n");
@@ -705,6 +776,9 @@ void set_break(Editor *state) {
   }
 }
 
+/**
+ * Disables a breakpoint at the desired line.
+ */
 void disable_break(Editor *state) {
   if (!state->isRunning) {
 	printf("You have to enter run mode before disabling breakpoints!\n");
@@ -712,7 +786,7 @@ void disable_break(Editor *state) {
   }
   int lineNumber;
   switch (state->noOfTokens) {
-	case 1: 
+	case 1:
     printf("Disable requires a line number.\n");
 	  return;
 	case 2:
@@ -736,6 +810,9 @@ void disable_break(Editor *state) {
   }
 }
 
+/**
+ * Allows user to append characters onto an existing line based on input given by user.
+ */
 void append(Editor *state) {
   if (state->isRunning) {
 	printf("You can't append while you're running!\n");
@@ -778,7 +855,7 @@ void append(Editor *state) {
   }
   if (i >= state->noOfLines)
 	  state->noOfLines = i;
-  
+
   free(text);
   internal_save(state);
 }
